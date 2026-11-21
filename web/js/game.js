@@ -30,7 +30,7 @@
     iceBroken: 0,
     orders: [], ordersDone: 0,
     endlessTier: 0, endlessFrostTimer: 22, pressRetreat: 0, floorRetreat: 0,
-    crushQueue: [], crushTimer: 0, crushActive: null, crushDoneWait: 0,
+    crushQueue: [], crushSwelling: [], crushTimer: 0, crushDoneWait: 0,
     activeProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
     emergencyUsed: false, emergencyVisible: false,
     newCharTimer: 0, newCharPending: false,
@@ -313,11 +313,20 @@
           state.rings.push({ x: b.x, y: b.y, t: 0, d: .42, r: b.r + 16, color: '#def986', flat: .9 });
           for (let i = 0; i < 5; i++) speck(b.x, b.y, rand(-80, 80), rand(-80, 40), '#fff3cf', .38, 2.2, 'star');
         }
-        if (world.pressY > WARNING_Y + 4) world.pressY = Math.max(WARNING_Y + 4, world.pressY - 75);
-        if (world.floorRise > 0) world.floorRise = Math.max(0, world.floorRise - 55);
+        // Fully restore top bar and rising floor back to their normal positions
+        if (world.pressY > 0) world.pressY = WARNING_Y + 2;
+        world.floorRise = 0;
+        state.pressRetreat = 0;
+        state.floorRetreat = 0;
         state.over = 0; state.revived = true; state.hasRun = true;
         hud.danger(false); resume();
-      });
+      }, '复活成功！上下横杆已恢复正常');
+    },
+    declineRevive() {
+      state.revived = true;
+      hud.close(); panels.length = 0;
+      state.phase = 'playing';
+      startCrushSequence();
     },
     adExtendTime(extraSec = 30) {
       Jelly.ads.watch('add_time', () => {
@@ -429,7 +438,7 @@
       timeLeft: duration, freezeLeft: 0, doubleLeft: 0, lastTickSec: -1, lastHudSec: -1,
       iceBroken: 0, orders: mode === 'orders' ? [3, 4] : [], ordersDone: 0,
       endlessTier: 0, endlessFrostTimer: 22, pressRetreat: 0, floorRetreat: 0,
-      crushQueue: [], crushTimer: 0, crushActive: null, crushDoneWait: 0,
+      crushQueue: [], crushSwelling: [], crushTimer: 0, crushDoneWait: 0,
       activeProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
       emergencyUsed: false, emergencyVisible: false,
       newCharTimer: 0, newCharPending: false,
@@ -513,66 +522,66 @@
     hud.cheer('挤爆啦！！');
     world.allowMerge = false;
     state.crushQueue = [...world.bodies].sort((a, b) => a.y - b.y);
+    state.crushSwelling = [];
     for (const b of world.bodies) { b.hit = 1.5; b.swell = 0; }
-    state.crushActive = null;
-    state.crushTimer = 0.22;
-    state.crushDoneWait = 0.50;
+    state.crushTimer = 0.06;
+    state.crushDoneWait = 0.28;
     phase('crushing');
   }
 
   function tickCrushing() {
     state.time += DT;
-    // Dramatic extra squeeze from bar + floor
-    if (world.pressY > WARNING_Y) world.pressY = Math.min(height - 90, world.pressY + 26 * DT);
+    // Fast dramatic squeeze from bar + floor
+    if (world.pressY > WARNING_Y) world.pressY = Math.min(height - 90, world.pressY + 55 * DT);
     for (const b of world.bodies) {
       b.hit = 1.2;
-      if (Math.random() < 0.08) b.pulse(rand(-1, 1), rand(-1, 1), 3.5);
+      if (Math.random() < 0.10) b.pulse(rand(-1, 1), rand(-1, 1), 3.8);
     }
-    if (!state.crushActive) {
-      state.crushTimer -= DT;
-      if (state.crushTimer <= 0) {
-        while (state.crushQueue.length && !world.bodies.includes(state.crushQueue[0])) state.crushQueue.shift();
-        if (state.crushQueue.length) {
-          state.crushActive = state.crushQueue.shift();
-          state.crushActive.swell = 0.01;
-        } else {
-          state.crushDoneWait -= DT;
-          if (state.crushDoneWait <= 0) {
-            state.phase = 'playing'; // allow end() transition cleanly
-            end('loss');
-            return;
-          }
-        }
+    // Rapid-fire overlapping chain-pop wave!
+    state.crushTimer -= DT;
+    if (state.crushTimer <= 0 && state.crushQueue.length) {
+      while (state.crushQueue.length && !world.bodies.includes(state.crushQueue[0])) state.crushQueue.shift();
+      if (state.crushQueue.length) {
+        const next = state.crushQueue.shift();
+        next.swell = 0.01;
+        state.crushSwelling.push(next);
+        state.crushTimer = Math.max(0.024, 0.048 - (18 - Math.min(18, state.crushQueue.length)) * 0.0014);
       }
-    } else {
-      const target = state.crushActive;
-      target.swell = Math.min(1, (target.swell || 0) + DT * 6.8);
+    }
+    for (let idx = state.crushSwelling.length - 1; idx >= 0; idx--) {
+      const target = state.crushSwelling[idx];
+      target.swell = Math.min(1, (target.swell || 0) + DT * 14.0);
       if (target.swell >= 1) {
-        // Exaggerated cartoon POP!
+        state.crushSwelling.splice(idx, 1);
         const d = crew[target.level] || crew[0];
         world.removeBody(target);
         band.hit(520, target.level);
         state.shake = reduced ? 0 : 4.2;
-        state.rings.push({ x: target.x, y: target.y, t: 0, d: .45, r: target.r * 1.9 + 18, color: d.light, flat: .95 });
-        state.rings.push({ x: target.x, y: target.y, t: 0, d: .36, r: target.r * 1.3 + 10, color: '#ffffff', flat: .92 });
+        state.rings.push({ x: target.x, y: target.y, t: 0, d: .36, r: target.r * 1.9 + 18, color: d.light, flat: .95 });
+        state.rings.push({ x: target.x, y: target.y, t: 0, d: .28, r: target.r * 1.3 + 10, color: '#ffffff', flat: .92 });
         const words = ['啵!', '噗!', '啪!', '挤爆!'];
         state.labels.push({
           x: clamp(target.x, 38, W - 38), y: clamp(target.y, 64, height - 40),
-          text: words[target.id % words.length], t: 0, d: .65, color: d.light
+          text: words[target.id % words.length], t: 0, d: .52, color: d.light
         });
-        for (let i = 0; i < 16; i++) {
-          const a = i * TAU / 16 + rand(-.12, .12), spd = rand(75, 195);
-          speck(target.x, target.y, Math.cos(a) * spd, Math.sin(a) * spd - 35, i % 3 === 0 ? '#ffffff' : d.color, rand(.35, .58), rand(2.2, 4.2), i % 2 === 0 ? 'star' : 'dot');
+        for (let i = 0; i < 14; i++) {
+          const a = i * TAU / 14 + rand(-.12, .12), spd = rand(85, 210);
+          speck(target.x, target.y, Math.cos(a) * spd, Math.sin(a) * spd - 38, i % 3 === 0 ? '#ffffff' : d.color, rand(.28, .48), rand(2.2, 4.0), i % 2 === 0 ? 'star' : 'dot');
         }
-        state.crushActive = null;
-        // Start slow, then accelerate into a hilarious chain-pop!
-        state.crushTimer = Math.max(0.03, 0.04 + state.crushQueue.length * 0.012);
       }
     }
-    for (const p of state.fx) { p.t += DT; p.x += p.vx * DT; p.y += p.vy * DT; p.vy += 140 * DT; }
+    if (!state.crushQueue.length && !state.crushSwelling.length) {
+      state.crushDoneWait -= DT;
+      if (state.crushDoneWait <= 0) {
+        state.phase = 'playing';
+        end('loss');
+        return;
+      }
+    }
+    for (const p of state.fx) { p.t += DT; p.x += p.vx * DT; p.y += p.vy * DT; p.vy += 150 * DT; }
     for (const list of [state.rings, state.labels, state.bridges]) for (const p of list) p.t += DT;
     for (const list of [state.fx, state.rings, state.labels, state.bridges]) for (let i = list.length - 1; i >= 0; i--) if (list[i].t >= list[i].d) list.splice(i, 1);
-    state.shake = Math.max(0, state.shake - DT * 6);
+    state.shake = Math.max(0, state.shake - DT * 7);
   }
 
   function end(page) {
@@ -910,7 +919,11 @@
 
       if (state.mode === 'campaign') checkCampaignWin();
       else if (level === crew.length - 1) state.finish = 'win';
-      else if (state.mode === 'endless' && level === 10 && !state.encore && !state.finish) state.finish = 'milestone';
+      else if (state.mode === 'endless' && level === 10 && !state.encore) {
+        state.encore = true;
+        hud.cheer('合出 1024！');
+        hud.toast('太棒啦！合出 1024，继续冲更高分！', 'trophy');
+      }
     } else if (e.type === 'ice_break') {
       state.iceBroken++;
       band.prop('wild');
@@ -1116,7 +1129,18 @@
 
     const failLimit = state.mode === 'endless' ? 1.65 : 2.05;
     if (state.finish) { const result = state.finish; state.finish = null; end(result); }
-    else if (state.over > failLimit) startCrushSequence();
+    else if (state.over > failLimit) {
+      if (state.mode === 'endless' && !state.revived) {
+        cancelDrag();
+        state.activeProp = null;
+        hud.danger(false);
+        hud.showEmergencySave(false);
+        phase('end');
+        hud.open('revive_prompt', state);
+      } else {
+        startCrushSequence();
+      }
+    }
 
     for (const p of state.fx) { p.t += DT; p.x += p.vx * DT; p.y += p.vy * DT; p.vy += 114 * DT; }
     for (const list of [state.rings, state.labels, state.bridges]) for (const p of list) p.t += DT;

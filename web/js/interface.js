@@ -1024,7 +1024,7 @@
       this.previewCanvas = null;
       this.wheelCanvas = null;
       this.dialog.className = 'sheet sheet-' + page;
-      const final = ['loss', 'timeout', 'win', 'stage_clear', 'mode_end', 'milestone'].includes(page);
+      const final = ['loss', 'timeout', 'win', 'stage_clear', 'mode_end', 'milestone', 'revive_prompt'].includes(page);
       $('#closeDialog').hidden = final;
 
       const titles = {
@@ -1037,6 +1037,7 @@
         help: '怎么玩',
         guide: '果冻乐队',
         pause: '游戏暂停',
+        revive_prompt: '快挤满舞台啦！',
         loss: '挤满舞台啦',
         timeout: '时间到啦',
         stage_clear: '过关太棒啦！',
@@ -1083,6 +1084,14 @@
           const b = element('button', 'quiet-btn', label); b.onclick = fn; more.append(b);
         }
         this.body.append(more);
+      } else if (page === 'revive_prompt') {
+        const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'squeeze');
+        hero.append(
+          element('div', 'result-score', String(game.score)),
+          element('p', 'sheet-note', '是否使用免费复活？复活将恢复上下横杆并清空顶部果冻继续挑战！')
+        );
+        this.button('免费复活（恢复上下横杆）', () => this.actions.adRevive(), 'ad-btn', 'video');
+        this.button('不复活', () => this.actions.declineRevive(), 'secondary');
       } else if (page === 'loss') {
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'sad');
         const streakNote = this.progress.winStreak >= 2 ? ` · 复活可保住 ${this.progress.winStreak} 连胜！` : '';
