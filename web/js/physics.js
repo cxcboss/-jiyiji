@@ -39,7 +39,8 @@ window.Jelly = (() => {
           sx = shape.dx * parallel * shape.scale - shape.dy * normal / shape.scale;
           sy = shape.dy * parallel * shape.scale + shape.dx * normal / shape.scale;
         }
-        this.p.push({ x: x + sx, y: y + sy, px: x + sx - vx * DT, py: y + sy - vy * DT, ox, oy, gx: 0, gy: 0, fx: x + sx, fy: y + sy });
+        const restLen = Math.hypot(ox, oy) || this.r;
+        this.p.push({ x: x + sx, y: y + sy, px: x + sx - vx * DT, py: y + sy - vy * DT, ox, oy, restLen, gx: 0, gy: 0, fx: x + sx, fy: y + sy });
       }
       this.restArea = 0;
       this.links = [];
@@ -49,7 +50,12 @@ window.Jelly = (() => {
         for (const skip of [1, 3]) {
           const q = this.p[(i + skip) % N];
           const dx = q.ox - p.ox, dy = q.oy - p.oy, length = Math.hypot(dx, dy);
-          this.links.push({ p, q, dx, dy, goal: length, stiffness: skip === 1 ? .52 : .09 });
+          this.links.push({ p, q, dx, dy, goal: length, stiffness: skip === 1 ? .52 : .11 });
+        }
+        if (i < N / 2) {
+          const q = this.p[i + N / 2];
+          const dx = q.ox - p.ox, dy = q.oy - p.oy, length = Math.hypot(dx, dy);
+          this.links.push({ p, q, dx, dy, goal: length, stiffness: .16 });
         }
       }
       this.bounds();
@@ -130,10 +136,40 @@ window.Jelly = (() => {
       const pressure = clamp((this.restArea - area) / Math.max(1, denom), -.6, .6) * .43;
       const cx = sx / N, cy = sy / N;
       const ax = this.ax, ay = this.ay, sh = this.shear;
+      const shapeK = area < this.restArea * 0.50 ? .18 : .022;
       for (let i = 0; i < N; i++) {
         const p = pts[i];
-        p.x += p.gx * pressure + (cx + p.ox * ax + p.oy * sh - p.x) * .010;
-        p.y += p.gy * pressure + (cy + p.ox * sh + p.oy * ay - p.y) * .010;
+        p.x += p.gx * pressure + (cx + p.ox * ax + p.oy * sh - p.x) * shapeK;
+        p.y += p.gy * pressure + (cy + p.ox * sh + p.oy * ay - p.y) * shapeK;
+      }
+    }
+    stabilize() {
+      // Prevent soft-body vertex folding, self-inversion, or snagged spikes under heavy squeeze
+      const pts = this.p;
+      let sx = 0, sy = 0;
+      for (let i = 0; i < N; i++) { sx += pts[i].x; sy += pts[i].y; }
+      const cx = sx / N, cy = sy / N;
+      const ax = this.ax || 1, ay = this.ay || 1, sh = this.shear || 0;
+      for (let i = 0; i < N; i++) {
+        const p = pts[i];
+        const tx = p.ox * ax + p.oy * sh;
+        const ty = p.ox * sh + p.oy * ay;
+        const tLen = Math.hypot(tx, ty) || p.restLen;
+        const ux = tx / tLen, uy = ty / tLen;
+        const dx = p.x - cx, dy = p.y - cy;
+        const proj = dx * ux + dy * uy;
+        const perp = -dx * uy + dy * ux;
+        const minR = tLen * 0.50, maxR = tLen * 1.32, maxPerp = tLen * 0.06;
+        const cProj = clamp(proj, minR, maxR);
+        const cPerp = clamp(perp, -maxPerp, maxPerp);
+        if (cProj !== proj || cPerp !== perp) {
+          const nx = cx + ux * cProj - uy * cPerp;
+          const ny = cy + uy * cProj + ux * cPerp;
+          p.px = nx - (nx - p.px) * 0.35;
+          p.py = ny - (ny - p.py) * 0.35;
+          p.x = nx;
+          p.y = ny;
+        }
       }
     }
     walls(height, bounceScale = 1, pressY = 0, world = null) {
@@ -185,10 +221,32 @@ window.Jelly = (() => {
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   }
 
+  function separateCores(a, b) {
+    // Hard inner-core separation so two jellies can never pass through or interlock with each other
+    const dx = a.x - b.x, dy = a.y - b.y;
+    const d = Math.hypot(dx, dy);
+    const minCore = (a.r + b.r) * 0.72;
+    if (d >= minCore) return false;
+    const nx = d > 0.001 ? dx / d : 0;
+    const ny = d > 0.001 ? dy / d : -1;
+    const push = (minCore - d) * 0.52;
+    const denom = a.inv + b.inv || 1;
+    const pa = push * (a.inv / denom), pb = push * (b.inv / denom);
+    const ptsA = a.p, ptsB = b.p;
+    for (let i = 0; i < N; i++) {
+      ptsA[i].x += nx * pa; ptsA[i].y += ny * pa;
+      ptsB[i].x -= nx * pb; ptsB[i].y -= ny * pb;
+    }
+    a.x += nx * pa; a.y += ny * pa;
+    b.x -= nx * pb; b.y -= ny * pb;
+    return true;
+  }
+
   function separate(a, b) {
     let hit = false;
     const poly = b.p, ptsA = a.p;
     const bLeft = b.left, bRight = b.right, bTop = b.top, bBottom = b.bottom;
+    const sepX = a.x - b.x, sepY = a.y - b.y;
     for (let pi = 0; pi < N; pi++) {
       const p = ptsA[pi];
       if (p.x <= bLeft || p.x >= bRight || p.y <= bTop || p.y >= bBottom) continue;
@@ -205,11 +263,22 @@ window.Jelly = (() => {
         const ex = q.x + t * dx - p.x, ey = q.y + t * dy - p.y, d = ex * ex + ey * ey;
         if (d < best) { best = d; u = q; v = s; bestT = t; nx = ex; ny = ey; }
       }
+      // If vertex penetrated past b's midline, nearest edge is on the WRONG side of b — retract toward a's center instead of tangling through b!
+      if (nx * sepX + ny * sepY < -0.5) {
+        p.x += (a.x - p.x) * 0.45;
+        p.y += (a.y - p.y) * 0.45;
+        hit = true;
+        continue;
+      }
       const w = 1 - bestT, denom = a.inv + b.inv * (w * w + bestT * bestT);
-      const k = Math.min(1.32, 1 + .18 / Math.max(.01, Math.sqrt(best))) * .94 / denom;
-      p.x += nx * k * a.inv; p.y += ny * k * a.inv;
-      u.x -= nx * k * b.inv * w; u.y -= ny * k * b.inv * w;
-      v.x -= nx * k * b.inv * bestT; v.y -= ny * k * b.inv * bestT;
+      const dist = Math.sqrt(best);
+      const k = Math.min(1.18, 1 + .14 / Math.max(.01, dist)) * .90 / denom;
+      const step = dist * k;
+      const cap = Math.min(1, (a.r * 0.45) / Math.max(0.001, step * a.inv));
+      const kk = k * cap;
+      p.x += nx * kk * a.inv; p.y += ny * kk * a.inv;
+      u.x -= nx * kk * b.inv * w; u.y -= ny * kk * b.inv * w;
+      v.x -= nx * kk * b.inv * bestT; v.y -= ny * kk * b.inv * bestT;
       hit = true;
     }
     return hit;
@@ -527,8 +596,9 @@ window.Jelly = (() => {
           for (let j = i + 1; j < len; j++) {
             const b = bodies[j];
             if (!overlap(a, b)) continue;
+            const hitCore = separateCores(a, b);
             const hitA = separate(a, b), hitB = separate(b, a);
-            if (hitA || hitB) {
+            if (hitCore || hitA || hitB) {
               const key = i * len + j;
               if (!contacts.has(key)) {
                 const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, nx = dx / d, ny = dy / d;
@@ -542,7 +612,9 @@ window.Jelly = (() => {
 
       for (let i = 0; i < len; i++) {
         const b = bodies[i];
-        b.walls(this.height, this.bounceScale, this.pressY, this); b.bounds();
+        b.walls(this.height, this.bounceScale, this.pressY, this);
+        b.stabilize();
+        b.bounds();
         if (events && b.vy > 130 && b.bottom >= this.height - FLOOR_PAD - this.floorRise - 1 && this.time - b.floorAt > .22) {
           b.floorAt = this.time; b.hit = .50; b.pulse(0, 1, clamp(b.vy * .012, 2.0, 7.2));
           b.kick(0, -Math.min(95, b.vy * .14) * this.bounceScale);

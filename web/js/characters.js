@@ -233,17 +233,25 @@
   });
 
   function makeView(level) {
-    return { level, wild: false, frozen: 0, points: Array.from({ length: N }, () => ({ x: 0, y: 0 })), mode: 'idle', pressure: 0, shine: 0, flash: 0 };
+    return { level, wild: false, frozen: 0, baseR: crew[level]?.r || 24, points: Array.from({ length: N }, () => ({ x: 0, y: 0 })), mode: 'idle', pressure: 0, shine: 0, flash: 0 };
   }
   function axes(v) {
     const p = v.points, a = p[0], b = p[12], d = p[6], e = p[18];
     v.ax = (a.x - b.x) * .5; v.ay = (a.y - b.y) * .5; v.bx = (d.x - e.x) * .5; v.by = (d.y - e.y) * .5;
     v.rx = Math.hypot(v.ax, v.ay); v.ry = Math.hypot(v.bx, v.by);
+    // Guard against collapsed or inverted facial transform under extreme squeeze
+    const det = v.ax * v.by - v.ay * v.bx;
+    const minAxis = (v.baseR || 20) * 0.42;
+    if (det <= minAxis * minAxis * 0.35 || v.rx < minAxis || v.ry < minAxis) {
+      const r = v.baseR || 24;
+      v.ax = r * 1.05; v.ay = 0; v.bx = 0; v.by = r * 0.88;
+      v.rx = v.ax; v.ry = v.by;
+    }
     return v;
   }
   function bodyView(b, blend) {
     const v = b.picture || (b.picture = makeView(b.level));
-    v.level = b.level; v.wild = !!b.wild; v.frozen = b.frozen || 0;
+    v.level = b.level; v.wild = !!b.wild; v.frozen = b.frozen || 0; v.baseR = b.r;
     let x = 0, y = 0; const k = 1 - blend;
     for (let i = 0; i < N; i++) {
       const p = b.p[i], q = v.points[i];
@@ -251,6 +259,18 @@
       x += q.x; y += q.y;
     }
     v.x = x / N; v.y = y / N; v.seed = b.seed; v.pressure = b.strain;
+    // Render-time vertex sanity guard: keep 24-gon cleanly star-convex around centroid
+    const maxR = b.r * 1.44, minR = b.r * 0.44;
+    for (let i = 0; i < N; i++) {
+      const q = v.points[i], d = dirs[i];
+      const dx = q.x - v.x, dy = q.y - v.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < minR || dist > maxR || dx * d.x + dy * d.y < dist * 0.32) {
+        const clampedR = clamp(dist, minR, maxR);
+        q.x = v.x + d.x * clampedR * 1.06;
+        q.y = v.y + d.y * clampedR * 0.90;
+      }
+    }
     if (b.swell > 0) {
       const sc = 1 + b.swell * 0.42;
       const jitX = Math.sin(b.swell * 48 + b.id) * b.swell * 3.2;
@@ -268,7 +288,7 @@
     return axes(v);
   }
   function pose(v, level, x, y, r, t, opts = {}) {
-    v.level = level; v.wild = !!opts.wild; v.frozen = opts.frozen || 0; v.x = x; v.y = y; v.seed = opts.seed ?? level + .7; v.mode = opts.mode || 'idle'; v.pressure = 0;
+    v.level = level; v.wild = !!opts.wild; v.frozen = opts.frozen || 0; v.baseR = r; v.x = x; v.y = y; v.seed = opts.seed ?? level + .7; v.mode = opts.mode || 'idle'; v.pressure = 0;
     const wobble = opts.still ? 0 : .025 * Math.sin(t * 3 + v.seed);
     const long = 1 + (opts.stretch || 0), wide = 1 / long, angle = opts.angle || 0;
     const dx = Math.sin(angle), dy = Math.cos(angle), amount = long - wide;
