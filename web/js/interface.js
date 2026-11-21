@@ -312,13 +312,13 @@
       glimmer(c, w * nx, h * ny, r * pulse, spark);
     }
 
-    // 3 big lively interactive mascots standing center-stage!
+    // 3 big lively interactive mascots standing center-stage (positioned comfortably below lowered logo)
     const scale = Math.min(w, h * 0.85);
     const bounce = hop > 0 ? Math.sin(hop * Math.PI) * 24 : 0;
     const heads = [
-      [1, .24, .47, .145, -.12],
-      [3, .76, .46, .150, .12],
-      [0, .50, .50, .215, -.04]
+      [1, .24, .52, .142, -.12],
+      [3, .76, .51, .146, .12],
+      [0, .50, .55, .208, -.04]
     ];
     for (const [level, nx, ny, rr, angle] of heads) {
       const idleBob = Math.sin(t * 2.8 + level * 1.4) * 5;
