@@ -961,9 +961,10 @@
 
   function refreshSize() {
     const rect = canvas.getBoundingClientRect(); if (!rect.width || !rect.height) return;
-    const pr = Math.min(window.devicePixelRatio || 1, 2), w = Math.round(rect.width * pr), h = Math.round(rect.height * pr);
+    const pr = Math.min(window.devicePixelRatio || 1, 3), w = Math.round(rect.width * pr), h = Math.round(rect.height * pr);
     const newH = W * rect.height / rect.width; if (Math.abs(height - newH) > 2) cancelDrag();
     for (const surf of [canvas, skins, under]) { if (surf.width !== w) surf.width = w; if (surf.height !== h) surf.height = h; }
+    c.imageSmoothingQuality = 'high'; bg.imageSmoothingQuality = 'high';
     height = newH; world.resize(height); ratioX = w / W; ratioY = h / height; hud.refresh(); hud.audio(band.on);
     if (state.slots.length) render(state.time, 1);
   }

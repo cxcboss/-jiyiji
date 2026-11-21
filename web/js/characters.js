@@ -89,11 +89,14 @@
 
   function bakeProceduralAtlas(key, baseImg) {
     if (bakedSheets.has(key)) return bakedSheets.get(key);
-    const w = 750, h = 600;
-    const cw = w / 5, ch = h / 4;
+    // Preserve full native HD resolution (1800x1440) so large characters & Home mascots stay razor-sharp!
+    const w = baseImg.naturalWidth || 1800, h = baseImg.naturalHeight || 1440;
+    const cw = w / 5, ch = h / 4, pxScale = w / 750;
     const off = document.createElement('canvas');
     off.width = w; off.height = h;
     const ctx = off.getContext('2d');
+    ctx.imageSmoothingEnabled = key !== 'pixel';
+    if (key !== 'pixel') ctx.imageSmoothingQuality = 'high';
 
     if (key === 'cartoon') {
       ctx.drawImage(baseImg, 0, 0, w, h);
@@ -145,16 +148,17 @@
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
         const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx - rad * 0.2, cy - rad * 0.25, 2, cx, cy, rad);
+        const g = ctx.createRadialGradient(cx - rad * 0.2, cy - rad * 0.25, 2 * pxScale, cx, cy, rad);
         g.addColorStop(0, 'rgba(255, 255, 235, 0.50)');
         g.addColorStop(0.6, 'rgba(255, 224, 150, 0.16)');
         g.addColorStop(1, 'rgba(255, 168, 76, 0.30)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
+        const grain = 2.0 * pxScale;
         for (let s = 0; s < 30; s++) {
           const a = s * 2.39996 + i;
           const dist = Math.sqrt((s + 0.5) / 30) * rad * 0.92;
-          ctx.fillRect(cx + Math.cos(a) * dist, cy + Math.sin(a) * dist, 2.0, 2.0);
+          ctx.fillRect(cx + Math.cos(a) * dist, cy + Math.sin(a) * dist, grain, grain);
         }
       }
       ctx.restore();
@@ -171,7 +175,7 @@
         g.addColorStop(0.82, 'rgba(62, 118, 198, 0.78)');
         g.addColorStop(1, 'rgba(26, 62, 138, 0.92)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        ctx.strokeStyle = 'rgba(38, 86, 168, 0.55)'; ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(38, 86, 168, 0.55)'; ctx.lineWidth = 2 * pxScale;
         ctx.beginPath(); ctx.arc(cx, cy + rad * 0.15, rad * 0.55, Math.PI * 0.18, Math.PI * 0.82); ctx.stroke();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)'; ctx.lineWidth = cw * 0.028; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.arc(cx, cy, rad * 0.65, -Math.PI * 0.82, -Math.PI * 0.55); ctx.stroke();
@@ -518,6 +522,7 @@
     const ready = sheet && ((sheet.complete && sheet.naturalWidth) || (sheet.tagName === 'CANVAS' && sheet.width > 0));
     c.save(); c.transform(v.ax, v.ay, v.bx, v.by, v.x, v.y);
     if (key === 'pixel') c.imageSmoothingEnabled = false;
+    else { c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high'; }
     if (ready) tile(c, v.level, sheet);
     else oval(c, 0, 0, 1, 1, crew[v.level].color);
     c.restore();
@@ -631,7 +636,7 @@
     start() {
       if (location.protocol === 'file:') return;
       try {
-        const gl = this.canvas.getContext('webgl', { alpha: true, antialias: false, premultipliedAlpha: true, depth: false, stencil: false, powerPreference: 'high-performance' });
+        const gl = this.canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: true, depth: false, stencil: false, powerPreference: 'high-performance' });
         if (!gl) return;
         this.gl = gl;
         const program = gl.createProgram();

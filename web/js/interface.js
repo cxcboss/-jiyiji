@@ -7,11 +7,13 @@
   function fit(canvas) {
     const r = canvas.getBoundingClientRect(), w = r.width, h = r.height;
     if (!w || !h) return null;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
     const width = Math.round(w * dpr), height = Math.round(h * dpr);
     if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
     const c = canvas.getContext('2d');
     c.setTransform(width / w, 0, 0, height / h, 0, 0);
+    c.imageSmoothingEnabled = true;
+    c.imageSmoothingQuality = 'high';
     c.clearRect(0, 0, w, h);
     return { c, w, h };
   }
