@@ -1,0 +1,50 @@
+@font-face{font-family:Barlow Deck;src:url("assets/barlow-black-italic.ttf") format("truetype");font-weight:900;font-style:italic;font-display:swap}
+:root{color-scheme:dark;--lime:#def986;--shell-h:min(960px,calc(100vh - 20px));font-family:"PingFang SC","MiSans","Microsoft YaHei",Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+@supports(height:100dvh){:root{--shell-h:min(960px,calc(100dvh - 20px))}}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overscroll-behavior:none}
+body{display:grid;place-items:center;overflow:hidden;isolation:isolate;background:#e4ecd9;color:#243b36}
+button{position:relative;display:grid;place-items:center;font:inherit;color:inherit;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .08s}
+button:focus-visible,canvas[tabindex]:focus-visible{outline:2px solid #518666;outline-offset:1px}
+button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!important}
+.ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:#e4ecd9}
+.handheld{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:0;height:var(--shell-h);width:min(calc(var(--shell-h)*.546),calc(100vw - 16px),500px);overflow:hidden;border:2px solid #b8cbb6;border-radius:28px;background:var(--shell);box-shadow:0 16px 48px rgba(32,50,42,.16)}
+
+/* WeChat Capsule Safe Spacer (reserves top-right for native WeChat capsule) */
+.wx-capsule-space{width:76px;height:32px;flex:none;pointer-events:none}
+
+/* Kid-Friendly Single-Bar In-Game Header */
+.game-top{display:flex;flex:none;align-items:center;justify-content:space-between;gap:6px;height:58px;padding:0 10px;background:var(--chrome);border-bottom:2px solid color-mix(in srgb,var(--trim) 45%,transparent)}
+.top-left-group{display:flex;align-items:center;gap:6px;flex:none}
+.top-btn{width:42px;height:42px;border-radius:14px;background:color-mix(in srgb,var(--hud-ink) 10%,transparent);color:var(--hud-ink);box-shadow:0 2px 0 color-mix(in srgb,var(--hud-ink) 14%,transparent)}
+.top-btn canvas{width:22px;height:22px;display:block}
+.top-btn[aria-pressed=false]{opacity:.52}
+.top-center{display:flex;align-items:center;gap:8px;min-width:0}
+.score{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-weight:900;font-variant-numeric:tabular-nums;font-size:29px;line-height:1;color:var(--accent);letter-spacing:.5px}
+.score.bump{animation:bump .2s ease-out}@keyframes bump{45%{transform:scale(1.09)}}
+.best-pill{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:12px;background:color-mix(in srgb,var(--hud-ink) 9%,transparent);color:var(--hud-ink);font-size:12px;font-weight:800}
+.best-pill canvas{width:16px;height:16px}
+.best-pill b{font-family:"Barlow Deck",sans-serif;font-size:16px}
+
+.rig{display:flex;flex:1;min-height:0;flex-direction:column;padding:6px 8px 8px;gap:6px}
+.arena-column,.cabinet{min-height:0;display:flex;flex-direction:column;flex:1}
+.cabinet{position:relative;border:2px solid color-mix(in srgb,var(--trim) 70%,transparent);border-radius:18px;padding:4px;background:var(--chrome)}
+.field{position:relative;flex:1;min-height:0;isolation:isolate;overflow:hidden;border-radius:13px;background:var(--stage-flat) var(--stage-img) center/100% 100% no-repeat}
+.field>canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.field>#underlay,.field>#skins{pointer-events:none}
+#play{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-user-select:none;user-select:none;cursor:default}
+#play.is-near{cursor:grab}#play.is-held{cursor:grabbing}
+
+.float-tip{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:5;padding:7px 15px;border-radius:16px;background:rgba(24,42,46,.86);color:#fffdf0;font-size:12.5px;font-weight:800;white-space:nowrap;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.22)}
+.danger{position:absolute;top:24%;left:50%;transform:translate(-50%,-50%);padding:7px 16px;border-radius:14px;background:#ef4444;white-space:nowrap;color:#fff;font-weight:850;font-size:13.5px;pointer-events:none;z-index:5;box-shadow:0 4px 14px rgba(239,68,68,.4)}
+.callout{position:absolute;left:50%;top:56%;pointer-events:none;color:var(--lime);font:italic 900 30px/1 "Barlow Deck","PingFang SC",system-ui,sans-serif;letter-spacing:1px;transform:translate(-50%,-50%);paint-order:stroke fill;-webkit-text-stroke:4px #2a1c36;opacity:0;white-space:nowrap;z-index:5}
+.callout.show{animation:cheer .95s both}@keyframes cheer{0%{opacity:0;transform:translate(-50%,-20%) scale(.7) rotate(-4deg)}18%,68%{opacity:1;transform:translate(-50%,-55%) scale(1.06) rotate(-4deg)}100%{opacity:0;transform:translate(-50%,-92%) scale(.95) rotate(-4deg)}}
+
+.sr-only{position:fixed;top:0;left:0;margin:0;padding:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+@media(orientation:portrait) and (max-width:600px){
+  .ambient{display:none}
+  .handheld{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none}
+  .game-top{height:calc(54px + env(safe-area-inset-top));padding:env(safe-area-inset-top) max(8px,env(safe-area-inset-right)) 0 max(10px,env(safe-area-inset-left))}
+  .rig{padding:6px max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+}
+@media(prefers-reduced-motion:reduce){.score.bump{animation:none}}
