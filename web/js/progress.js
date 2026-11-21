@@ -17,44 +17,44 @@
     { day: 1, title: '80 音符币',          type: 'coins', amount: 80,  badge: '第1天', icon: 'coin' },
     { day: 2, title: '小锤子 ×2',          type: 'prop',  prop: 'hammer', amount: 2, badge: '第2天', icon: 'hammer' },
     { day: 3, title: '果汁软糖皮肤',       type: 'skin',  skin: 'gummy', fallbackCoins: 200, badge: '第3天', icon: 'layers' },
-    { day: 4, title: '晃一晃 ×2 + 100币',  type: 'bundle', prop: 'shake', propAmt: 2, coins: 100, badge: '第4天', icon: 'shake' },
+    { day: 4, title: '抬杠 ×2 + 100币',    type: 'bundle', prop: 'lift', propAmt: 2, coins: 100, badge: '第4天', icon: 'lift' },
     { day: 5, title: '彩虹球 ×2',          type: 'prop',  prop: 'wild', amount: 2, badge: '第5天', icon: 'spark' },
     { day: 6, title: '220 音符币',         type: 'coins', amount: 220, badge: '第6天', icon: 'coin' },
     { day: 7, title: '极光贝母皮肤+300币', type: 'skin_bundle', skin: 'holo', coins: 300, fallbackCoins: 450, badge: '第7天大奖', icon: 'star' }
   ];
 
   const dailyQuestDefs = [
-    { id: 'q_merge', title: '今日合成 12 次', target: 12, field: 'merges', rewardType: 'coins', amount: 60, icon: 'merge', rewardText: '+60 币' },
-    { id: 'q_combo', title: '达成 1 次 2 连击', target: 1, field: 'combos', rewardType: 'prop', prop: 'hammer', amount: 1, icon: 'bars', rewardText: '小锤子 ×1' },
-    { id: 'q_prop',  title: '使用 1 次道具',   target: 1, field: 'props',  rewardType: 'coins', amount: 80, icon: 'spark', rewardText: '+80 币' }
+    { id: 'q_merge', title: '今日合成 15 次', target: 15, field: 'merges', rewardType: 'coins', amount: 60, icon: 'merge', rewardText: '+60 币' },
+    { id: 'q_combo', title: '达成 2 次连击',   target: 2,  field: 'combos', rewardType: 'prop', prop: 'lift', amount: 1, icon: 'lift', rewardText: '抬杠 ×1' },
+    { id: 'q_prop',  title: '使用 1 次道具',   target: 1,  field: 'props',  rewardType: 'coins', amount: 80, icon: 'spark', rewardText: '+80 币' }
   ];
 
   const wheelPrizes = [
-    { id: 'w_coin1', label: '80 币',   type: 'coins', amount: 80, color: '#ffe07d', icon: 'coin' },
+    { id: 'w_coin1', label: '80 币',    type: 'coins', amount: 80, color: '#ffe07d', icon: 'coin' },
     { id: 'w_ham',   label: '小锤子×2', type: 'prop',  prop: 'hammer', amount: 2, color: '#ffb8a6', icon: 'hammer' },
-    { id: 'w_wild',  label: '彩虹球×1', type: 'prop',  prop: 'wild', amount: 1, color: '#c8f5c4', icon: 'spark' },
-    { id: 'w_coin2', label: '150 币',  type: 'coins', amount: 150, color: '#b8e8ff', icon: 'coin' },
-    { id: 'w_shake', label: '晃一晃×2', type: 'prop',  prop: 'shake', amount: 2, color: '#e2ccff', icon: 'shake' },
+    { id: 'w_lift',  label: '抬杠×2',   type: 'prop',  prop: 'lift', amount: 2, color: '#c8f5c4', icon: 'lift' },
+    { id: 'w_coin2', label: '150 币',   type: 'coins', amount: 150, color: '#b8e8ff', icon: 'coin' },
+    { id: 'w_wild',  label: '彩虹球×1', type: 'prop',  prop: 'wild', amount: 1, color: '#e2ccff', icon: 'spark' },
     { id: 'w_skin',  label: '限定皮肤', type: 'skin_or_coins', fallbackCoins: 300, color: '#ffd1e8', icon: 'layers' }
   ];
 
+  // Endless-aligned Achievement Badges
   const badges = [
-    { id: 'first',    name: '第一个和弦', goal: '完成 1 次合成',            icon: 'merge',  max: 1,    reward: 30,  read: s => s.merges },
-    { id: 'trio',     name: '三轨齐发',   goal: '三个位置都发射过',         icon: 'bars',   max: 3,    reward: 40,  read: s => countBits(s.lanes) },
-    { id: 'duet',     name: '即兴二重奏', goal: '达成 2 连击',              icon: 'music',  max: 2,    reward: 50,  read: s => s.combo },
-    { id: 'stage1',   name: '初登舞台',   goal: '通过闯关第 1 关',          icon: 'flag',   max: 1,    reward: 60,  read: s => s.clearedLevels },
-    { id: 'propuse',  name: '道具小能手', goal: '使用道具 5 次',            icon: 'spark',  max: 5,    reward: 70,  read: s => s.propsUsed },
-    { id: 'adfan',    name: '补给小达人', goal: '领取免费补给 3 次',        icon: 'gift',   max: 3,    reward: 80,  read: s => s.adsWatched },
-    { id: 'fever1',   name: '狂欢节拍',   goal: '触发 3 次极速狂欢',        icon: 'flame',  max: 3,    reward: 90,  read: s => s.fevers },
-    { id: 'dresser',  name: '百变衣橱',   goal: '解锁 5 套不同皮肤',        icon: 'layers', max: 5,    reward: 120, read: s => s.skinsCount },
-    { id: 'session',  name: '排练熟手',   goal: '累计合成 30 次',           icon: 'disc',   max: 30,   reward: 80,  read: s => s.merges },
-    { id: 'quartet',  name: '四重奏',     goal: '达成 4 连击',              icon: 'bars',   max: 4,    reward: 120, read: s => s.combo },
-    { id: 'stage6',   name: '巡演达人',   goal: '通过闯关第 6 关',          icon: 'trophy', max: 6,    reward: 150, read: s => s.clearedLevels },
-    { id: 'silver',   name: '银碟登场',   goal: '合出银碟队长（256）',      icon: 'disc',   max: 8,    reward: 100, read: s => s.top },
-    { id: 'thousand', name: '千分单曲',   goal: '单局达到 1024 分',         icon: 'trophy', max: 1024, reward: 120, read: s => s.record },
-    { id: 'checkin3', name: '忠实乐迷',   goal: '累计签到 3 天',            icon: 'gift',   max: 3,    reward: 100, read: s => s.checkins },
-    { id: 'stage12',  name: '满星制作人', goal: '通关全部 12 关',           icon: 'star',   max: 12,   reward: 350, read: s => s.clearedLevels },
-    { id: 'all',      name: '全员集结',   goal: '合出终极黑胶主唱',         icon: 'star',   max: 19,   reward: 500, read: s => s.top }
+    { id: 'first',    name: '初次合拍',   goal: '完成 1 次合成',            icon: 'merge',    max: 1,    reward: 30,  read: s => s.merges },
+    { id: 'trio',     name: '三轨齐发',   goal: '三个发射位都发射过',       icon: 'bars',     max: 3,    reward: 40,  read: s => countBits(s.lanes) },
+    { id: 'duet',     name: '双倍连击',   goal: '单次达成 2 连击',          icon: 'music',    max: 2,    reward: 50,  read: s => s.combo },
+    { id: 'propuse',  name: '道具能手',   goal: '累计使用道具 5 次',        icon: 'spark',    max: 5,    reward: 70,  read: s => s.propsUsed },
+    { id: 'adfan',    name: '补给达人',   goal: '领取免费补给 3 次',        icon: 'gift',     max: 3,    reward: 80,  read: s => s.adsWatched },
+    { id: 'session',  name: '合成熟手',   goal: '累计合成 50 次',           icon: 'disc',     max: 50,   reward: 80,  read: s => s.merges },
+    { id: 'survive3', name: '三分钟试炼', goal: '无尽模式坚持满 3 分钟',    icon: 'clock',    max: 180,  reward: 100, read: s => s.bestTime },
+    { id: 'silver',   name: '银碟登场',   goal: '合出银碟队长（256）',      icon: 'disc',     max: 8,    reward: 100, read: s => s.top },
+    { id: 'quartet',  name: '四连暴击',   goal: '单次达成 4 连击',          icon: 'bars',     max: 4,    reward: 120, read: s => s.combo },
+    { id: 'thousand', name: '千分大关',   goal: '单局得分达到 1024',        icon: 'trophy',   max: 1024, reward: 120, read: s => s.record },
+    { id: 'dresser',  name: '百变衣橱',   goal: '解锁 5 套不同皮肤',        icon: 'layers',   max: 5,    reward: 120, read: s => s.skinsCount },
+    { id: 'checkin3', name: '忠实乐迷',   goal: '累计签到 3 天',            icon: 'gift',     max: 3,    reward: 100, read: s => s.checkins },
+    { id: 'survive6', name: '六分钟大师', goal: '无尽模式坚持满 6 分钟',    icon: 'infinity', max: 360,  reward: 240, read: s => s.bestTime },
+    { id: 'high5k',   name: '五千分传奇', goal: '单局得分达到 5000',        icon: 'trophy',   max: 5000, reward: 260, read: s => s.record },
+    { id: 'all',      name: '终极黑胶',   goal: '合出终极黑胶主唱',         icon: 'star',     max: 19,   reward: 500, read: s => s.top }
   ];
 
   const skinCatalog = {
@@ -90,7 +90,7 @@
 
       this.stats = {
         merges: 0, lanes: 0, combo: 0, wardrobe: 0, top: 0, record: 0,
-        propsUsed: 0, adsWatched: 0, fevers: 0, clearedLevels: 0, checkins: 0, skinsCount: 2
+        bestTime: 0, propsUsed: 0, adsWatched: 0, checkins: 0, skinsCount: 2
       };
       for (const name of Object.keys(this.stats)) {
         const n = Number(s[name]);
@@ -99,12 +99,10 @@
       this.stats.record = Math.max(this.stats.record, Number(get('jelly-jam.best', '0')) || 0);
 
       this.coins = Number.isFinite(Number(s.coins)) ? Math.max(0, Math.floor(Number(s.coins))) : 120;
-      this.mode = (s.mode && JellyModes[s.mode]) ? s.mode : 'campaign';
-      this.currentLevel = Math.max(1, Math.min(JellyLevels.length, Number(s.currentLevel) || 1));
-      this.levelStars = (s.levelStars && typeof s.levelStars === 'object') ? { ...s.levelStars } : {};
-      this.modeBest = (s.modeBest && typeof s.modeBest === 'object') ? { ...s.modeBest } : {
-        campaign: 0, orders: 0, press: 0, endless: this.stats.record
-      };
+      this.mode = 'endless';
+      const oldBest = s.modeBest && typeof s.modeBest === 'object' ? Math.max(Number(s.modeBest.endless) || 0, this.stats.record) : this.stats.record;
+      this.modeBest = { endless: oldBest };
+      this.stats.record = Math.max(this.stats.record, oldBest);
 
       const defProps = { hammer: 2, shake: 2, wild: 1, freeze: 1, lift: 1 };
       this.props = {};
@@ -128,8 +126,6 @@
         dayOffset: Number(s.checkin?.dayOffset) || 0
       };
 
-      this.winStreak = Math.max(0, Number(s.winStreak) || 0);
-      this.bestStreak = Math.max(this.winStreak, Number(s.bestStreak) || 0);
       this.failStreak = Math.max(0, Number(s.failStreak) || 0);
 
       this.discovered = Array.isArray(s.discovered)
@@ -163,7 +159,6 @@
 
     syncDerivedStats() {
       this.stats.skinsCount = this.unlockedSkins.length;
-      this.stats.clearedLevels = Object.keys(this.levelStars).filter(id => (this.levelStars[id] || 0) > 0).length;
       this.stats.checkins = Math.max(this.stats.checkins, this.checkin.total);
     }
 
@@ -173,11 +168,11 @@
       this.syncDerivedStats();
       put(key, JSON.stringify({
         ...this.stats,
-        coins: this.coins, mode: this.mode, currentLevel: this.currentLevel,
-        levelStars: this.levelStars, modeBest: this.modeBest, props: this.props,
+        coins: this.coins, mode: 'endless',
+        modeBest: this.modeBest, props: this.props,
         unlockedSkins: this.unlockedSkins, unlockedStages: this.unlockedStages,
         skin: this.skin, stageMode: this.stageMode, claimedBadges: this.claimedBadges,
-        checkin: this.checkin, winStreak: this.winStreak, bestStreak: this.bestStreak, failStreak: this.failStreak,
+        checkin: this.checkin, failStreak: this.failStreak,
         discovered: this.discovered, daily: this.daily, wheel: this.wheel,
         haptics: this.haptics, showNumbers: this.showNumbers, tutorialDone: this.tutorialDone
       }));
@@ -205,41 +200,18 @@
     }
 
     recordAdWatch() { return this.change(s => { s.adsWatched++; }); }
-    recordFever() { return this.change(s => { s.fevers++; }); }
 
-    recordModeScore(mode, score) {
-      const prev = this.modeBest[mode] || 0;
-      if (score > prev) this.modeBest[mode] = score;
+    recordSurvival(seconds) {
+      const sec = Math.max(0, Math.floor(seconds));
+      if (sec <= this.stats.bestTime) return [];
+      return this.change(s => { s.bestTime = Math.max(s.bestTime, sec); });
+    }
+
+    recordModeScore(_mode, score) {
+      if (score > (this.modeBest.endless || 0)) this.modeBest.endless = score;
       if (score > this.stats.record) { this.stats.record = score; put('jelly-jam.best', String(score)); }
       this.persist();
     }
-
-    recordCampaignFail() {
-      this.winStreak = 0;
-      this.failStreak++;
-      this.persist();
-    }
-
-    completeLevel(levelId, stars) {
-      const prev = this.levelStars[levelId] || 0;
-      if (stars > prev) this.levelStars[levelId] = stars;
-      if (levelId >= this.currentLevel && levelId < JellyLevels.length) this.currentLevel = levelId + 1;
-      this.winStreak++;
-      this.bestStreak = Math.max(this.bestStreak, this.winStreak);
-      this.failStreak = 0;
-      return this.change(() => { this.syncDerivedStats(); });
-    }
-
-    highestUnlockedLevel() {
-      let max = 1;
-      for (const lv of JellyLevels) {
-        if (this.levelStars[lv.id] > 0) max = Math.max(max, Math.min(JellyLevels.length, lv.id + 1));
-      }
-      return Math.max(max, this.currentLevel);
-    }
-
-    setMode(mode) { if (!JellyModes[mode]) return; this.mode = mode; this.persist(); }
-    setLevel(levelId) { this.currentLevel = Math.max(1, Math.min(JellyLevels.length, levelId)); this.persist(); }
 
     isSkinUnlocked(id) { return this.unlockedSkins.includes(id) || !!skinCatalog[id]?.free; }
     isStageUnlocked(id) { return id === 'auto' || this.unlockedStages.includes(id) || !!stageCatalog[id]?.free; }

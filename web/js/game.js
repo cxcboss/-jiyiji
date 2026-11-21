@@ -68,37 +68,13 @@
       setShowNumbers(next);
       hud.toast(next ? '已显示角色数字' : '已隐藏角色数字', next ? 'num' : 'num_off');
     },
-    pokeMascot() { band.unlock(); band.prop('wild'); },
-    previewSkinSound(skinKey) {
-      const prev = band.skin;
-      band.setTheme(skinKey, band.stage);
-      band.unlock();
-      if (band.canUiPlay()) band.hit(320, 3);
-      band.setTheme(prev, band.stage);
-    },
-    playBandNote(level) {
-      band.unlock();
-      if (band.canUiPlay()) {
-        const wasRunning = band.running;
-        band.running = true;
-        band.merge(level, 1);
-        band.running = wasRunning;
-      }
-    },
+    pokeMascot() { band.prop('wild'); },
+    previewSkinSound(skinKey) { band.previewSkin(skinKey); },
+    playBandNote(level) { band.audition(level); },
     playBandConcert(levels) {
       if (!levels || !levels.length) return;
-      band.unlock();
-      if (!band.canUiPlay()) return;
-      hud.toast(`果冻乐队 ${levels.length} 位伙伴开始大合奏！`, 'music');
-      const subset = levels.slice(-8);
-      subset.forEach((lv, idx) => {
-        setTimeout(() => {
-          const wasRunning = band.running;
-          band.running = true;
-          band.merge(lv, idx % 3 === 2 ? 2 : 1);
-          band.running = wasRunning;
-        }, idx * 170);
-      });
+      hud.toast(`已解锁的 ${levels.length} 位角色开始合奏试听！`, 'music');
+      band.auditionConcert(levels);
     },
     spinWheel(isAd) {
       const exec = () => {
@@ -426,17 +402,14 @@
 
   function restart(withWildStart = false) {
     cancelDrag(); hud.close(); panels.length = 0; state.hasRun = true; hud.home(false, true);
-    const mode = profile.mode;
-    const modeCfg = JellyModes[mode] || JellyModes.campaign;
-    const levelObj = mode === 'campaign' ? (JellyLevels[profile.currentLevel - 1] || JellyLevels[0]) : null;
-    const duration = mode === 'campaign' ? levelObj.time : (modeCfg.duration || 0);
+    const mode = 'endless';
 
     Object.assign(state, {
-      mode, levelObj,
-      score: 0, best: profile.modeBest[mode] || profile.stats.record,
+      mode, levelObj: null,
+      score: 0, best: profile.modeBest.endless || profile.stats.record,
       choice: 1, shots: 0, time: 0, elapsed: 0, lastFireTime: -10, combo: 0, maxCombo: 0, maxLevel: 0, lastMerge: -10, over: 0,
-      timeLeft: duration, freezeLeft: 0, doubleLeft: 0, lastTickSec: -1, lastHudSec: -1,
-      iceBroken: 0, orders: mode === 'orders' ? [3, 4] : [], ordersDone: 0,
+      timeLeft: 0, freezeLeft: 0, doubleLeft: 0, lastTickSec: -1, lastHudSec: -1,
+      iceBroken: 0, orders: [], ordersDone: 0,
       endlessTier: 0, endlessFrostTimer: 22, pressRetreat: 0, floorRetreat: 0,
       crushQueue: [], crushSwelling: [], crushTimer: 0, crushDoneWait: 0,
       activeProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
@@ -455,26 +428,14 @@
     applyVisualTheme();
     hud.resetFx();
 
-    const setup = mode === 'campaign'
-      ? levelObj.setup
-      : mode === 'press'
-        ? { pressSpeed: 5.8, pressPush: 28 }
-        : mode === 'endless'
-          ? { pressSpeed: 2.8, pressPush: 24 }
-          : null;
-    world.seed(mode === 'campaign' && levelObj.id <= 2 ? 'light' : 'standard', setup);
-
-    if (mode === 'campaign' && profile.winStreak >= 2 && !withWildStart) {
-      profile.addProp('hammer', 1);
-      hud.floatTip(`连胜 ×${profile.winStreak} 福利：小锤子 +1！`, 2400);
-    }
+    world.seed('standard', { pressSpeed: 2.8, pressPush: 24 });
 
     hud.score(0, state.best);
     hud.queue(state.slots);
     hud.syncProps(null, mode);
     hud.syncNumToggle(profile.showNumbers);
-    hud.updateTimer(state.timeLeft, false, modeCfg.timed);
-    hud.updateGoalBar(mode, levelObj, state, world);
+    hud.updateTimer(0, false, false);
+    hud.updateGoalBar(mode, null, state, world);
     phase('playing');
     band.unlock();
     canvas.focus({ preventScroll: true });
@@ -589,25 +550,17 @@
     band.setFever(false); world.magnet = false;
     if (page !== 'milestone') state.hasRun = false;
 
-    profile.recordModeScore(state.mode, state.score);
-    state.best = profile.modeBest[state.mode] || profile.stats.record;
+    profile.recordModeScore('endless', state.score);
+    hud.badgesEarned(profile.recordSurvival(state.elapsed));
+    state.best = profile.modeBest.endless || profile.stats.record;
 
-    if (page === 'stage_clear') {
-      const lv = state.levelObj;
-      const ratio = state.timeLeft / Math.max(1, lv.time);
-      state.clearStars = ratio >= .35 ? 3 : ratio >= .15 ? 2 : 1;
-      state.earnedCoins = lv.reward + state.clearStars * 15;
-      profile.addCoins(state.earnedCoins);
-      hud.badgesEarned(profile.completeLevel(lv.id, state.clearStars));
-      band.win();
-    } else if (page === 'mode_end' || page === 'win') {
-      state.earnedCoins = Math.max(25, Math.min(260, Math.round(state.score / 20)));
+    if (page === 'win') {
+      state.earnedCoins = Math.max(40, Math.min(300, Math.round(state.score / 18)));
       profile.addCoins(state.earnedCoins);
       band.win();
-    } else if (page === 'loss' || page === 'timeout') {
-      state.earnedCoins = Math.max(10, Math.min(80, Math.round(state.score / 45)));
+    } else if (page === 'loss') {
+      state.earnedCoins = Math.max(10, Math.min(100, Math.round(state.score / 40)));
       profile.addCoins(state.earnedCoins);
-      if (state.mode === 'campaign') profile.recordCampaignFail();
       band.fail();
     }
 
@@ -1066,10 +1019,11 @@
       if (nextTier > state.endlessTier) {
         state.endlessTier = nextTier;
         state.bag.length = 0; // refresh bag immediately for new tier
-        const banners = ['', '3分钟 · 节奏升温！', '6分钟 · 冰封危机！', '8分钟 · 终极狂潮！'];
+        hud.badgesEarned(profile.recordSurvival(state.elapsed));
+        const banners = ['', '3分钟 · 地板抬升！', '6分钟 · 冰封危机！', '8分钟 · 终极狂潮！'];
         hud.cheer(banners[nextTier]);
-        hud.floatTip(nextTier === 1 ? '注意冰冻果冻，巧用道具保持空间！' : nextTier === 2 ? '厚冰降临！建议善用小锤子与晃一晃' : '终极挑战！连续合成顶住压板与重冰！', 3200);
-        hud.updateGoalBar(state.mode, state.levelObj, state, world);
+        hud.floatTip(nextTier === 1 ? '底部地板开始缓慢抬升，同时出现冰冻果冻！' : nextTier === 2 ? '厚冰降临！善用小锤子、晃一晃与抬杠顶住压力' : '终极狂潮！连续合成稳住上下横杆！', 3200);
+        hud.updateGoalBar(state.mode, null, state, world);
       }
       if (state.endlessTier >= 1) {
         state.endlessFrostTimer -= DT;

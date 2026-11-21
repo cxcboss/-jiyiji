@@ -411,18 +411,15 @@
       bind('#homeCheckin', () => actions.panel('checkin'));
       bind('#homeWheel', () => actions.panel('wheel'));
       bind('#homeBadges', () => actions.panel('badges'));
-      bind('#homeLevelsBtn', () => { if (this.progress.mode === 'campaign') actions.panel('levels'); });
       bind('#freeCoinsBtn', () => actions.freeCoins());
       bind('#saveBtn', () => actions.emergencySave());
       bind('#newCharBanner', () => actions.claimNewCharDouble());
       bind('#sound', actions.sound);
       bind('#numToggle', actions.toggleNumbers);
       bind('#start', actions.start);
-      bind('#closeDialog', actions.dismiss);
 
       bind('#sleeveBox', () => { this.coverHop = 1; actions.pokeMascot?.(); });
 
-      $$('.mode-pill').forEach(btn => { btn.onclick = () => actions.selectMode(btn.dataset.mode); });
       $$('.prop-btn').forEach(btn => { btn.onclick = () => actions.triggerProp(btn.dataset.prop); });
 
       this.dialog.addEventListener('cancel', e => { e.preventDefault(); actions.dismiss(); });
@@ -453,45 +450,22 @@
       const setTxt = (sel, txt) => { const el = $(sel); if (el) el.textContent = txt; };
       setTxt('#coverStage', p.stageMode === 'auto' ? skinTheme.name : `${skinTheme.name}·${stageTheme.stage}`);
       this.coinNodes.forEach(n => n.textContent = p.coins);
-      this.bestNodes.forEach(n => n.textContent = p.modeBest[p.mode] || p.stats.record);
+      this.bestNodes.forEach(n => n.textContent = p.modeBest.endless || p.stats.record);
 
       const checkinDot = $('#checkinDot'); if (checkinDot) checkinDot.hidden = !p.hasClaimableDaily();
       const wheelDot = $('#wheelDot'); if (wheelDot) wheelDot.hidden = !p.canFreeWheel();
       const badgeDot = $('#badgeDot'); if (badgeDot) badgeDot.hidden = p.unclaimedBadges().length === 0;
-
-      const sb = $('#streakBadge');
-      if (sb) {
-        sb.hidden = p.winStreak < 2;
-        if (p.winStreak >= 2) {
-          setTxt('#streakText', `连胜 ${p.winStreak}`);
-          sb.querySelectorAll('[data-icon]').forEach(e => icon(e));
-        }
-      }
-
-      $$('.mode-pill').forEach(btn => btn.setAttribute('aria-pressed', String(btn.dataset.mode === p.mode)));
-      const lvBtn = $('#homeLevelsBtn');
-      const modeInfo = JellyModes[p.mode] || JellyModes.campaign;
-      if (p.mode === 'campaign') {
-        const lv = JellyLevels[p.currentLevel - 1] || JellyLevels[0];
-        if (lvBtn) { lvBtn.hidden = false; lvBtn.disabled = false; }
-        setTxt('#modeInfoTitle', `第 ${lv.id} 关 · ${lv.title}`);
-        setTxt('#modeInfoDesc', `${lv.gimmickName} · ${lv.time}秒`);
-        setTxt('#modeGimmickTag', lv.gimmick === 'boss' ? 'Boss' : '选关');
-        setTxt('#startLabel', hasRun ? '继续玩' : `玩第 ${lv.id} 关`);
-      } else {
-        if (lvBtn) lvBtn.hidden = true;
-        setTxt('#startLabel', hasRun ? '继续玩' : `开始${modeInfo.name}`);
-      }
+      setTxt('#startLabel', hasRun ? '继续游戏' : '开始游戏');
     }
 
-    syncProps(activePropId = null, mode = 'campaign') {
+    syncProps(activePropId = null) {
       const p = this.progress;
       $$('.prop-btn').forEach(btn => {
         const id = btn.dataset.prop;
         const count = p.props[id] || 0;
         const badge = btn.querySelector('.prop-count');
         const label = btn.querySelector('.prop-label');
-        if (id === 'freeze' && label) label.textContent = mode === 'endless' ? '双倍分' : '冻时间';
+        if (id === 'freeze' && label) label.textContent = '双倍冻';
         if (badge) {
           if (count > 0) { badge.textContent = String(count); badge.classList.remove('is-ad'); }
           else { badge.textContent = '免费'; badge.classList.add('is-ad'); }
@@ -576,9 +550,9 @@
         bar.hidden = false;
         const sec = Math.floor(state.elapsed || 0);
         const m = Math.floor(sec / 60), rem = sec % 60;
-        const tierNames = ['热身阶段', '3分·节奏升温', '6分·冰封危机', '8分·终极狂潮'];
+        const tierNames = ['热身阶段', '3分·地板抬升', '6分·冰封危机', '8分·终极狂潮'];
         const tIdx = state.endlessTier || 0;
-        const dbl = state.doubleLeft > 0 ? ` · 双倍分 ${Math.ceil(state.doubleLeft)}s` : '';
+        const dbl = state.doubleLeft > 0 ? ` · 冻杆×2分 ${Math.ceil(state.doubleLeft)}s` : '';
         bar.innerHTML = `<b class="goal-lv ${tIdx >= 2 ? 'is-boss' : 'is-endless'}">${tierNames[tIdx]}</b><span class="goal-chip">${m}:${String(rem).padStart(2, '0')}${dbl}</span>`;
       }
     }
@@ -873,6 +847,7 @@
             this.button(`${cat.coins} 币解锁`, () => this.actions.buyStage(key), 'secondary', 'coin');
           }
         }
+        this.button('关闭', this.actions.dismiss, 'close-btn');
         this.buttons.querySelectorAll('[data-icon]').forEach(e => icon(e));
         this.paint(performance.now() / 1000, true);
       };
@@ -954,7 +929,12 @@
           claimBtn.onclick = () => this.actions.claimBadge(b.id);
           row.append(claimBtn);
         } else {
-          const formatted = (b.id === 'silver' || b.id === 'all') ? (n ? String(2 ** n) : '0') + '/' + (2 ** b.max) : `${n}/${b.max}`;
+          const fmtTime = sec => `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+          const formatted = (b.id === 'silver' || b.id === 'all')
+            ? (n ? String(2 ** n) : '0') + '/' + (2 ** b.max)
+            : (b.id === 'survive3' || b.id === 'survive6')
+              ? `${fmtTime(n)} / ${fmtTime(b.max)}`
+              : `${n}/${b.max}`;
           row.append(element('b', 'badge-count', claimed ? '已领取' : formatted));
         }
         list.append(row);
@@ -966,11 +946,11 @@
       const head = element('div', 'band-header');
       const txt = element('div');
       txt.append(
-        element('strong', '', `我的果冻乐队（已集结 ${p.discovered.length} / ${crew.length}）`),
-        element('small', '', '点亮更多角色解锁专属声音，点任意伙伴听它唱歌！')
+        element('strong', '', `角色声音图鉴（已收集 ${p.discovered.length} / ${crew.length}）`),
+        element('small', '', '合出新角色自动点亮，点击已解锁角色即可试听它的专属乐器声！')
       );
       const concertBtn = element('button', 'band-play-btn');
-      concertBtn.append(iconNode('music'), element('span', '', '全员大合奏'));
+      concertBtn.append(iconNode('music'), element('span', '', '全员合奏'));
       concertBtn.onclick = () => this.actions.playBandConcert(p.discovered);
       head.append(txt, concertBtn);
       this.body.append(head);
@@ -1026,56 +1006,56 @@
       this.previewCanvas = null;
       this.wheelCanvas = null;
       this.dialog.className = 'sheet sheet-' + page;
-      const final = ['loss', 'timeout', 'win', 'stage_clear', 'mode_end', 'milestone', 'revive_prompt'].includes(page);
-      $('#closeDialog').hidden = final;
 
       const titles = {
         skins: '换装与舞台',
         checkin: '每日福利',
         wheel: '幸运转盘',
-        levels: '机关选关',
         badges: '我的奖杯',
         settings: '游戏设置',
-        help: '怎么玩',
-        guide: '果冻乐队',
+        help: '玩法说明',
+        guide: '角色图鉴',
         pause: '游戏暂停',
         revive_prompt: '快挤满舞台啦！',
-        loss: '挤满舞台啦',
-        timeout: '时间到啦',
-        stage_clear: '过关太棒啦！',
-        mode_end: '本场结束啦',
-        win: '全员大团圆！',
-        milestone: '合出 1024 啦！'
+        loss: '本局结束',
+        win: '终极黑胶达成！'
       };
       $('#dialogTitle').textContent = titles[page] || '提示';
 
-      if (page === 'skins') this.wardrobe();
-      else if (page === 'checkin') this.checkinModal();
-      else if (page === 'wheel') this.wheelModal();
-      else if (page === 'levels') this.levelsModal();
-      else if (page === 'badges') this.badgesModal();
-      else if (page === 'guide') this.guideModal();
-      else if (page === 'settings') {
+      if (page === 'skins') {
+        this.wardrobe();
+      } else if (page === 'checkin') {
+        this.checkinModal();
+        this.button('关闭', this.actions.dismiss, 'close-btn');
+      } else if (page === 'wheel') {
+        this.wheelModal();
+        this.button('关闭', this.actions.dismiss, 'close-btn');
+      } else if (page === 'badges') {
+        this.badgesModal();
+        this.button('关闭', this.actions.dismiss, 'close-btn');
+      } else if (page === 'guide') {
+        this.guideModal();
+        this.button('关闭', this.actions.dismiss, 'close-btn');
+      } else if (page === 'settings') {
         const o = this.actions.options();
         this.setting('角色数字显示', '在每个果冻右下角显示合成数字', o.showNumbers, v => this.actions.setShowNumbers(v));
         this.setting('游戏音效', '', o.sound, v => this.actions.setSound(v));
         this.setting('背景音乐', '', o.music, v => this.actions.setMusic(v));
         this.setting('合成震动', o.supported ? '' : '当前设备不支持', o.vibration, v => this.actions.setVibration(v), o.supported);
         this.button('玩法说明', () => this.actions.panel('help'), 'secondary');
+        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'help') {
-        this.rule('gesture', '点下方直落 · 下滑瞄准 · 踩点暴击', '轻点任意果冻下方直落，下滑拉弹弓可精准弹射！在光环变金瞬间松手还能触发 2 倍节拍暴击。');
-        this.rule('flag', '4 种全新玩法 · 随时间变形地形', '机关闯关（场地渐变成爱心/沙漏/钻石/圆碗 + 破冰/圆鼓/Boss）、乐队点歌台（上菜撑开爱心+10秒）、压板挤一挤、硬核无尽（3/6/8分钟地形缩窄与重冰挑战）。');
-        this.rule('spark', '4 种战术道具', '小锤子可消果冻/破冰/重击Boss，晃一晃震裂全场冰块，彩虹球碰谁升谁，冻时间可冻结倒计时与压板！');
+        this.rule('gesture', '轻点直落 · 下滑瞄准 · 踩点暴击', '轻点任意果冻下方直接掉落，按住下滑可拉弹弓瞄准方向和力度；在节拍光环变金瞬间松手还能触发 2 倍暴击！');
+        this.rule('infinity', '无尽挤压挑战', '顶部横杆会随时间加速下压，合成新果冻可缓慢抬升横杆；坚持到 3 分钟后底部地板会缓慢抬升并出现冰冻果冻，越往后越刺激！');
+        this.rule('spark', '5 大战术道具', '小锤子消除/破冰，晃一晃震裂冰块，彩虹球碰谁升谁，双倍冻可冻住横杆 12 秒并双倍得分，抬杠可强力顶起上下横杆！');
         this.button('重看新手小手引导', () => this.actions.replayTutorial(), 'secondary');
-        this.button('我知道啦', this.actions.dismiss);
+        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'pause') {
         const line = element('div', 'pause-score'), sticker = element('canvas');
         line.append(element('div', 'result-score', String(game.score)), sticker);
-        this.body.append(element('p', 'sheet-note', `${JellyModes[game.mode]?.name || ''} · 当前得分`), line);
+        this.body.append(element('p', 'sheet-note', '无尽模式 · 当前得分'), line);
         this.modalTiles.push({ canvas: sticker, level: game.slots[game.choice]?.level || 0 });
         this.setting('角色数字显示', '关闭后只看萌萌的果冻脸', this.progress.showNumbers, v => this.actions.setShowNumbers(v));
-        this.button('继续玩', this.actions.dismiss);
-        this.button('重来一局', this.actions.restart, 'secondary');
         const more = element('div', 'pause-links');
         for (const [label, fn] of [
           ['换装', () => this.actions.panel('skins')],
@@ -1086,6 +1066,8 @@
           const b = element('button', 'quiet-btn', label); b.onclick = fn; more.append(b);
         }
         this.body.append(more);
+        this.button('重来一局', this.actions.restart, 'secondary');
+        this.button('继续游戏', this.actions.dismiss, 'close-btn');
       } else if (page === 'revive_prompt') {
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'squeeze');
         hero.append(
@@ -1096,43 +1078,19 @@
         this.button('不复活', () => this.actions.declineRevive(), 'secondary');
       } else if (page === 'loss') {
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'sad');
-        const streakNote = this.progress.winStreak >= 2 ? ` · 复活可保住 ${this.progress.winStreak} 连胜！` : '';
-        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', `最高 ${game.best} · 获得 +${game.earnedCoins || 0} 币${streakNote}`));
-        if (!game.revived) this.button('免费复活（清空顶部）', () => this.actions.adRevive(), 'ad-btn', 'video');
-        if (this.progress.failStreak >= 2) this.button('带彩虹球翻盘重开', () => this.actions.comebackRestart(), 'ad-btn', 'spark');
-        this.button('再来一局', this.actions.restart);
-        this.button('回主页', this.actions.home, 'secondary');
-      } else if (page === 'timeout') {
-        const lv = game.levelObj;
-        const hero = this.addResultHero(lv?.targetLevel || 3, 'sad');
-        const streakNote = this.progress.winStreak >= 2 ? `（加时保住 ${this.progress.winStreak} 连胜！）` : '';
-        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', (lv ? `第 ${lv.id} 关：${lv.desc}` : '') + streakNote));
-        if (!game.extended) this.button('免费加时 +30 秒', () => this.actions.adExtendTime(30), 'ad-btn', 'video');
-        if (this.progress.failStreak >= 2) this.button('带彩虹球翻盘重开', () => this.actions.comebackRestart(), 'ad-btn', 'spark');
-        this.button('重新挑战', this.actions.restart);
-        this.button('回主页', this.actions.home, 'secondary');
-      } else if (page === 'stage_clear') {
-        const lv = game.levelObj, stars = game.clearStars || 1;
-        const hero = this.addResultHero(lv.targetLevel || 4, 'glee', stars);
-        const streakTxt = this.progress.winStreak >= 2 ? ` · 当前 ${this.progress.winStreak} 连胜！` : '';
-        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', `第 ${lv.id} 关过关！奖励 +${game.earnedCoins} 音符币${streakTxt}`));
-        if (!game.doubledCoins && game.earnedCoins > 0) this.button(`双倍领币 (+${game.earnedCoins})`, () => this.actions.adDoubleCoins(), 'ad-btn', 'video');
-        if (lv.id < JellyLevels.length) this.button(`玩第 ${lv.id + 1} 关`, () => this.actions.playLevel(lv.id + 1));
-        else this.button('再玩一次', this.actions.restart);
-        this.button('回主页', this.actions.home, 'secondary');
-      } else if (page === 'mode_end') {
-        const hero = this.addResultHero(Math.max(0, game.maxLevel || 1), 'glee');
-        const extra = game.mode === 'orders' ? `完成 ${game.ordersDone || 0} 单 · ` : '';
-        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', `${extra}${JellyModes[game.mode].name}最高 ${game.best} · +${game.earnedCoins} 币`));
-        if (!game.extended) this.button('免费加时 +20 秒', () => this.actions.adExtendTime(20), 'ad-btn', 'video');
+        const sec = Math.floor(game.elapsed || 0);
+        const timeStr = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+        hero.append(
+          element('div', 'result-score', String(game.score)),
+          element('p', 'sheet-note', `坚持 ${timeStr} · 最高 ${game.best} · 获得 +${game.earnedCoins || 0} 币`)
+        );
         if (!game.doubledCoins && game.earnedCoins > 0) this.button(`双倍领币 (+${game.earnedCoins})`, () => this.actions.adDoubleCoins(), 'ad-btn', 'video');
         this.button('再来一局', this.actions.restart);
         this.button('回主页', this.actions.home, 'secondary');
       } else {
-        const hero = this.addResultHero(Math.max(0, game.maxLevel || 10), 'glee', 3);
-        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', `最高 ${game.best}`));
-        if (page === 'milestone') this.button('继续挑战', this.actions.encore);
-        else this.button('再来一局', this.actions.restart);
+        const hero = this.addResultHero(Math.max(0, game.maxLevel || 19), 'glee', 3);
+        hero.append(element('div', 'result-score', String(game.score)), element('p', 'sheet-note', `无尽最高 ${game.best} · 获得 +${game.earnedCoins || 0} 币`));
+        this.button('再来一局', this.actions.restart);
         this.button('回主页', this.actions.home, 'secondary');
       }
 

@@ -6,17 +6,17 @@
   <meta name="theme-color" content="#76c9a5">
   <title>节奏挤一挤 · Jelly Jam</title>
   <link rel="icon" href="assets/icon.png">
-  <link rel="preload" href="assets/crew-cartoon.webp?v=21" as="image">
-  <link rel="stylesheet" href="style.css?v=21">
-  <link rel="stylesheet" href="club.css?v=21">
-  <script defer src="js/cast.js?v=21"></script>
-  <script defer src="js/physics.js?v=21"></script>
-  <script defer src="js/ads.js?v=21"></script>
-  <script defer src="js/characters.js?v=21"></script>
-  <script defer src="js/progress.js?v=21"></script>
-  <script defer src="js/sound.js?v=21"></script>
-  <script defer src="js/interface.js?v=21"></script>
-  <script defer src="js/game.js?v=21"></script>
+  <link rel="preload" href="assets/crew-cartoon.webp?v=22" as="image">
+  <link rel="stylesheet" href="style.css?v=22">
+  <link rel="stylesheet" href="club.css?v=22">
+  <script defer src="js/cast.js?v=22"></script>
+  <script defer src="js/physics.js?v=22"></script>
+  <script defer src="js/ads.js?v=22"></script>
+  <script defer src="js/characters.js?v=22"></script>
+  <script defer src="js/progress.js?v=22"></script>
+  <script defer src="js/sound.js?v=22"></script>
+  <script defer src="js/interface.js?v=22"></script>
+  <script defer src="js/game.js?v=22"></script>
 </head>
 <body data-state="home" data-skin="cartoon" data-stage="cartoon">
   <div class="ambient" aria-hidden="true"></div>
@@ -55,7 +55,11 @@
 
       <!-- Floating Right Badges (positioned cleanly below WeChat capsule) -->
       <div class="home-right-rail">
-        <div id="streakBadge" class="streak-pill" hidden><canvas data-icon="flame"></canvas><span id="streakText">连胜 2</span></div>
+        <div class="home-best-pill" aria-label="无尽最高分">
+          <canvas data-icon="trophy"></canvas>
+          <span>最高</span>
+          <b data-best>0</b>
+        </div>
         <button class="cover-label" id="coverSkins" aria-label="更换皮肤与舞台">
           <canvas data-icon="layers"></canvas><span id="coverStage">经典卡通</span>
         </button>
@@ -66,28 +70,11 @@
         <h1 class="cover-title"><span>节奏</span><span>挤一挤</span></h1>
       </div>
 
-      <!-- Bottom Floating Game Console -->
+      <!-- Bottom Floating Game Console: Single Hero Play Button + Dock -->
       <div class="home-footer">
-        <div class="mode-strip" role="tablist" aria-label="选择游戏玩法">
-          <button class="mode-pill is-campaign" data-mode="campaign" aria-pressed="true"><canvas data-icon="flag"></canvas><span>闯关</span></button>
-          <button class="mode-pill is-orders" data-mode="orders" aria-pressed="false"><canvas data-icon="music"></canvas><span>点歌</span></button>
-          <button class="mode-pill is-press" data-mode="press" aria-pressed="false"><canvas data-icon="wave"></canvas><span>压板</span></button>
-          <button class="mode-pill is-endless" data-mode="endless" aria-pressed="false"><canvas data-icon="infinity"></canvas><span>无尽</span></button>
-        </div>
-
-        <button id="homeLevelsBtn" class="level-bar">
-          <span class="lv-pill-icon"><canvas data-icon="flag"></canvas></span>
-          <span class="lv-main">
-            <strong id="modeInfoTitle">第 1 关 · 破冰初登场</strong>
-            <small id="modeInfoDesc">破冰解救 · 75秒</small>
-          </span>
-          <span class="lv-tag" id="modeGimmickTag">选关</span>
-          <canvas class="lv-chev" data-icon="right"></canvas>
-        </button>
-
         <button id="start" class="start-btn">
           <span class="start-play"><canvas data-icon="play"></canvas></span>
-          <span id="startLabel">开始玩</span>
+          <span id="startLabel">开始游戏</span>
           <span class="start-meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         </button>
 
@@ -98,7 +85,7 @@
           </button>
           <button id="homeGuide" class="dock-btn dock-guide">
             <span class="dock-icon"><canvas data-icon="music"></canvas></span>
-            <strong>乐队</strong>
+            <strong>图鉴</strong>
           </button>
           <button id="homeBadges" class="dock-btn dock-medal">
             <i id="badgeDot" class="red-dot" hidden></i>
@@ -118,14 +105,13 @@
         </div>
         <div class="top-center">
           <b class="score" data-score>0000</b>
-          <div id="timerPill" class="timer-pill" hidden><canvas data-icon="clock"></canvas><b id="timerText">1:15</b></div>
-          <div id="bestPill" class="best-pill" hidden><canvas data-icon="trophy"></canvas><b data-best>0</b></div>
+          <div id="bestPill" class="best-pill"><canvas data-icon="trophy"></canvas><b data-best>0</b></div>
         </div>
         <div class="wx-capsule-space" aria-hidden="true"></div>
       </header>
 
       <main class="rig">
-        <div id="goalBar" class="goal-bar" hidden></div>
+        <div id="goalBar" class="goal-bar"></div>
 
         <section class="arena-column" aria-label="合成舞台">
           <div class="cabinet">
@@ -133,7 +119,7 @@
               <canvas id="underlay" aria-hidden="true"></canvas>
               <canvas id="skins" aria-hidden="true"></canvas>
               <canvas id="play" tabindex="0" aria-describedby="queueText" aria-label="轻点任意角色下方即可直落，按住下滑可瞄准发射。"></canvas>
-              <button id="newCharBanner" class="new-char-banner" hidden><canvas data-icon="video"></canvas><span id="newCharText">新伙伴加入！点此双倍领奖</span></button>
+              <button id="newCharBanner" class="new-char-banner" hidden><canvas data-icon="video"></canvas><span id="newCharText">新角色解锁！点此双倍领奖</span></button>
               <div id="floatTip" class="float-tip" hidden></div>
               <button id="saveBtn" class="save-btn" hidden><canvas data-icon="hammer"></canvas><span>免费急救</span></button>
               <div id="danger" class="danger" hidden>快要越线啦！</div>
@@ -142,7 +128,7 @@
           </div>
 
           <div class="prop-dock" id="propDock" aria-label="局内道具栏">
-            <button class="prop-btn p-hammer" data-prop="hammer" title="消除果冻、破冰或重击Boss">
+            <button class="prop-btn p-hammer" data-prop="hammer" title="点选果冻消除或破冰">
               <canvas data-icon="hammer"></canvas>
               <span class="prop-label">小锤子</span>
               <i class="prop-count">2</i>
@@ -157,9 +143,9 @@
               <span class="prop-label">彩虹球</span>
               <i class="prop-count">1</i>
             </button>
-            <button class="prop-btn p-freeze" data-prop="freeze" title="冻住时间/压板或双倍积分">
+            <button class="prop-btn p-freeze" data-prop="freeze" title="冻住横杆12秒并开启双倍得分">
               <canvas data-icon="snow"></canvas>
-              <span class="prop-label">冻时间</span>
+              <span class="prop-label">双倍冻</span>
               <i class="prop-count">1</i>
             </button>
             <button class="prop-btn p-lift" data-prop="lift" title="强力顶起横杠并压低上升地板">
@@ -179,7 +165,6 @@
     <div id="dialogToast" class="dialog-toast" role="status" hidden><canvas data-icon="medal"></canvas><span></span></div>
     <div class="modal-top">
       <h2 id="dialogTitle"></h2>
-      <button id="closeDialog" class="dialog-close" aria-label="关闭"><canvas data-icon="close"></canvas></button>
     </div>
     <div id="dialogBody"></div>
     <div class="dialog-actions" id="dialogActions"></div>

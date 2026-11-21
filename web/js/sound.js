@@ -266,64 +266,71 @@
       if (skinFoley[skin]) this.skin = skin;
       if (stageTracks[stage]) this.stage = stage;
     }
+    _initCtx() {
+      if (this.ctx) return true;
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return false;
+      try {
+        const c = this.ctx = new Audio();
+        this.master = c.createDynamicsCompressor();
+        this.master.threshold.value = -12;
+        this.master.ratio.value = 3;
+        this.master.attack.value = .010;
+        this.master.release.value = .18;
+        this.master.connect(c.destination);
+
+        this.sfxFilter = c.createBiquadFilter();
+        this.sfxFilter.type = 'lowpass';
+        this.sfxFilter.frequency.value = 2800;
+        this.sfxFilter.Q.value = 0.55;
+        this.effects = c.createGain();
+        this.effects.gain.value = .50;
+        this.effects.connect(this.sfxFilter);
+        this.sfxFilter.connect(this.master);
+
+        this.bgmFilter = c.createBiquadFilter();
+        this.bgmFilter.type = 'lowpass';
+        this.bgmFilter.frequency.value = 3200;
+        this.bgmFilter.Q.value = 0.5;
+        this.music = c.createGain();
+        this.music.gain.value = this.musicOn ? .46 : 0;
+        this.duck = c.createGain();
+        this.music.connect(this.bgmFilter);
+        this.bgmFilter.connect(this.duck);
+        this.duck.connect(this.master);
+
+        this.echoSend = c.createGain();
+        this.echoSend.gain.value = 0.28;
+        this.echoDelay = c.createDelay(0.6);
+        this.echoDelay.delayTime.value = 0.22;
+        this.echoFb = c.createGain();
+        this.echoFb.gain.value = 0.24;
+        this.echoTone = c.createBiquadFilter();
+        this.echoTone.type = 'lowpass';
+        this.echoTone.frequency.value = 1400;
+        this.echoSend.connect(this.echoDelay);
+        this.echoDelay.connect(this.echoTone);
+        this.echoTone.connect(this.music);
+        this.echoTone.connect(this.echoFb);
+        this.echoFb.connect(this.echoDelay);
+
+        this.noise = c.createBuffer(1, Math.round(c.sampleRate * .18), c.sampleRate);
+        const a = this.noise.getChannelData(0);
+        for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1;
+        return true;
+      } catch { this.ctx = null; return false; }
+    }
     unlock() {
       if (!this.on) return;
-      const Audio = window.AudioContext || window.webkitAudioContext;
-      if (!Audio) return;
-      if (!this.ctx) {
-        try {
-          const c = this.ctx = new Audio();
-          this.master = c.createDynamicsCompressor();
-          this.master.threshold.value = -12;
-          this.master.ratio.value = 3;
-          this.master.attack.value = .010;
-          this.master.release.value = .18;
-          this.master.connect(c.destination);
-
-          // Warm SFX bus
-          this.sfxFilter = c.createBiquadFilter();
-          this.sfxFilter.type = 'lowpass';
-          this.sfxFilter.frequency.value = 2800;
-          this.sfxFilter.Q.value = 0.55;
-          this.effects = c.createGain();
-          this.effects.gain.value = .50;
-          this.effects.connect(this.sfxFilter);
-          this.sfxFilter.connect(this.master);
-
-          // Studio BGM bus + warm dotted-8th stereo echo send for lush richness!
-          this.bgmFilter = c.createBiquadFilter();
-          this.bgmFilter.type = 'lowpass';
-          this.bgmFilter.frequency.value = 3200;
-          this.bgmFilter.Q.value = 0.5;
-          this.music = c.createGain();
-          this.music.gain.value = this.musicOn ? .46 : 0;
-          this.duck = c.createGain();
-          this.music.connect(this.bgmFilter);
-          this.bgmFilter.connect(this.duck);
-          this.duck.connect(this.master);
-
-          // Subtle warm echo/reverb bus for chords & melody (turns dry synths into rich studio sound!)
-          this.echoSend = c.createGain();
-          this.echoSend.gain.value = 0.28;
-          this.echoDelay = c.createDelay(0.6);
-          this.echoDelay.delayTime.value = 0.22;
-          this.echoFb = c.createGain();
-          this.echoFb.gain.value = 0.24;
-          this.echoTone = c.createBiquadFilter();
-          this.echoTone.type = 'lowpass';
-          this.echoTone.frequency.value = 1400;
-          this.echoSend.connect(this.echoDelay);
-          this.echoDelay.connect(this.echoTone);
-          this.echoTone.connect(this.music);
-          this.echoTone.connect(this.echoFb);
-          this.echoFb.connect(this.echoDelay);
-
-          this.noise = c.createBuffer(1, Math.round(c.sampleRate * .18), c.sampleRate);
-          const a = this.noise.getChannelData(0);
-          for (let i = 0; i < a.length; i++) a[i] = Math.random() * 2 - 1;
-        } catch { this.ctx = null; return; }
-      }
+      if (!this._initCtx()) return;
       this.sync();
+    }
+    ensureUiAudio(cb) {
+      if (!this.on || !this._initCtx()) return;
+      clearTimeout(this.suspendAt);
+      const run = () => { try { cb(); } catch {} };
+      if (this.ctx.state === 'running') run();
+      else this.ctx.resume().then(run).catch(() => {});
     }
     enable(on) { this.on = on; put('jelly-jam.sound', on ? 'on' : 'off'); if (on) this.unlock(); else this.sync(); }
     musicEnabled(on) { this.musicOn = on; put('jelly-jam.music', on ? 'on' : 'off'); if (this.ctx) this.music.gain.setTargetAtTime(on ? .46 : 0, this.ctx.currentTime, .03); }
@@ -531,13 +538,7 @@
     }
 
     canPlay() { return this.on && this.running && this.ctx?.state === 'running'; }
-    canUiPlay() {
-      if (!this.on) return false;
-      if (!this.ctx) this.unlock();
-      if (!this.ctx) return false;
-      if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
-      return this.ctx.state === 'running';
-    }
+    canUiPlay() { return this.on && this._initCtx(); }
 
     fire(power, level = 0) {
       if (!this.canPlay()) return;
@@ -558,6 +559,17 @@
       }
     }
 
+    previewSkin(skinKey) {
+      this.ensureUiAudio(() => {
+        const mat = skinFoley[skinKey] || skinFoley.cartoon;
+        const t = this.ctx.currentTime + 0.005;
+        this.tone(mat.hitLo * 1.15, mat.hitHi * 1.15, t, .095, 'sine', .16, this.effects, .006);
+        if (mat.shimmer > 0) {
+          this.tone(mat.hitLo * 1.9, mat.hitHi * 1.9, t + .01, .11, 'sine', Math.min(.16, mat.shimmer * 1.2), this.effects, .006);
+        }
+      });
+    }
+
     tickWarn(urgent = false) {
       if (!this.canPlay()) return;
       const t = this.ctx.currentTime;
@@ -566,53 +578,81 @@
     }
 
     prop(kind) {
-      if (!this.canUiPlay()) return;
-      const t = this.ctx.currentTime;
-      const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
-      if (kind === 'hammer') {
-        this.beatboxKick(t, .32, this.effects);
-        this.beatboxSnare(t + .02, .20, this.effects);
-      } else if (kind === 'shake') {
-        this.tone(110, 220, t, .16, 'triangle', .22, this.effects, .01);
-        this.tone(220, 120, t + .10, .16, 'triangle', .18, this.effects, .01);
-      } else if (kind === 'wild') {
-        [0, 4, 7, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .045, .24, .18, 'glassbell', this.effects, false));
-      } else {
-        [7, 11, 14].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .05, .22, .16, 'kalimba', this.effects, false));
-      }
+      this.ensureUiAudio(() => {
+        const t = this.ctx.currentTime + 0.005;
+        const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
+        if (kind === 'hammer') {
+          this.beatboxKick(t, .32, this.effects);
+          this.beatboxSnare(t + .02, .20, this.effects);
+        } else if (kind === 'shake') {
+          this.tone(110, 220, t, .16, 'triangle', .22, this.effects, .01);
+          this.tone(220, 120, t + .10, .16, 'triangle', .18, this.effects, .01);
+        } else if (kind === 'wild') {
+          [0, 4, 7, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .045, .24, .18, 'glassbell', this.effects, false));
+        } else {
+          [7, 11, 14].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .05, .22, .16, 'kalimba', this.effects, false));
+        }
+      });
     }
 
     reward() {
-      if (!this.canUiPlay()) return;
-      const t = this.ctx.currentTime;
-      const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
-      [0, 4, 7, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .055, .24, .18, 'kalimba', this.effects, false));
+      this.ensureUiAudio(() => {
+        const t = this.ctx.currentTime + 0.005;
+        const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
+        [0, 4, 7, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .055, .24, .18, 'kalimba', this.effects, false));
+      });
     }
 
     win() {
-      if (!this.canUiPlay()) return;
-      const t = this.ctx.currentTime;
-      const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
-      [0, 4, 7, 11, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .065, .34, .20, 'glassbell', this.effects, false));
+      this.ensureUiAudio(() => {
+        const t = this.ctx.currentTime + 0.005;
+        const r = (stageTracks[this.stage] || stageTracks.cartoon).root * 2;
+        [0, 4, 7, 11, 12].forEach((s, i) => this.pluckedTone(semiToHz(r, s), t + i * .065, .34, .20, 'glassbell', this.effects, false));
+      });
     }
 
     fail() {
-      if (!this.canUiPlay()) return;
-      const t = this.ctx.currentTime;
-      [329.63, 293.66, 246.94].forEach((hz, i) => this.tone(hz, hz * .95, t + i * .12, .24, 'triangle', .16, this.effects, .015));
+      this.ensureUiAudio(() => {
+        const t = this.ctx.currentTime + 0.005;
+        [329.63, 293.66, 246.94].forEach((hz, i) => this.tone(hz, hz * .95, t + i * .12, .24, 'triangle', .16, this.effects, .015));
+      });
+    }
+
+    audition(level) {
+      this.ensureUiAudio(() => {
+        const t = this.ctx.currentTime + 0.008;
+        this._playVoiceAt(level, 1, t);
+      });
+    }
+
+    auditionConcert(levels) {
+      if (!levels || !levels.length) return;
+      const subset = levels.slice(-10);
+      this.ensureUiAudio(() => {
+        const base = this.ctx.currentTime + 0.02;
+        subset.forEach((lv, idx) => {
+          this._playVoiceAt(lv, idx % 3 === 2 ? 2 : 1, base + idx * 0.165);
+        });
+      });
     }
 
     merge(level, combo) {
       if (!this.canPlay()) return;
       const c = this.ctx, t = Math.max(c.currentTime + .001, this.nextChime);
       this.nextChime = t + .042;
+      this._playVoiceAt(level, combo, t);
+      const g = this.duck.gain; g.cancelScheduledValues(t);
+      g.setTargetAtTime(.80, t, .012);
+      g.setTargetAtTime(1, t + .14, .10);
+    }
+
+    _playVoiceAt(level, combo, t) {
       const track = stageTracks[this.stage] || stageTracks.cartoon;
       const mat = skinFoley[this.skin] || skinFoley.cartoon;
       const v = charVoices[Math.max(0, Math.min(charVoices.length - 1, level))] || charVoices[0];
       const comboSemi = Math.min(5, Math.max(0, combo - 1));
       const hz = semiToHz(track.root, v.semi + (combo > 1 ? comboSemi : 0));
 
-      // 20 Distinct Warm Organic Character Instrument Voices (all in key with the 4-bar groove!)
       if (v.kind === 'beatbox_kick') {
         this.beatboxKick(t, .32, this.effects);
         this.beatboxHat(t + .075, .11, this.effects);
@@ -671,9 +711,6 @@
       if (mat.shimmer > 0) {
         this.tone(hz * 2, hz * 2, t + .02, .16, 'sine', mat.shimmer * .7, this.effects, .01);
       }
-      const g = this.duck.gain; g.cancelScheduledValues(t);
-      g.setTargetAtTime(.80, t, .012);
-      g.setTargetAtTime(1, t + .14, .10);
     }
   }
 

@@ -31,7 +31,7 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .sleeve{position:absolute;inset:0;z-index:0;overflow:hidden;cursor:pointer}
 #sleeveArt{position:absolute;inset:0;width:100%;height:100%;display:block}
 
-.home-head,.coin-pill,.cover-label,.start-btn,.level-bar,.dock-btn,.dock-icon,.dialog-close,.toast,.dialog-toast,.timer-pill,.modal-top,.mode-pill,.save-btn,.new-char-banner,.streak-pill,.band-header{display:flex;align-items:center}
+.home-head,.coin-pill,.home-best-pill,.cover-label,.start-btn,.dock-btn,.dock-icon,.toast,.dialog-toast,.modal-top,.save-btn,.new-char-banner,.band-header{display:flex;align-items:center}
 
 .home-head{position:relative;z-index:3;justify-content:space-between;flex:none;min-height:44px;pointer-events:none}
 .home-head>*{pointer-events:auto}
@@ -43,7 +43,7 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .coin-plus canvas{width:14px;height:14px}
 
 /* Floating Left Vertical Game Icon Rail */
-.home-side-rail{position:absolute;top:66px;left:12px;z-index:3;display:flex;flex-direction:column;gap:11px}
+.home-side-rail{position:absolute;top:68px;left:14px;z-index:3;display:flex;flex-direction:column;gap:12px}
 .side-game-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;padding:0}
 .side-btn-box{position:relative;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;border:2.5px solid #24352e;box-shadow:0 4px 0 #24352e,0 6px 12px rgba(0,0,0,.18),inset 0 3px 0 rgba(255,255,255,.55)}
 .side-btn-box canvas{width:26px;height:26px}
@@ -53,20 +53,21 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .side-btn-txt{font-size:11.5px;font-weight:950;color:#ffffff;letter-spacing:.4px;paint-order:stroke fill;-webkit-text-stroke:3px #20322b;text-shadow:0 2px 0 #182822}
 
 /* Floating Right Badges (below WeChat capsule) */
-.home-right-rail{position:absolute;top:64px;right:12px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.streak-pill{gap:4px;padding:6px 11px;border-radius:16px;background:linear-gradient(180deg,#ffaa33,#ef4e14);color:#ffffff;font-size:12px;font-weight:950;border:2.5px solid #5c1e04;box-shadow:0 3px 0 #5c1e04,inset 0 2px 0 rgba(255,255,255,.45);pointer-events:none}
-.streak-pill canvas{width:16px;height:16px}
+.home-right-rail{position:absolute;top:66px;right:14px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.home-best-pill{gap:5px;padding:6px 11px;border-radius:16px;background:linear-gradient(180deg,#fff3b0,#ffd24d);color:#4a2804;font-size:12px;font-weight:950;border:2.5px solid #593506;box-shadow:0 3px 0 #593506,inset 0 2px 0 rgba(255,255,255,.78);pointer-events:none}
+.home-best-pill canvas{width:16px;height:16px}
+.home-best-pill b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:16px;line-height:1}
 .cover-label{gap:5px;padding:7px 11px;border-radius:16px;background:linear-gradient(180deg,#ffffff,#e6f3ea);border:2.5px solid #24352e;color:#1e362c;font-size:12px;font-weight:900;box-shadow:0 3px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
 .cover-label canvas{width:16px;height:16px}
 
 /* Sculptural 3D Game Logo */
-.hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:10px;pointer-events:none}
-.cover-title{margin:0;text-align:center;font-family:"Jam Display","PingFang SC","Microsoft YaHei",sans-serif;font-weight:950;line-height:.92;letter-spacing:-.02em;font-size:clamp(46px,min(15vw,7.4vh),72px);color:#fff8d6;paint-order:stroke fill;-webkit-text-stroke:7px #21362e;text-shadow:0 6px 0 #172822,0 12px 20px rgba(0,0,0,.24);transform:rotate(-3.5deg)}
+.hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:16px;pointer-events:none}
+.cover-title{margin:0;text-align:center;font-family:"Jam Display","PingFang SC","Microsoft YaHei",sans-serif;font-weight:950;line-height:.92;letter-spacing:-.02em;font-size:clamp(48px,min(15.5vw,7.8vh),74px);color:#fff8d6;paint-order:stroke fill;-webkit-text-stroke:7px #21362e;text-shadow:0 6px 0 #172822,0 12px 20px rgba(0,0,0,.24);transform:rotate(-3.2deg)}
 .cover-title span{display:block}
 .cover-title span+span{color:#ffe152;margin-top:2px;font-size:1.05em}
 
 /* Bottom Floating Game Play Console */
-.home-footer{position:relative;z-index:3;flex:none;display:grid;gap:9px}
+.home-footer{position:relative;z-index:3;flex:none;display:grid;gap:12px;padding-bottom:4px}
 
 .mode-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0}
 .mode-pill{position:relative;justify-content:center;gap:4px;height:44px;padding:0 4px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#e5eee6);border:2.5px solid #24352e;color:#274036;font-size:13px;font-weight:950;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.85)}
@@ -144,26 +145,22 @@ dialog.sheet[open]{display:flex;flex-direction:column}
 dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 
 /* Glossy 3D Game Ribbon Header Banner */
-.modal-top{position:relative;justify-content:center;flex:none;min-height:58px;padding:10px 52px 12px;background:linear-gradient(180deg,#52d989 0%,#28b062 60%,#1d9450 100%);border-bottom:3px solid #185732;box-shadow:inset 0 3px 0 rgba(255,255,255,.42)}
-.sheet-stage_clear .modal-top,.sheet-win .modal-top,.sheet-milestone .modal-top,.sheet-wheel .modal-top,.sheet-checkin .modal-top{background:linear-gradient(180deg,#ffca47 0%,#f59618 60%,#de7809 100%);border-bottom-color:#7d3e03}
-.sheet-loss .modal-top,.sheet-timeout .modal-top{background:linear-gradient(180deg,#ff7e70 0%,#eb483b 60%,#d13226 100%);border-bottom-color:#751710}
+.modal-top{position:relative;justify-content:center;flex:none;min-height:56px;padding:11px 18px 12px;background:linear-gradient(180deg,#52d989 0%,#28b062 60%,#1d9450 100%);border-bottom:3px solid #185732;box-shadow:inset 0 3px 0 rgba(255,255,255,.42)}
+.sheet-win .modal-top,.sheet-wheel .modal-top,.sheet-checkin .modal-top{background:linear-gradient(180deg,#ffca47 0%,#f59618 60%,#de7809 100%);border-bottom-color:#7d3e03}
+.sheet-loss .modal-top,.sheet-revive_prompt .modal-top{background:linear-gradient(180deg,#ff7e70 0%,#eb483b 60%,#d13226 100%);border-bottom-color:#751710}
 .sheet-guide .modal-top,.sheet-skins .modal-top{background:linear-gradient(180deg,#8b7dff 0%,#634df2 60%,#4e37d6 100%);border-bottom-color:#2b1985}
 .modal-top h2{margin:0;font-family:"Jam Display","PingFang SC","Microsoft YaHei",sans-serif;font-size:23px;color:#ffffff;font-weight:950;letter-spacing:.6px;paint-order:stroke fill;-webkit-text-stroke:4px rgba(18,36,28,.75);text-shadow:0 3px 0 rgba(18,36,28,.55)}
 
-/* Glossy 3D Red Circular X Close Button */
-.dialog-close{position:absolute;right:10px;top:50%;transform:translateY(-50%);justify-content:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#ff6e6e,#e02828);border:2.5px solid #6b1010;color:#ffffff;box-shadow:0 3px 0 #6b1010,inset 0 2px 0 rgba(255,255,255,.5)}
-.dialog-close:active{transform:translateY(calc(-50% + 2px)) scale(.95)}
-.dialog-close canvas{width:19px;height:19px}
-
-#dialogBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:14px 16px 6px}
-.dialog-actions{flex:none;display:flex;flex-wrap:wrap;padding:10px 16px 16px;gap:9px;background:#fffaf0}.dialog-actions:empty{display:none}
+#dialogBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:14px 16px 8px}
+.dialog-actions{flex:none;display:flex;flex-wrap:wrap;padding:10px 16px 16px;gap:9px;background:#fffaf0;border-top:1.5px solid #ebe6d5}.dialog-actions:empty{display:none}
 .sheet-note,.rule p{color:#506458;font-size:13px;line-height:1.52;margin:0;font-weight:700}.sheet-note{margin-bottom:9px}
 
 /* Glossy 3D Candy Game Action Buttons */
-.action{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:128px;min-height:50px;background:linear-gradient(180deg,#54de82 0%,#26b55b 58%,#1a9949 100%);color:#ffffff;border:2.5px solid #13542a;border-radius:16px;font-size:15px;font-weight:950;padding:8px 13px;box-shadow:0 5px 0 #13542a,inset 0 2.5px 0 rgba(255,255,255,.45);text-shadow:0 1.5px 0 rgba(12,56,28,.55)}
+.action{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:128px;min-height:48px;background:linear-gradient(180deg,#54de82 0%,#26b55b 58%,#1a9949 100%);color:#ffffff;border:2.5px solid #13542a;border-radius:16px;font-size:15px;font-weight:950;padding:8px 13px;box-shadow:0 5px 0 #13542a,inset 0 2.5px 0 rgba(255,255,255,.45);text-shadow:0 1.5px 0 rgba(12,56,28,.55)}
 .action::before{content:"";position:absolute;top:3px;left:10px;right:10px;height:9px;border-radius:8px;background:rgba(255,255,255,.22);pointer-events:none}
 .action:disabled{opacity:.55;cursor:not-allowed}
 .action.secondary{background:linear-gradient(180deg,#ffffff,#e4eee5);color:#233d32;border-color:#24352e;box-shadow:0 5px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.95);text-shadow:none}
+.action.close-btn{flex:1 0 100%;min-height:44px;background:linear-gradient(180deg,#f7f9f5,#dfe8df);color:#2b4036;border-color:#24352e;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9);text-shadow:none}
 .action.ad-btn{background:linear-gradient(180deg,#ffc53d 0%,#f27e0f 58%,#d96604 100%);color:#ffffff;border-color:#733302;box-shadow:0 5px 0 #733302,inset 0 2.5px 0 rgba(255,255,255,.48);text-shadow:0 1.5px 0 rgba(100,40,2,.55)}
 .action canvas{width:19px;height:19px;flex:none}
 
@@ -262,10 +259,10 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .badge-bar i{display:block;background:#2ec46f;height:100%;border-radius:4px}
 .claim-btn{flex:none;padding:7px 12px;border-radius:12px;background:linear-gradient(180deg,#ffc238,#ea740e);color:#ffffff;font-size:12px;font-weight:950;border:2px solid #753403;box-shadow:0 3px 0 #753403}
 
-.setting{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:54px;border-bottom:1.5px solid #e0e6d8;background:transparent;text-align:left;padding:8px 4px;color:#20382e}.setting:disabled{opacity:.6}
-.switch{position:relative;width:46px;height:28px;border-radius:20px;background:#c5d0c1;border:2px solid #24352e;transition:background .14s;flex:none}
-.switch:after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;background:#ffffff;border:2px solid #24352e;border-radius:50%;transition:transform .14s}
-.setting[aria-checked=true] .switch{background:#2ec46f}.setting[aria-checked=true] .switch:after{transform:translateX(18px)}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:54px;border-bottom:1.5px solid #e0e6d8;background:transparent;text-align:left;padding:8px 4px;color:#20382e}.setting:disabled{opacity:.6}
+.switch{position:relative;display:block;width:50px;height:28px;border-radius:20px;background:#c5d0c1;border:2px solid #24352e;transition:background .16s;flex:none}
+.switch:after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;background:#ffffff;border:2px solid #24352e;border-radius:50%;transition:transform .16s ease}
+.setting[aria-checked=true] .switch{background:#2ec46f}.setting[aria-checked=true] .switch:after{transform:translateX(22px)}
 
 .rule{display:flex;gap:11px;margin:11px 0;align-items:flex-start;padding:10px;border-radius:14px;background:#f4f7ec;border:2px solid #dbe3d0}.rule canvas{flex:none;width:26px;height:26px;margin-top:1px}.rule strong{display:block;color:#1f382e;font-size:14px;font-weight:900;margin-bottom:2px}
 .atlas-all{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}

@@ -99,89 +99,142 @@
     if (key !== 'pixel') ctx.imageSmoothingQuality = 'high';
 
     if (key === 'cartoon') {
+      // Preserved unchanged per user preference
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
     } else if (key === 'glass') {
-      ctx.save(); ctx.globalAlpha = 0.42; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
-      trimIvoryWhiskers(ctx, w, h);
-      applyCharDistinction(ctx, w, h);
-      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
-      for (let i = 0; i < 20; i++) {
-        const cx = (i % 5 + 0.5) * cw, cy = (Math.floor(i / 5) + 0.5) * ch, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx, cy, rad * 0.14, cx, cy, rad * 1.05);
-        g.addColorStop(0, 'rgba(220, 255, 255, 0.06)');
-        g.addColorStop(0.56, 'rgba(115, 232, 242, 0.28)');
-        g.addColorStop(0.85, 'rgba(215, 253, 255, 0.80)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0.96)');
-        ctx.fillStyle = g; ctx.fillRect((i % 5) * cw, Math.floor(i / 5) * ch, cw, ch);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.94)'; ctx.lineWidth = cw * 0.026; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.68, -Math.PI * 0.84, -Math.PI * 0.48); ctx.stroke();
-        ctx.strokeStyle = 'rgba(165, 255, 248, 0.78)'; ctx.lineWidth = cw * 0.018;
-        ctx.beginPath(); ctx.arc(cx, cy + rad * 0.04, rad * 0.66, Math.PI * 0.22, Math.PI * 0.76); ctx.stroke();
-
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
-        ctx.beginPath(); ctx.arc(cx - rad * 0.44, cy - rad * 0.42, cw * 0.022, 0, TAU); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + rad * 0.42, cy + rad * 0.36, cw * 0.014, 0, TAU); ctx.fill();
-      }
-      ctx.restore();
-    } else if (key === 'neon') {
-      ctx.drawImage(baseImg, 0, 0, w, h);
-      trimIvoryWhiskers(ctx, w, h);
-      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
-      for (let i = 0; i < 20; i++) {
-        const cx = (i % 5 + 0.5) * cw, cy = (Math.floor(i / 5) + 0.5) * ch, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx, cy, rad * 0.1, cx, cy, rad * 1.05);
-        g.addColorStop(0, 'rgba(14, 8, 34, 0.88)');
-        g.addColorStop(0.62, 'rgba(24, 14, 56, 0.76)');
-        g.addColorStop(0.84, crew[i].color);
-        g.addColorStop(1, '#ffffff');
-        ctx.fillStyle = g; ctx.fillRect((i % 5) * cw, Math.floor(i / 5) * ch, cw, ch);
-      }
-      ctx.restore();
-    } else if (key === 'gummy') {
-      ctx.save(); ctx.globalAlpha = 0.82; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
+      // Crystal sea-salt glass: clear silhouette + vivid aqua Fresnel rim + crisp lens specular & bottom caustic
+      ctx.save(); ctx.globalAlpha = 0.72; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
         const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx - rad * 0.2, cy - rad * 0.25, 2 * pxScale, cx, cy, rad);
-        g.addColorStop(0, 'rgba(255, 255, 235, 0.50)');
-        g.addColorStop(0.6, 'rgba(255, 224, 150, 0.16)');
-        g.addColorStop(1, 'rgba(255, 168, 76, 0.30)');
+        const g = ctx.createRadialGradient(cx - rad * 0.14, cy - rad * 0.18, rad * 0.10, cx, cy, rad * 1.02);
+        g.addColorStop(0, 'rgba(235, 255, 255, 0.12)');
+        g.addColorStop(0.55, 'rgba(82, 224, 240, 0.22)');
+        g.addColorStop(0.84, 'rgba(186, 250, 255, 0.68)');
+        g.addColorStop(1, 'rgba(255, 255, 255, 0.94)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+        // Bottom internal caustic glow
+        const cg = ctx.createRadialGradient(cx, cy + rad * 0.45, rad * 0.05, cx, cy + rad * 0.45, rad * 0.52);
+        cg.addColorStop(0, 'rgba(180, 255, 252, 0.72)');
+        cg.addColorStop(1, 'rgba(180, 255, 252, 0)');
+        ctx.fillStyle = cg; ctx.fillRect(ox, oy, cw, ch);
+        // Sharp specular crescent & twin glints
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)'; ctx.lineWidth = cw * 0.024; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.70, -Math.PI * 0.84, -Math.PI * 0.50); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath(); ctx.arc(cx - rad * 0.46, cy - rad * 0.44, cw * 0.020, 0, TAU); ctx.fill();
+        ctx.beginPath(); ctx.arc(cx + rad * 0.38, cy + rad * 0.38, cw * 0.012, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+    } else if (key === 'neon') {
+      // High-contrast cyberpunk neon: sleek obsidian glossy body + vivid character-colored neon tube rim!
+      ctx.drawImage(baseImg, 0, 0, w, h);
+      trimIvoryWhiskers(ctx, w, h);
+      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
+      for (let i = 0; i < 20; i++) {
+        const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
+        const g = ctx.createRadialGradient(cx - rad * 0.18, cy - rad * 0.22, rad * 0.08, cx, cy, rad * 1.02);
+        g.addColorStop(0, 'rgba(34, 20, 74, 0.78)');
+        g.addColorStop(0.56, 'rgba(18, 10, 44, 0.82)');
+        g.addColorStop(0.80, crew[i].color);
+        g.addColorStop(0.95, crew[i].light);
+        g.addColorStop(1, '#ffffff');
+        ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+        // Crisp neon tube highlight arc
+        ctx.strokeStyle = crew[i].light; ctx.lineWidth = cw * 0.020; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.72, -Math.PI * 0.88, -Math.PI * 0.38); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.88)'; ctx.lineWidth = cw * 0.010;
+        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.72, -Math.PI * 0.84, -Math.PI * 0.46); ctx.stroke();
+      }
+      ctx.restore();
+    } else if (key === 'plush') {
+      // Warm velvety Jellycat-style plush: soft sunlit top sheen + cozy warm shadow depth
+      ctx.drawImage(baseImg, 0, 0, w, h);
+      trimIvoryWhiskers(ctx, w, h);
+      applyCharDistinction(ctx, w, h);
+      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
+      for (let i = 0; i < 20; i++) {
+        const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createRadialGradient(cx - rad * 0.22, cy - rad * 0.28, rad * 0.06, cx, cy, rad * 1.04);
+        g.addColorStop(0, 'rgba(255, 248, 240, 0.26)');
+        g.addColorStop(0.62, 'rgba(255, 232, 224, 0.05)');
+        g.addColorStop(1, 'rgba(128, 72, 86, 0.22)');
+        ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+      }
+      ctx.restore();
+    } else if (key === 'pixel') {
+      // Crisp high-contrast arcade pixel art with clean retro rim shine
+      ctx.drawImage(baseImg, 0, 0, w, h);
+      trimIvoryWhiskers(ctx, w, h);
+      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
+      for (let i = 0; i < 20; i++) {
+        const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
+        const g = ctx.createLinearGradient(ox, oy + ch * 0.15, ox, oy + ch * 0.85);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
+        g.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
+        g.addColorStop(1, 'rgba(24, 20, 56, 0.18)');
+        ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+        // Crisp 2-step pixel specular block
+        const blk = Math.round(cw * 0.032);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
-        const grain = 2.0 * pxScale;
-        for (let s = 0; s < 30; s++) {
-          const a = s * 2.39996 + i;
-          const dist = Math.sqrt((s + 0.5) / 30) * rad * 0.92;
-          ctx.fillRect(cx + Math.cos(a) * dist, cy + Math.sin(a) * dist, grain, grain);
-        }
+        ctx.fillRect(Math.round(cx - rad * 0.48), Math.round(cy - rad * 0.46), blk * 2, blk);
+        ctx.fillRect(Math.round(cx - rad * 0.54), Math.round(cy - rad * 0.36), blk, blk);
+      }
+      ctx.restore();
+    } else if (key === 'gummy') {
+      // Translucent juicy fruit gummy: rich saturated hue + warm candy subsurface glow + glossy jelly-bean pill
+      ctx.save(); ctx.globalAlpha = 0.90; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
+      trimIvoryWhiskers(ctx, w, h);
+      applyCharDistinction(ctx, w, h);
+      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
+      for (let i = 0; i < 20; i++) {
+        const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
+        const g = ctx.createRadialGradient(cx, cy + rad * 0.22, rad * 0.08, cx, cy, rad * 1.02);
+        g.addColorStop(0, 'rgba(255, 252, 220, 0.32)');
+        g.addColorStop(0.55, 'rgba(255, 224, 150, 0.08)');
+        g.addColorStop(1, 'rgba(255, 132, 48, 0.24)');
+        ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+        // Glossy jelly-bean highlight pill
+        ctx.save(); ctx.translate(cx - rad * 0.38, cy - rad * 0.38); ctx.rotate(-0.55);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.86)';
+        ctx.beginPath(); ctx.ellipse(0, 0, rad * 0.24, rad * 0.11, 0, 0, TAU); ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.beginPath(); ctx.arc(cx - rad * 0.12, cy - rad * 0.52, cw * 0.012, 0, TAU); ctx.fill();
       }
       ctx.restore();
     } else if (key === 'porcelain') {
+      // Authentic Jingdezhen celadon / blue-and-white porcelain: preserves subtle character tint + crisp cobalt glaze rim + glossy kiln shine
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
         const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
-        const g = ctx.createRadialGradient(cx - rad * 0.25, cy - rad * 0.3, rad * 0.08, cx, cy, rad * 1.05);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.94)');
-        g.addColorStop(0.55, 'rgba(240, 246, 252, 0.82)');
-        g.addColorStop(0.82, 'rgba(62, 118, 198, 0.78)');
-        g.addColorStop(1, 'rgba(26, 62, 138, 0.92)');
+        const g = ctx.createRadialGradient(cx - rad * 0.24, cy - rad * 0.28, rad * 0.08, cx, cy, rad * 1.04);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.76)');
+        g.addColorStop(0.52, 'rgba(242, 248, 255, 0.64)');
+        g.addColorStop(0.80, 'rgba(54, 108, 192, 0.72)');
+        g.addColorStop(1, 'rgba(24, 56, 132, 0.90)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        ctx.strokeStyle = 'rgba(38, 86, 168, 0.55)'; ctx.lineWidth = 2 * pxScale;
-        ctx.beginPath(); ctx.arc(cx, cy + rad * 0.15, rad * 0.55, Math.PI * 0.18, Math.PI * 0.82); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)'; ctx.lineWidth = cw * 0.028; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.65, -Math.PI * 0.82, -Math.PI * 0.55); ctx.stroke();
+        // Delicate cobalt rim band + kiln glaze highlight
+        ctx.strokeStyle = 'rgba(32, 76, 162, 0.48)'; ctx.lineWidth = 2.2 * pxScale;
+        ctx.beginPath(); ctx.arc(cx, cy + rad * 0.14, rad * 0.60, Math.PI * 0.16, Math.PI * 0.84); ctx.stroke();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.98)'; ctx.lineWidth = cw * 0.026; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.68, -Math.PI * 0.84, -Math.PI * 0.52); ctx.stroke();
       }
       ctx.restore();
     } else if (key === 'sakura') {
+      // Preserved unchanged per user preference
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
@@ -196,22 +249,31 @@
       }
       ctx.restore();
     } else if (key === 'holo') {
+      // Luminous mother-of-pearl aurora: preserves 3D depth + pearlescent rainbow rim + crisp sheen
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const g = ctx.createLinearGradient(ox + cw * 0.12, oy + ch * 0.12, ox + cw * 0.88, oy + ch * 0.88);
-        g.addColorStop(0, 'rgba(215, 255, 252, 0.78)');
-        g.addColorStop(0.32, 'rgba(222, 226, 255, 0.72)');
-        g.addColorStop(0.66, 'rgba(255, 218, 248, 0.74)');
-        g.addColorStop(1, 'rgba(255, 248, 205, 0.78)');
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
+        const g = ctx.createLinearGradient(ox + cw * 0.14, oy + ch * 0.14, ox + cw * 0.86, oy + ch * 0.86);
+        g.addColorStop(0, 'rgba(170, 255, 248, 0.52)');
+        g.addColorStop(0.34, 'rgba(192, 198, 255, 0.48)');
+        g.addColorStop(0.68, 'rgba(255, 188, 242, 0.50)');
+        g.addColorStop(1, 'rgba(255, 242, 178, 0.52)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.90)'; ctx.lineWidth = cw * 0.032; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(ox + cw * 0.25, oy + ch * 0.35); ctx.lineTo(ox + cw * 0.48, oy + ch * 0.20); ctx.stroke();
+        // Pearlescent inner volume highlight
+        const rg = ctx.createRadialGradient(cx - rad * 0.24, cy - rad * 0.28, rad * 0.05, cx, cy, rad * 1.0);
+        rg.addColorStop(0, 'rgba(255, 255, 255, 0.68)');
+        rg.addColorStop(0.52, 'rgba(255, 255, 255, 0.06)');
+        rg.addColorStop(1, 'rgba(105, 130, 220, 0.26)');
+        ctx.fillStyle = rg; ctx.fillRect(ox, oy, cw, ch);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.94)'; ctx.lineWidth = cw * 0.025; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.68, -Math.PI * 0.84, -Math.PI * 0.50); ctx.stroke();
       }
       ctx.restore();
     } else {
+      // Metal preserved unchanged per user preference
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
     }
@@ -661,33 +723,40 @@
             float outAlpha = s.a;
 
             if (mode > 0.5 && mode < 1.5) {
+              // Metal preserved unchanged
               rgb += vec3(1., .95, .87) * strip * (.048 + shine.y * .22);
             } else if (mode > 1.5 && mode < 2.5) {
-              float spec = exp(-((p.x + .34) * (p.x + .34) + (p.y + .38) * (p.y + .38)) * 13.0);
-              float caustic = exp(-((p.x - .15) * (p.x - .15) + (p.y - .46) * (p.y - .46)) * 8.5);
-              vec3 glassTint = mix(rgb * .62 + vec3(.22, .38, .44), vec3(.86, .99, 1.0), fres * .82);
-              rgb = glassTint + vec3(1.0) * (spec * .90 + strip * .30) + vec3(.62, .96, 1.0) * caustic * .45;
-              outAlpha = s.a * clamp(0.38 + fres * 0.60 + spec * 0.48 + caustic * 0.18, 0.36, 0.98);
+              // Upgraded crystal sea-salt glass
+              float spec = exp(-((p.x + .34) * (p.x + .34) + (p.y + .38) * (p.y + .38)) * 16.0);
+              float caustic = exp(-((p.x - .10) * (p.x - .10) + (p.y - .46) * (p.y - .46)) * 9.0);
+              vec3 glassTint = mix(rgb * .82 + vec3(.12, .24, .28), vec3(.90, .99, 1.0), fres * .72);
+              rgb = glassTint + vec3(1.0) * (spec * .92 + strip * .28) + vec3(.58, .98, 1.0) * caustic * .42;
+              outAlpha = s.a * clamp(0.60 + fres * 0.42 + spec * 0.38 + caustic * 0.16, 0.58, 0.99);
             } else if (mode > 2.5 && mode < 3.5) {
-              float edge = pow(clamp(length(p) * 1.06, 0., 1.), 2.6);
-              rgb = rgb * (0.20 + edge * 1.15) + (rgb * 0.7 + vec3(0.28, 0.35, 0.65)) * fres * 1.25;
+              // Upgraded high-contrast neon glow
+              float edge = pow(clamp(length(p) * 1.02, 0., 1.), 2.2);
+              rgb = rgb * (0.55 + edge * 0.85) + (rgb * 0.85 + vec3(0.22, 0.30, 0.55)) * fres * 1.15 + vec3(1.0) * strip * .18;
             } else if (mode > 3.5 && mode < 4.5) {
-              float spec = exp(-((p.x + .28) * (p.x + .28) + (p.y + .32) * (p.y + .32)) * 9.5);
-              float grain = fract(sin(dot(floor(uv * 300.0), vec2(12.9898, 78.233))) * 43758.5453);
-              rgb = rgb * 1.06 + vec3(.09, .05, -.02) + vec3(1.0) * (spec * .46 + step(0.955, grain) * 0.30);
-              outAlpha = s.a * clamp(0.78 + fres * 0.20 + spec * 0.16, 0.76, 1.0);
+              // Upgraded juicy candy gummy (clean subsurface glow, zero static noise)
+              float spec = exp(-((p.x + .30) * (p.x + .30) + (p.y + .34) * (p.y + .34)) * 12.0);
+              float sss = exp(-((p.x) * (p.x) + (p.y - .32) * (p.y - .32)) * 4.5);
+              rgb = rgb * 1.08 + vec3(.10, .06, .01) * sss + vec3(1.0) * (spec * .58 + strip * .16);
+              outAlpha = s.a * clamp(0.86 + fres * 0.14 + spec * 0.14, 0.84, 1.0);
             } else if (mode > 4.5 && mode < 5.5) {
+              // Upgraded blue-and-white porcelain glaze
               float lum = dot(rgb, vec3(.3, .59, .11));
-              vec3 ivory = vec3(.95, .97, .99) + (rgb - vec3(lum)) * .16;
-              float spec = exp(-((p.x + .32) * (p.x + .32) + (p.y + .36) * (p.y + .36)) * 16.0);
-              rgb = mix(ivory, vec3(.16, .36, .74), fres * .82) + vec3(1.0) * (spec * .72 + strip * .25);
+              vec3 ivory = vec3(.94, .97, 1.0) + (rgb - vec3(lum)) * .30;
+              float spec = exp(-((p.x + .32) * (p.x + .32) + (p.y + .36) * (p.y + .36)) * 18.0);
+              rgb = mix(ivory, vec3(.14, .34, .74), fres * .76) + vec3(1.0) * (spec * .78 + strip * .28);
             } else if (mode > 5.5 && mode < 6.5) {
+              // Sakura preserved unchanged
               rgb = rgb * .62 + vec3(.38, .28, .33) + vec3(1., .92, .95) * fres * .34;
             } else if (mode > 6.5) {
-              float ph = p.x * 2.5 - p.y * 2.1 + shine.x * 2.2 + uTime * 1.2;
-              vec3 irid = 0.72 + 0.28 * cos(ph + vec3(0., 2.1, 4.2));
-              float spec = exp(-((p.x + .26) * (p.x + .26) + (p.y + .32) * (p.y + .32)) * 11.0);
-              rgb = mix(vec3(.92, .95, .99), irid, 0.45 + fres * 0.45) + vec3(1.0) * (spec * .55 + strip * .35);
+              // Upgraded mother-of-pearl aurora iridescence
+              float ph = p.x * 2.4 - p.y * 2.0 + shine.x * 2.0 + uTime * 1.1;
+              vec3 irid = 0.70 + 0.30 * cos(ph + vec3(0., 2.0, 4.1));
+              float spec = exp(-((p.x + .28) * (p.x + .28) + (p.y + .34) * (p.y + .34)) * 14.0);
+              rgb = mix(rgb * 0.78 + vec3(.22, .24, .28), irid, 0.38 + fres * 0.48) + vec3(1.0) * (spec * .64 + strip * .32);
             }
             gl_FragColor = vec4(clamp(rgb, 0.0, 1.0) * outAlpha, outAlpha);
           }`;
