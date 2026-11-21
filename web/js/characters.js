@@ -4,16 +4,17 @@
   const { crew, TAU, clamp } = Jelly;
 
   const themes = {
-    cartoon:   { name: '经典卡通', stage: '薄荷排练室', shade: '#a8dec4', paper: '#f1f0d9', base: 'cartoon', shaderMode: 0, dark: false },
+    cartoon:   { name: '经典卡通', stage: '薄荷排练室', shade: '#76b59a', paper: '#e6efe4', base: 'cartoon', shaderMode: 0, dark: false },
+    toy3d:     { name: '潮玩3D',   stage: '潮玩展示柜', shade: '#3d7c8f', paper: '#d4ebf2', base: 'cartoon', shaderMode: 8, dark: true  },
     metal:     { name: '柔光金属', stage: '节奏录音棚', shade: '#7b9aa8', paper: '#dbe4e8', base: 'metal',   shaderMode: 1, dark: true  },
-    glass:     { name: '海盐玻璃', stage: '潮汐回声室', shade: '#5ac8d6', paper: '#d8f6f7', base: 'cartoon', shaderMode: 2, dark: true  },
+    glass:     { name: '海盐玻璃', stage: '潮汐回声室', shade: '#48a8b8', paper: '#d2eff2', base: 'cartoon', shaderMode: 2, dark: true  },
     neon:      { name: '霓虹电音', stage: '霓虹电音夜', shade: '#361f66', paper: '#e6d8ff', base: 'cartoon', shaderMode: 3, dark: true  },
-    plush:     { name: '短绒玩偶', stage: '绒布小剧场', shade: '#d9a4b8', paper: '#f4e2d9', base: 'plush',   shaderMode: 0, dark: false },
-    pixel:     { name: '像素街机', stage: '午夜像素厅', shade: '#8d8fc9', paper: '#e0e0ed', base: 'pixel',   shaderMode: 0, dark: true  },
-    gummy:     { name: '果汁软糖', stage: '蜜橘糖果屋', shade: '#ffc66e', paper: '#fff6d9', base: 'cartoon', shaderMode: 4, dark: false },
-    porcelain: { name: '青花釉瓷', stage: '东方雅韵阁', shade: '#9fc0e3', paper: '#f4f7fb', base: 'cartoon', shaderMode: 5, dark: false },
-    sakura:    { name: '落樱和果', stage: '樱吹雪庭院', shade: '#f5b3ca', paper: '#fff0f5', base: 'cartoon', shaderMode: 6, dark: false },
-    holo:      { name: '极光贝母', stage: '冰川极光台', shade: '#a9d7f5', paper: '#f0f9ff', base: 'metal',   shaderMode: 7, dark: false }
+    plush:     { name: '短绒玩偶', stage: '绒布小剧场', shade: '#a87686', paper: '#efe0dc', base: 'plush',   shaderMode: 0, dark: true  },
+    pixel:     { name: '像素街机', stage: '午夜像素厅', shade: '#6f72b0', paper: '#dcdced', base: 'pixel',   shaderMode: 0, dark: true  },
+    gummy:     { name: '果汁软糖', stage: '蜜橘糖果屋', shade: '#d48d55', paper: '#f5e2c4', base: 'cartoon', shaderMode: 4, dark: true  },
+    porcelain: { name: '青花釉瓷', stage: '东方雅韵阁', shade: '#6789ad', paper: '#dce6f2', base: 'cartoon', shaderMode: 5, dark: true  },
+    sakura:    { name: '落樱和果', stage: '樱吹雪庭院', shade: '#b57292', paper: '#f5dfe9', base: 'cartoon', shaderMode: 6, dark: true  },
+    holo:      { name: '极光贝母', stage: '冰川极光台', shade: '#4e6294', paper: '#dce8f8', base: 'metal',   shaderMode: 7, dark: true  }
   };
 
   let active = 'cartoon';
@@ -103,58 +104,67 @@
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
-    } else if (key === 'glass') {
-      // Crystal sea-salt glass: clear silhouette + vivid aqua Fresnel rim + crisp lens specular & bottom caustic
-      ctx.save(); ctx.globalAlpha = 0.72; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
+    } else if (key === 'toy3d') {
+      // Sculptural 3D designer vinyl toy: velvety matte-satin studio shading & soft volume AO
+      ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx - rad * 0.14, cy - rad * 0.18, rad * 0.10, cx, cy, rad * 1.02);
-        g.addColorStop(0, 'rgba(235, 255, 255, 0.12)');
-        g.addColorStop(0.55, 'rgba(82, 224, 240, 0.22)');
-        g.addColorStop(0.84, 'rgba(186, 250, 255, 0.68)');
-        g.addColorStop(1, 'rgba(255, 255, 255, 0.94)');
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createRadialGradient(cx - rad * 0.26, cy - rad * 0.32, rad * 0.04, cx + rad * 0.08, cy + rad * 0.14, rad * 1.08);
+        g.addColorStop(0, 'rgba(255, 252, 246, 0.34)');
+        g.addColorStop(0.36, 'rgba(255, 250, 244, 0.08)');
+        g.addColorStop(0.74, 'rgba(34, 24, 52, 0.14)');
+        g.addColorStop(1, 'rgba(22, 16, 40, 0.34)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Bottom internal caustic glow
-        const cg = ctx.createRadialGradient(cx, cy + rad * 0.45, rad * 0.05, cx, cy + rad * 0.45, rad * 0.52);
-        cg.addColorStop(0, 'rgba(180, 255, 252, 0.72)');
-        cg.addColorStop(1, 'rgba(180, 255, 252, 0)');
+        const rim = ctx.createRadialGradient(cx, cy, rad * 0.58, cx, cy, rad * 1.02);
+        rim.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        rim.addColorStop(0.84, 'rgba(218, 244, 255, 0.16)');
+        rim.addColorStop(1, 'rgba(235, 250, 255, 0.36)');
+        ctx.fillStyle = rim; ctx.fillRect(ox, oy, cw, ch);
+      }
+      ctx.restore();
+    } else if (key === 'glass') {
+      // Crystal sea-salt glass: clean volumetric translucency & smooth aqua rim (no 2D sticker arcs)
+      ctx.save(); ctx.globalAlpha = 0.78; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
+      trimIvoryWhiskers(ctx, w, h);
+      applyCharDistinction(ctx, w, h);
+      ctx.save(); ctx.globalCompositeOperation = 'source-atop';
+      for (let i = 0; i < 20; i++) {
+        const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createRadialGradient(cx - rad * 0.18, cy - rad * 0.22, rad * 0.08, cx, cy, rad * 1.04);
+        g.addColorStop(0, 'rgba(240, 255, 255, 0.22)');
+        g.addColorStop(0.55, 'rgba(72, 212, 232, 0.18)');
+        g.addColorStop(0.86, 'rgba(176, 246, 255, 0.52)');
+        g.addColorStop(1, 'rgba(245, 255, 255, 0.80)');
+        ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
+        const cg = ctx.createRadialGradient(cx, cy + rad * 0.42, rad * 0.04, cx, cy + rad * 0.42, rad * 0.48);
+        cg.addColorStop(0, 'rgba(182, 255, 252, 0.46)');
+        cg.addColorStop(1, 'rgba(182, 255, 252, 0)');
         ctx.fillStyle = cg; ctx.fillRect(ox, oy, cw, ch);
-        // Sharp specular crescent & twin glints
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.96)'; ctx.lineWidth = cw * 0.024; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.70, -Math.PI * 0.84, -Math.PI * 0.50); ctx.stroke();
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath(); ctx.arc(cx - rad * 0.46, cy - rad * 0.44, cw * 0.020, 0, TAU); ctx.fill();
-        ctx.beginPath(); ctx.arc(cx + rad * 0.38, cy + rad * 0.38, cw * 0.012, 0, TAU); ctx.fill();
       }
       ctx.restore();
     } else if (key === 'neon') {
-      // High-contrast cyberpunk neon: sleek obsidian glossy body + vivid character-colored neon tube rim!
+      // High-contrast cyberpunk neon: sleek glossy obsidian core + smooth character-colored rim
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx - rad * 0.18, cy - rad * 0.22, rad * 0.08, cx, cy, rad * 1.02);
-        g.addColorStop(0, 'rgba(34, 20, 74, 0.78)');
-        g.addColorStop(0.56, 'rgba(18, 10, 44, 0.82)');
-        g.addColorStop(0.80, crew[i].color);
-        g.addColorStop(0.95, crew[i].light);
-        g.addColorStop(1, '#ffffff');
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createRadialGradient(cx - rad * 0.18, cy - rad * 0.22, rad * 0.08, cx, cy, rad * 1.03);
+        g.addColorStop(0, 'rgba(34, 22, 72, 0.72)');
+        g.addColorStop(0.58, 'rgba(18, 12, 42, 0.78)');
+        g.addColorStop(0.84, crew[i].color);
+        g.addColorStop(1, crew[i].light);
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Crisp neon tube highlight arc
-        ctx.strokeStyle = crew[i].light; ctx.lineWidth = cw * 0.020; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.72, -Math.PI * 0.88, -Math.PI * 0.38); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.88)'; ctx.lineWidth = cw * 0.010;
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.72, -Math.PI * 0.84, -Math.PI * 0.46); ctx.stroke();
       }
       ctx.restore();
     } else if (key === 'plush') {
-      // Warm velvety Jellycat-style plush: soft sunlit top sheen + cozy warm shadow depth
+      // Warm velvety plush: soft studio top bounce + cozy shadow depth
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
@@ -163,74 +173,56 @@
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
         const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
         const g = ctx.createRadialGradient(cx - rad * 0.22, cy - rad * 0.28, rad * 0.06, cx, cy, rad * 1.04);
-        g.addColorStop(0, 'rgba(255, 248, 240, 0.26)');
-        g.addColorStop(0.62, 'rgba(255, 232, 224, 0.05)');
-        g.addColorStop(1, 'rgba(128, 72, 86, 0.22)');
+        g.addColorStop(0, 'rgba(255, 248, 242, 0.24)');
+        g.addColorStop(0.62, 'rgba(255, 232, 224, 0.04)');
+        g.addColorStop(1, 'rgba(116, 64, 78, 0.24)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
       }
       ctx.restore();
     } else if (key === 'pixel') {
-      // Crisp high-contrast arcade pixel art with clean retro rim shine
+      // Crisp high-contrast arcade pixel art with smooth retro top/bottom shading
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createLinearGradient(ox, oy + ch * 0.15, ox, oy + ch * 0.85);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.14)');
+        const g = ctx.createLinearGradient(ox, oy + ch * 0.14, ox, oy + ch * 0.86);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.16)');
         g.addColorStop(0.5, 'rgba(255, 255, 255, 0)');
-        g.addColorStop(1, 'rgba(24, 20, 56, 0.18)');
+        g.addColorStop(1, 'rgba(24, 20, 56, 0.22)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Crisp 2-step pixel specular block
-        const blk = Math.round(cw * 0.032);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.82)';
-        ctx.fillRect(Math.round(cx - rad * 0.48), Math.round(cy - rad * 0.46), blk * 2, blk);
-        ctx.fillRect(Math.round(cx - rad * 0.54), Math.round(cy - rad * 0.36), blk, blk);
       }
       ctx.restore();
     } else if (key === 'gummy') {
-      // Translucent juicy fruit gummy: rich saturated hue + warm candy subsurface glow + glossy jelly-bean pill
-      ctx.save(); ctx.globalAlpha = 0.90; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
+      // Juicy translucent fruit gummy: smooth warm subsurface glow, zero 2D sticker ovals
+      ctx.save(); ctx.globalAlpha = 0.92; ctx.drawImage(baseImg, 0, 0, w, h); ctx.restore();
       trimIvoryWhiskers(ctx, w, h);
       applyCharDistinction(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createRadialGradient(cx, cy + rad * 0.22, rad * 0.08, cx, cy, rad * 1.02);
-        g.addColorStop(0, 'rgba(255, 252, 220, 0.32)');
-        g.addColorStop(0.55, 'rgba(255, 224, 150, 0.08)');
-        g.addColorStop(1, 'rgba(255, 132, 48, 0.24)');
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createRadialGradient(cx - rad * 0.18, cy - rad * 0.22, rad * 0.06, cx, cy, rad * 1.04);
+        g.addColorStop(0, 'rgba(255, 252, 232, 0.30)');
+        g.addColorStop(0.55, 'rgba(255, 224, 150, 0.06)');
+        g.addColorStop(1, 'rgba(220, 108, 36, 0.24)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Glossy jelly-bean highlight pill
-        ctx.save(); ctx.translate(cx - rad * 0.38, cy - rad * 0.38); ctx.rotate(-0.55);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.86)';
-        ctx.beginPath(); ctx.ellipse(0, 0, rad * 0.24, rad * 0.11, 0, 0, TAU); ctx.fill();
-        ctx.restore();
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-        ctx.beginPath(); ctx.arc(cx - rad * 0.12, cy - rad * 0.52, cw * 0.012, 0, TAU); ctx.fill();
       }
       ctx.restore();
     } else if (key === 'porcelain') {
-      // Authentic Jingdezhen celadon / blue-and-white porcelain: preserves subtle character tint + crisp cobalt glaze rim + glossy kiln shine
+      // Fine Jingdezhen glazed ceramic: smooth warm-ivory core + soft cobalt glaze rim (no harsh 2D stroke)
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
         const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
-        const g = ctx.createRadialGradient(cx - rad * 0.24, cy - rad * 0.28, rad * 0.08, cx, cy, rad * 1.04);
-        g.addColorStop(0, 'rgba(255, 255, 255, 0.76)');
-        g.addColorStop(0.52, 'rgba(242, 248, 255, 0.64)');
-        g.addColorStop(0.80, 'rgba(54, 108, 192, 0.72)');
-        g.addColorStop(1, 'rgba(24, 56, 132, 0.90)');
+        const g = ctx.createRadialGradient(cx - rad * 0.22, cy - rad * 0.26, rad * 0.08, cx, cy, rad * 1.05);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.78)');
+        g.addColorStop(0.54, 'rgba(240, 246, 254, 0.62)');
+        g.addColorStop(0.82, 'rgba(54, 104, 186, 0.66)');
+        g.addColorStop(1, 'rgba(26, 58, 128, 0.86)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Delicate cobalt rim band + kiln glaze highlight
-        ctx.strokeStyle = 'rgba(32, 76, 162, 0.48)'; ctx.lineWidth = 2.2 * pxScale;
-        ctx.beginPath(); ctx.arc(cx, cy + rad * 0.14, rad * 0.60, Math.PI * 0.16, Math.PI * 0.84); ctx.stroke();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.98)'; ctx.lineWidth = cw * 0.026; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.68, -Math.PI * 0.84, -Math.PI * 0.52); ctx.stroke();
       }
       ctx.restore();
     } else if (key === 'sakura') {
@@ -249,27 +241,24 @@
       }
       ctx.restore();
     } else if (key === 'holo') {
-      // Luminous mother-of-pearl aurora: preserves 3D depth + pearlescent rainbow rim + crisp sheen
+      // Natural mother-of-pearl aurora: smooth pearlescent gradient + soft spherical volume shading (no 2D arc)
       ctx.drawImage(baseImg, 0, 0, w, h);
       trimIvoryWhiskers(ctx, w, h);
       ctx.save(); ctx.globalCompositeOperation = 'source-atop';
       for (let i = 0; i < 20; i++) {
         const ox = (i % 5) * cw, oy = Math.floor(i / 5) * ch;
-        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.34;
-        const g = ctx.createLinearGradient(ox + cw * 0.14, oy + ch * 0.14, ox + cw * 0.86, oy + ch * 0.86);
-        g.addColorStop(0, 'rgba(170, 255, 248, 0.52)');
-        g.addColorStop(0.34, 'rgba(192, 198, 255, 0.48)');
-        g.addColorStop(0.68, 'rgba(255, 188, 242, 0.50)');
-        g.addColorStop(1, 'rgba(255, 242, 178, 0.52)');
+        const cx = ox + cw * 0.5, cy = oy + ch * 0.5, rad = cw * 0.35;
+        const g = ctx.createLinearGradient(ox + cw * 0.16, oy + ch * 0.16, ox + cw * 0.84, oy + ch * 0.84);
+        g.addColorStop(0, 'rgba(176, 250, 244, 0.42)');
+        g.addColorStop(0.36, 'rgba(196, 202, 255, 0.38)');
+        g.addColorStop(0.70, 'rgba(252, 196, 240, 0.40)');
+        g.addColorStop(1, 'rgba(252, 238, 186, 0.40)');
         ctx.fillStyle = g; ctx.fillRect(ox, oy, cw, ch);
-        // Pearlescent inner volume highlight
-        const rg = ctx.createRadialGradient(cx - rad * 0.24, cy - rad * 0.28, rad * 0.05, cx, cy, rad * 1.0);
-        rg.addColorStop(0, 'rgba(255, 255, 255, 0.68)');
-        rg.addColorStop(0.52, 'rgba(255, 255, 255, 0.06)');
-        rg.addColorStop(1, 'rgba(105, 130, 220, 0.26)');
+        const rg = ctx.createRadialGradient(cx - rad * 0.22, cy - rad * 0.26, rad * 0.06, cx, cy, rad * 1.04);
+        rg.addColorStop(0, 'rgba(255, 255, 255, 0.42)');
+        rg.addColorStop(0.56, 'rgba(255, 255, 255, 0.04)');
+        rg.addColorStop(1, 'rgba(84, 108, 196, 0.28)');
         ctx.fillStyle = rg; ctx.fillRect(ox, oy, cw, ch);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.94)'; ctx.lineWidth = cw * 0.025; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.arc(cx, cy, rad * 0.68, -Math.PI * 0.84, -Math.PI * 0.50); ctx.stroke();
       }
       ctx.restore();
     } else {
@@ -551,13 +540,6 @@
       } else curve(c, ink, .041, -.125, -.012, .012, .083, .145, -.028);
       c.restore();
     }
-    if (skin === 'glass') {
-      c.save();
-      c.strokeStyle = 'rgba(255,255,255,0.74)'; c.lineWidth = .075;
-      c.beginPath(); c.arc(-.02, -.02, .78, -Math.PI * 0.82, -Math.PI * 0.54); c.stroke();
-      oval(c, -.54, -.46, .078, .058, 'rgba(255,255,255,0.90)');
-      c.restore();
-    }
     c.restore();
     if (skin === 'pixel') {
       c = surface; c.save(); c.transform(v.ax, v.ay, v.bx, v.by, v.x, v.y); c.imageSmoothingEnabled = false;
@@ -607,7 +589,29 @@
     const ctx = stageCache.getContext('2d');
     ctx.clearRect(0, 0, w, h);
 
-    if (stageKey === 'neon') {
+    if (stageKey === 'cartoon') {
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, '#8ec7ad'); g.addColorStop(.55, '#7ab89c'); g.addColorStop(1, '#66a588');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+      for (let x = 0; x < w; x += 48) ctx.fillRect(x, 0, 22, h);
+    } else if (stageKey === 'toy3d') {
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, '#365b6d'); g.addColorStop(.52, '#284757'); g.addColorStop(1, '#1d3542');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      const sp = ctx.createRadialGradient(w * 0.5, h * 0.16, 12, w * 0.5, h * 0.24, w * 0.72);
+      sp.addColorStop(0, 'rgba(170, 232, 248, 0.22)');
+      sp.addColorStop(1, 'rgba(170, 232, 248, 0)');
+      ctx.fillStyle = sp; ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(205, 240, 250, 0.14)'; ctx.lineWidth = 1.2;
+      ctx.strokeRect(12, 14, w - 24, h - 28);
+    } else if (stageKey === 'plush') {
+      const g = ctx.createLinearGradient(0, 0, 0, h);
+      g.addColorStop(0, '#ae7d8d'); g.addColorStop(.55, '#966576'); g.addColorStop(1, '#7d5061');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(255, 236, 242, 0.07)';
+      for (let x = 0; x < w; x += 40) ctx.fillRect(x, 0, 18, h);
+    } else if (stageKey === 'neon') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
       g.addColorStop(0, '#120a24'); g.addColorStop(.55, '#1d103c'); g.addColorStop(1, '#2f1448');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
@@ -618,44 +622,44 @@
       ctx.fillStyle = 'rgba(255, 72, 196, 0.35)'; ctx.fillRect(w - 9, 36, 3, h - 100);
     } else if (stageKey === 'glass') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, 'rgba(22, 104, 122, 0.55)');
-      g.addColorStop(0.5, 'rgba(48, 148, 162, 0.32)');
-      g.addColorStop(1, 'rgba(14, 78, 92, 0.62)');
+      g.addColorStop(0, '#1d6678');
+      g.addColorStop(0.5, '#297c8f');
+      g.addColorStop(1, '#144d5c');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = 'rgba(215, 255, 255, 0.22)'; ctx.lineWidth = 1.4;
+      ctx.strokeStyle = 'rgba(215, 255, 255, 0.18)'; ctx.lineWidth = 1.4;
       for (let i = 0; i < 8; i++) {
         ctx.beginPath(); ctx.arc((i * 61 + 35) % w, (i * 73 + 60) % h, 6 + (i % 4) * 5, 0, TAU); ctx.stroke();
       }
     } else if (stageKey === 'gummy') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#fff7d6'); g.addColorStop(.55, '#ffefd1'); g.addColorStop(1, '#ffe2b8');
+      g.addColorStop(0, '#dfa56d'); g.addColorStop(.55, '#cf8c55'); g.addColorStop(1, '#b87240');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(255, 194, 88, 0.16)';
+      ctx.fillStyle = 'rgba(255, 236, 200, 0.12)';
       for (let x = 0; x < w; x += 44) ctx.fillRect(x, 0, 20, h);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+      ctx.fillStyle = 'rgba(255, 240, 214, 0.24)';
       for (let i = 0; i < 6; i++) { ctx.beginPath(); ctx.arc(i * 80 + 20, h - 10, 56, 0, TAU); ctx.fill(); }
     } else if (stageKey === 'porcelain') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#eef3f8'); g.addColorStop(.6, '#e2ecf5'); g.addColorStop(1, '#cfe0f0');
+      g.addColorStop(0, '#7c9ab8'); g.addColorStop(.58, '#6282a4'); g.addColorStop(1, '#48688c');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-      ctx.fillStyle = 'rgba(65, 110, 168, 0.14)';
+      ctx.fillStyle = 'rgba(22, 46, 86, 0.22)';
       ctx.beginPath(); ctx.moveTo(0, h); ctx.lineTo(0, h - 110);
       ctx.quadraticCurveTo(w * .3, h - 170, w * .62, h - 105);
       ctx.quadraticCurveTo(w * .85, h - 70, w, h - 125); ctx.lineTo(w, h); ctx.closePath(); ctx.fill();
-      ctx.strokeStyle = 'rgba(62, 106, 164, 0.22)'; ctx.lineWidth = 1.2;
+      ctx.strokeStyle = 'rgba(224, 238, 255, 0.24)'; ctx.lineWidth = 1.2;
       ctx.strokeRect(10, 12, w - 20, h - 24);
     } else if (stageKey === 'sakura') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#fce4ec'); g.addColorStop(.52, '#f9d5e2'); g.addColorStop(1, '#e7b8cf');
+      g.addColorStop(0, '#c987a3'); g.addColorStop(.52, '#b06d8c'); g.addColorStop(1, '#8c5170');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
     } else if (stageKey === 'holo') {
       const g = ctx.createLinearGradient(0, 0, 0, h);
-      g.addColorStop(0, '#e3f4ff'); g.addColorStop(.52, '#eae8ff'); g.addColorStop(1, '#f7e6ff');
+      g.addColorStop(0, '#465d8c'); g.addColorStop(.52, '#544e85'); g.addColorStop(1, '#3b4270');
       ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
       const ag = ctx.createLinearGradient(0, 50, w, 260);
-      ag.addColorStop(0, 'rgba(92, 236, 224, 0.28)');
-      ag.addColorStop(.5, 'rgba(148, 168, 255, 0.26)');
-      ag.addColorStop(1, 'rgba(255, 168, 236, 0.24)');
+      ag.addColorStop(0, 'rgba(92, 236, 224, 0.24)');
+      ag.addColorStop(.5, 'rgba(154, 174, 255, 0.22)');
+      ag.addColorStop(1, 'rgba(255, 168, 236, 0.20)');
       ctx.fillStyle = ag;
       ctx.beginPath(); ctx.moveTo(0, 140); ctx.bezierCurveTo(w * .3, 90, w * .7, 200, w, 125);
       ctx.lineTo(w, 250); ctx.bezierCurveTo(w * .7, 285, w * .3, 195, 0, 235); ctx.closePath(); ctx.fill();
@@ -663,11 +667,11 @@
   }
 
   function drawStage(ctx, w, h, stageKey, t, fever = false) {
-    if (stageKey === 'neon' || stageKey === 'glass' || stageKey === 'gummy' || stageKey === 'porcelain' || stageKey === 'sakura' || stageKey === 'holo') {
+    if (stageKey === 'cartoon' || stageKey === 'toy3d' || stageKey === 'plush' || stageKey === 'neon' || stageKey === 'glass' || stageKey === 'gummy' || stageKey === 'porcelain' || stageKey === 'sakura' || stageKey === 'holo') {
       ensureStageCache(w, h, stageKey);
       ctx.drawImage(stageCache, 0, 0, w, h);
       if (stageKey === 'sakura') {
-        ctx.save(); ctx.fillStyle = 'rgba(255, 245, 250, 0.58)';
+        ctx.save(); ctx.fillStyle = 'rgba(255, 238, 246, 0.54)';
         for (let i = 0; i < 6; i++) {
           const px = (i * 71 + t * (10 + (i % 3) * 4)) % (w + 16) - 8;
           const py = (i * 89 + t * (15 + (i % 3) * 4)) % (h + 16) - 8;
@@ -715,9 +719,16 @@
             if (s.a < 0.01) discard;
             vec3 rgb = s.rgb / max(s.a, 0.001);
             vec2 p = (fract(uv * vec2(5., 4.)) - .5) * vec2(3.4, 4.04762);
-            float z = sqrt(max(.012, 1. - min(.985, dot(p, p))));
+            float r2 = dot(p, p);
+            float z = sqrt(max(.016, 1. - min(.984, r2)));
             vec3 n = normalize(vec3(p.x, -p.y, z));
             float fres = pow(1.0 - max(0.0, n.z), 2.0);
+            float rim = pow(1.0 - max(0.0, n.z), 2.4);
+            vec3 L = normalize(vec3(-0.36 + shine.x * 0.14, 0.46, 0.80));
+            vec3 H = normalize(L + vec3(0.0, 0.0, 1.0));
+            float ndl = max(0.0, dot(n, L));
+            float ndh = max(0.0, dot(n, H));
+            float ao = smoothstep(-0.85, 0.45, n.y);
             vec3 ref = reflect(vec3(0., 0., -1.), n);
             float strip = exp(-54. * pow(abs(ref.x + .65 - shine.x * .24), 2.)) * smoothstep(.20, .89, ref.y);
             float outAlpha = s.a;
@@ -726,37 +737,43 @@
               // Metal preserved unchanged
               rgb += vec3(1., .95, .87) * strip * (.048 + shine.y * .22);
             } else if (mode > 1.5 && mode < 2.5) {
-              // Upgraded crystal sea-salt glass
-              float spec = exp(-((p.x + .34) * (p.x + .34) + (p.y + .38) * (p.y + .38)) * 16.0);
-              float caustic = exp(-((p.x - .10) * (p.x - .10) + (p.y - .46) * (p.y - .46)) * 9.0);
-              vec3 glassTint = mix(rgb * .82 + vec3(.12, .24, .28), vec3(.90, .99, 1.0), fres * .72);
-              rgb = glassTint + vec3(1.0) * (spec * .92 + strip * .28) + vec3(.58, .98, 1.0) * caustic * .42;
-              outAlpha = s.a * clamp(0.60 + fres * 0.42 + spec * 0.38 + caustic * 0.16, 0.58, 0.99);
+              // Coherent 3D sea-salt glass (single Blinn-Phong specular + Fresnel rim + soft bottom caustic)
+              float spec = pow(ndh, 54.0);
+              float caustic = smoothstep(0.18, 0.86, -n.y) * (1.0 - rim) * 0.24;
+              vec3 glassTint = mix(rgb * .84 + vec3(.08, .20, .24), vec3(.86, .98, 1.0), rim * .76);
+              rgb = glassTint * (0.86 + 0.18 * ndl) + vec3(1.0) * spec * .78 + vec3(.56, .98, 1.0) * caustic;
+              outAlpha = s.a * clamp(0.66 + rim * 0.34 + spec * 0.28 + caustic * 0.15, 0.64, 0.99);
             } else if (mode > 2.5 && mode < 3.5) {
-              // Upgraded high-contrast neon glow
-              float edge = pow(clamp(length(p) * 1.02, 0., 1.), 2.2);
-              rgb = rgb * (0.55 + edge * 0.85) + (rgb * 0.85 + vec3(0.22, 0.30, 0.55)) * fres * 1.15 + vec3(1.0) * strip * .18;
+              // Coherent 3D obsidian neon
+              float spec = pow(ndh, 36.0);
+              rgb = rgb * (0.62 + 0.34 * ndl) + (rgb * 0.82 + vec3(0.18, 0.28, 0.52)) * rim * 1.18 + vec3(0.92, 0.98, 1.0) * spec * 0.34;
             } else if (mode > 3.5 && mode < 4.5) {
-              // Upgraded juicy candy gummy (clean subsurface glow, zero static noise)
-              float spec = exp(-((p.x + .30) * (p.x + .30) + (p.y + .34) * (p.y + .34)) * 12.0);
-              float sss = exp(-((p.x) * (p.x) + (p.y - .32) * (p.y - .32)) * 4.5);
-              rgb = rgb * 1.08 + vec3(.10, .06, .01) * sss + vec3(1.0) * (spec * .58 + strip * .16);
-              outAlpha = s.a * clamp(0.86 + fres * 0.14 + spec * 0.14, 0.84, 1.0);
+              // Coherent 3D juicy fruit gummy (soft candy specular + warm subsurface)
+              float spec = pow(ndh, 24.0);
+              float sss = smoothstep(-0.15, 0.88, -n.y) * 0.14;
+              rgb = rgb * (0.94 + 0.16 * ndl) + vec3(0.16, 0.08, 0.02) * sss + vec3(1.0, 0.99, 0.96) * spec * 0.46 + vec3(1.0, 0.92, 0.82) * rim * 0.16;
+              outAlpha = s.a * clamp(0.88 + rim * 0.12 + spec * 0.10, 0.86, 1.0);
             } else if (mode > 4.5 && mode < 5.5) {
-              // Upgraded blue-and-white porcelain glaze
+              // Coherent 3D Jingdezhen porcelain glaze (single crisp kiln specular + smooth cobalt rim)
               float lum = dot(rgb, vec3(.3, .59, .11));
-              vec3 ivory = vec3(.94, .97, 1.0) + (rgb - vec3(lum)) * .30;
-              float spec = exp(-((p.x + .32) * (p.x + .32) + (p.y + .36) * (p.y + .36)) * 18.0);
-              rgb = mix(ivory, vec3(.14, .34, .74), fres * .76) + vec3(1.0) * (spec * .78 + strip * .28);
+              vec3 ivory = vec3(.93, .96, .99) + (rgb - vec3(lum)) * .28;
+              float spec = pow(ndh, 64.0);
+              vec3 bodyCol = mix(ivory, vec3(.14, .34, .74), smoothstep(0.14, 0.92, rim) * .78);
+              rgb = bodyCol * (0.82 + 0.20 * ndl) + vec3(1.0) * spec * 0.64;
             } else if (mode > 5.5 && mode < 6.5) {
               // Sakura preserved unchanged
               rgb = rgb * .62 + vec3(.38, .28, .33) + vec3(1., .92, .95) * fres * .34;
-            } else if (mode > 6.5) {
-              // Upgraded mother-of-pearl aurora iridescence
-              float ph = p.x * 2.4 - p.y * 2.0 + shine.x * 2.0 + uTime * 1.1;
-              vec3 irid = 0.70 + 0.30 * cos(ph + vec3(0., 2.0, 4.1));
-              float spec = exp(-((p.x + .28) * (p.x + .28) + (p.y + .34) * (p.y + .34)) * 14.0);
-              rgb = mix(rgb * 0.78 + vec3(.22, .24, .28), irid, 0.38 + fres * 0.48) + vec3(1.0) * (spec * .64 + strip * .32);
+            } else if (mode > 6.5 && mode < 7.5) {
+              // Coherent 3D mother-of-pearl aurora (smooth angle-based iridescence + single soft pearl sheen)
+              float ph = n.x * 2.1 + n.y * 1.7 + rim * 2.6 + shine.x * 1.4 + uTime * 0.75;
+              vec3 irid = 0.74 + 0.26 * cos(ph + vec3(0.0, 2.05, 4.15));
+              float spec = pow(ndh, 34.0);
+              vec3 pearl = mix(rgb * 0.84 + vec3(0.16, 0.18, 0.22), irid, 0.26 + rim * 0.44);
+              rgb = pearl * (0.84 + 0.20 * ndl) + vec3(1.0) * spec * 0.50;
+            } else if (mode > 7.5) {
+              // New 3D Designer Vinyl Toy (潮玩3D): tactile matte-satin 3D sculpture lighting
+              float spec = pow(ndh, 14.0);
+              rgb = rgb * (0.76 + 0.30 * ndl) * (0.90 + 0.10 * ao) + vec3(1.0, 0.99, 0.97) * spec * 0.32 + vec3(0.84, 0.96, 1.0) * rim * 0.28;
             }
             gl_FragColor = vec4(clamp(rgb, 0.0, 1.0) * outAlpha, outAlpha);
           }`;

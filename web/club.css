@@ -1,27 +1,28 @@
-@font-face{font-family:Jam Display;src:url("assets/jam-title.woff2") format("woff2");font-display:swap}
-:root{--cream:#fff9ec;--home-ink:#223830;--muted:#586e60;--outline:#24352e}
+:root{--cream:#fff9ec;--home-ink:#223830;--muted:#586e60;--outline:#24352e;--ui-font:"PingFang SC","Hiragino Sans GB","MiSans","Microsoft YaHei",system-ui,sans-serif}
 
-body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hud-sub:#4f6b5d;--trim:#6ea385;--accent:#1f8a52;--tint:#a9dec0}
+body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hud-sub:#4f6b5d;--trim:#6ea385;--accent:#1f8a52;--tint:#8acaa9}
+[data-skin=toy3d]{--shell:#1d3642;--chrome:#182d38;--hud-ink:#eefaff;--hud-sub:#a7ccd9;--trim:#4e8ea3;--accent:#7cf2e2;--tint:#2b5363}
 [data-skin=metal]{--shell:#223740;--chrome:#1c2e36;--hud-ink:#f5f7ee;--hud-sub:#b8cdd0;--trim:#668590;--accent:#e0f7a0;--tint:#9bb8c2}
-[data-skin=glass]{--shell:#144954;--chrome:#103e48;--hud-ink:#effdff;--hud-sub:#aee2e8;--trim:#59bec9;--accent:#b6fff4;--tint:#7ad2de}
+[data-skin=glass]{--shell:#144954;--chrome:#103e48;--hud-ink:#effdff;--hud-sub:#aee2e8;--trim:#59bec9;--accent:#b6fff4;--tint:#50aab8}
 [data-skin=neon]{--shell:#180e30;--chrome:#110924;--hud-ink:#f6efff;--hud-sub:#bfa8f0;--trim:#8052cc;--accent:#6cf7ff;--tint:#311a5c}
-[data-skin=plush]{--shell:#ecd5cf;--chrome:#f8ebe6;--hud-ink:#543d47;--hud-sub:#775f65;--trim:#bd929e;--accent:#a63d68;--tint:#e6bcc4}
-[data-skin=pixel]{--shell:#32364a;--chrome:#2c2f44;--hud-ink:#f2f2dd;--hud-sub:#c8c7d8;--trim:#7c82a8;--accent:#f4dd89;--tint:#b4b6d8}
-[data-skin=gummy]{--shell:#ffe9b5;--chrome:#fff6da;--hud-ink:#66360e;--hud-sub:#9c6533;--trim:#e6aa4c;--accent:#e06814;--tint:#ffd984}
-[data-skin=porcelain]{--shell:#dce8f5;--chrome:#edf5fc;--hud-ink:#1d3963;--hud-sub:#506f99;--trim:#799fd0;--accent:#2358a8;--tint:#c7dcf2}
-[data-skin=sakura]{--shell:#f9d5e3;--chrome:#ffeff5;--hud-ink:#662b45;--hud-sub:#945972;--trim:#d988aa;--accent:#c43b73;--tint:#f7c5da}
-[data-skin=holo]{--shell:#ddeeff;--chrome:#f1f7ff;--hud-ink:#223466;--hud-sub:#5c6f9c;--trim:#84b0eb;--accent:#4a66d6;--tint:#cde4ff}
+[data-skin=plush]{--shell:#d9b8bf;--chrome:#f0dde1;--hud-ink:#4c313b;--hud-sub:#70515c;--trim:#a67686;--accent:#9e345f;--tint:#b38492}
+[data-skin=pixel]{--shell:#32364a;--chrome:#2c2f44;--hud-ink:#f2f2dd;--hud-sub:#c8c7d8;--trim:#7c82a8;--accent:#f4dd89;--tint:#7b7eb3}
+[data-skin=gummy]{--shell:#e6b47e;--chrome:#f7dec0;--hud-ink:#592d0a;--hud-sub:#875124;--trim:#c9823c;--accent:#c44e08;--tint:#d9985b}
+[data-skin=porcelain]{--shell:#334e70;--chrome:#29415e;--hud-ink:#eff6ff;--hud-sub:#b6cbe6;--trim:#698cb8;--accent:#b8e1ff;--tint:#5d7fa6}
+[data-skin=sakura]{--shell:#9c5f7b;--chrome:#874e69;--hud-ink:#fff5f9;--hud-sub:#f0cadb;--trim:#c989a7;--accent:#ffe29c;--tint:#b37290}
+[data-skin=holo]{--shell:#2f3a66;--chrome:#263057;--hud-ink:#eef4ff;--hud-sub:#b8c7ed;--trim:#6e85cc;--accent:#8cf7ea;--tint:#475a8c}
 
-[data-stage=cartoon]{--stage-img:url("assets/stage-cartoon.webp");--stage-flat:#a8d5b8}
+[data-stage=cartoon]{--stage-img:none;--stage-flat:#7ab89c}
+[data-stage=toy3d]{--stage-img:none;--stage-flat:#284757}
 [data-stage=metal]{--stage-img:url("assets/studio.webp");--stage-flat:#3f5b66}
-[data-stage=glass]{--stage-img:url("assets/stage-glass.webp");--stage-flat:#267584}
+[data-stage=glass]{--stage-img:none;--stage-flat:#247182}
 [data-stage=neon]{--stage-img:none;--stage-flat:#180e30}
-[data-stage=plush]{--stage-img:url("assets/stage-plush.webp");--stage-flat:#ceb0aa}
+[data-stage=plush]{--stage-img:none;--stage-flat:#966576}
 [data-stage=pixel]{--stage-img:url("assets/stage-pixel.webp");--stage-flat:#3c405a}
-[data-stage=gummy]{--stage-img:none;--stage-flat:#fff4d2}
-[data-stage=porcelain]{--stage-img:none;--stage-flat:#e7f0f8}
-[data-stage=sakura]{--stage-img:none;--stage-flat:#f9d7e3}
-[data-stage=holo]{--stage-img:none;--stage-flat:#e8f4ff}
+[data-stage=gummy]{--stage-img:none;--stage-flat:#cf8c55}
+[data-stage=porcelain]{--stage-img:none;--stage-flat:#6282a4}
+[data-stage=sakura]{--stage-img:none;--stage-flat:#b06d8c}
+[data-stage=holo]{--stage-img:none;--stage-flat:#544e85}
 
 .game-view{display:flex;position:absolute;inset:0;flex-direction:column;min-height:0;background:var(--shell)}
 .game-view.behind{visibility:hidden;pointer-events:none}
@@ -62,33 +63,15 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 
 /* Sculptural 3D Game Logo */
 .hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:16px;pointer-events:none}
-.cover-title{margin:0;text-align:center;font-family:"Jam Display","PingFang SC","Microsoft YaHei",sans-serif;font-weight:950;line-height:.92;letter-spacing:-.02em;font-size:clamp(48px,min(15.5vw,7.8vh),74px);color:#fff8d6;paint-order:stroke fill;-webkit-text-stroke:7px #21362e;text-shadow:0 6px 0 #172822,0 12px 20px rgba(0,0,0,.24);transform:rotate(-3.2deg)}
+.cover-title{margin:0;text-align:center;font-family:var(--ui-font);font-weight:900;line-height:.96;letter-spacing:.02em;font-size:clamp(46px,min(15vw,7.4vh),70px);color:#fff8d6;paint-order:stroke fill;-webkit-text-stroke:7px #21362e;text-shadow:0 6px 0 #172822,0 12px 20px rgba(0,0,0,.24);transform:rotate(-3.2deg)}
 .cover-title span{display:block}
 .cover-title span+span{color:#ffe152;margin-top:2px;font-size:1.05em}
 
 /* Bottom Floating Game Play Console */
 .home-footer{position:relative;z-index:3;flex:none;display:grid;gap:12px;padding-bottom:4px}
 
-.mode-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:0}
-.mode-pill{position:relative;justify-content:center;gap:4px;height:44px;padding:0 4px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#e5eee6);border:2.5px solid #24352e;color:#274036;font-size:13px;font-weight:950;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.85)}
-.mode-pill canvas{width:18px;height:18px;flex:none}
-.mode-pill[aria-pressed=true]{color:#ffffff;transform:translateY(-2px);paint-order:stroke fill;-webkit-text-stroke:2px rgba(24,38,32,.65)}
-.mode-pill.is-campaign[aria-pressed=true]{background:linear-gradient(180deg,#ff8066,#ea4736);border-color:#69170f;box-shadow:0 5px 0 #69170f,inset 0 3px 0 rgba(255,255,255,.45)}
-.mode-pill.is-orders[aria-pressed=true]{background:linear-gradient(180deg,#c17dff,#863ff0);border-color:#3a1573;box-shadow:0 5px 0 #3a1573,inset 0 3px 0 rgba(255,255,255,.45)}
-.mode-pill.is-press[aria-pressed=true]{background:linear-gradient(180deg,#56c2ff,#1a88e5);border-color:#0c4173;box-shadow:0 5px 0 #0c4173,inset 0 3px 0 rgba(255,255,255,.45)}
-.mode-pill.is-endless[aria-pressed=true]{background:linear-gradient(180deg,#ffbe3b,#e67e12);border-color:#663304;box-shadow:0 5px 0 #663304,inset 0 3px 0 rgba(255,255,255,.45)}
-
-.level-bar{justify-content:flex-start;gap:9px;min-height:48px;padding:5px 12px;border-radius:17px;background:linear-gradient(180deg,#fffef6,#f2ecd5);border:2.5px solid #24352e;color:#223830;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.95)}
-.lv-pill-icon{width:30px;height:30px;border-radius:10px;background:#ffe3d6;border:2px solid #24352e;display:grid;place-items:center;flex:none}
-.lv-pill-icon canvas{width:19px;height:19px}
-.lv-main{display:flex;flex-direction:column;align-items:flex-start;min-width:0}
-.lv-main strong{font-size:13.5px;font-weight:950;line-height:1.15;color:#1f382e}
-.lv-main small{font-size:11px;font-weight:800;color:#5d7062;margin-top:2px}
-.lv-tag{margin-left:auto;padding:4px 9px;border-radius:10px;background:#ffe066;border:2px solid #754b06;color:#543304;font-size:11px;font-weight:950}
-.lv-chev{width:15px;height:15px;color:#24352e;flex:none}
-
 /* Chunky Shiny 3D Arcade Hero PLAY Button */
-.start-btn{position:relative;overflow:hidden;justify-content:flex-start;gap:14px;color:#ffffff;background:linear-gradient(180deg,#5be37f 0%,#28c25d 52%,#1aa34a 100%);border:3px solid #124a25;border-radius:22px;padding:0 18px;min-height:62px;box-shadow:0 6px 0 #124a25,0 10px 22px rgba(12,60,30,.32),inset 0 3px 0 rgba(255,255,255,.55);font:950 23px/1 "Jam Display","PingFang SC",sans-serif;letter-spacing:1.2px;paint-order:stroke fill;-webkit-text-stroke:2.5px #124a25;text-shadow:0 3px 0 #124a25}
+.start-btn{position:relative;overflow:hidden;justify-content:flex-start;gap:14px;color:#ffffff;background:linear-gradient(180deg,#5be37f 0%,#28c25d 52%,#1aa34a 100%);border:3px solid #124a25;border-radius:22px;padding:0 18px;min-height:62px;box-shadow:0 6px 0 #124a25,0 10px 22px rgba(12,60,30,.32),inset 0 3px 0 rgba(255,255,255,.55);font:900 22px/1 var(--ui-font);letter-spacing:1.2px;paint-order:stroke fill;-webkit-text-stroke:2.5px #124a25;text-shadow:0 3px 0 #124a25}
 .start-btn::before{content:"";position:absolute;top:4px;left:16px;right:16px;height:12px;border-radius:10px;background:rgba(255,255,255,.26);pointer-events:none}
 .start-btn:hover{filter:brightness(1.05)}
 .start-play{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#fff7a8,#ffd03b);border:2.5px solid #124a25;box-shadow:0 2px 0 rgba(0,0,0,.22)}.start-play canvas{width:19px;height:19px}
@@ -132,12 +115,14 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .new-char-banner{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;gap:6px;padding:7px 14px;border-radius:18px;background:linear-gradient(180deg,#ffbe3b,#ed7a0c);color:#ffffff;font-size:12px;font-weight:950;white-space:nowrap;border:2.5px solid #6e3204;box-shadow:0 4px 0 #6e3204}
 .new-char-banner canvas{width:16px;height:16px}
 
-.prop-dock{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex:none;margin-top:6px}
-.prop-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:58px;border-radius:16px;background:linear-gradient(180deg,#ffffff,#e6f0e8);border:2.5px solid #24352e;color:#1f382e;font-size:11.5px;font-weight:950;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
+.prop-dock{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex:none;margin-top:6px}
+.prop-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:58px;border-radius:16px;background:linear-gradient(180deg,#ffffff,#e6f0e8);border:2.5px solid #24352e;color:#1f382e;font-size:11.5px;font-weight:900;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
 .prop-btn canvas{width:25px;height:25px;flex:none}
+.prop-btn.prop-pause-btn{background:linear-gradient(180deg,#52d989 0%,#28b062 60%,#1d9450 100%);color:#ffffff;border-color:#154f2d;box-shadow:0 4px 0 #154f2d,inset 0 2px 0 rgba(255,255,255,.42)}
+.prop-btn.prop-pause-btn canvas{width:23px;height:23px}
 .prop-btn.is-active{background:linear-gradient(180deg,#fff08a,#ffca28);color:#422603;border-color:#6e4004;box-shadow:0 4px 0 #6e4004;transform:translateY(-2px)}
-.prop-count{position:absolute;top:-7px;right:-4px;min-width:23px;height:21px;padding:0 5px;border-radius:11px;background:linear-gradient(180deg,#3fd67e,#1ca656);color:#ffffff;font-style:normal;font-size:10.5px;font-weight:950;display:grid;place-items:center;border:2px solid #164f2c;box-shadow:0 2px 0 #164f2c}
-.prop-count.is-ad{background:linear-gradient(180deg,#ffb833,#e86a0c);border-color:#702f04;box-shadow:0 2px 0 #702f04}
+.prop-count{position:absolute;top:-7px;right:-4px;min-width:22px;height:21px;padding:0 5px;border-radius:11px;background:linear-gradient(180deg,#3fd67e,#1ca656);color:#ffffff;font-style:normal;font-size:11px;font-weight:900;display:grid;place-items:center;border:2px solid #164f2c;box-shadow:0 2px 0 #164f2c}
+.prop-count.is-empty{background:linear-gradient(180deg,#94a3a0,#647471);border-color:#2d3b38;box-shadow:0 2px 0 #2d3b38}
 
 /* ================= TRUE GAME-FRAMED POPUP DIALOGS ================= */
 dialog.sheet{color-scheme:light;color:#243830;width:min(416px,calc(100vw - 22px));max-height:min(87vh,840px);max-height:min(87dvh,840px);background:#fffaf0;border:3.5px solid #24352e;padding:0;border-radius:26px;box-shadow:0 10px 0 #1b2923,0 22px 54px rgba(10,22,18,.48);overflow:hidden;position:fixed}
@@ -146,17 +131,19 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 
 /* Glossy 3D Game Ribbon Header Banner */
 .modal-top{position:relative;justify-content:center;flex:none;min-height:56px;padding:11px 18px 12px;background:linear-gradient(180deg,#52d989 0%,#28b062 60%,#1d9450 100%);border-bottom:3px solid #185732;box-shadow:inset 0 3px 0 rgba(255,255,255,.42)}
-.sheet-win .modal-top,.sheet-wheel .modal-top,.sheet-checkin .modal-top{background:linear-gradient(180deg,#ffca47 0%,#f59618 60%,#de7809 100%);border-bottom-color:#7d3e03}
-.sheet-loss .modal-top,.sheet-revive_prompt .modal-top{background:linear-gradient(180deg,#ff7e70 0%,#eb483b 60%,#d13226 100%);border-bottom-color:#751710}
+.sheet-win .modal-top,.sheet-wheel .modal-top,.sheet-checkin .modal-top,.sheet-prop_ad_prompt .modal-top{background:linear-gradient(180deg,#ffca47 0%,#f59618 60%,#de7809 100%);border-bottom-color:#7d3e03}
+.sheet-loss .modal-top,.sheet-revive_prompt .modal-top,.sheet-confirm_restart .modal-top,.sheet-confirm_home .modal-top{background:linear-gradient(180deg,#ff7e70 0%,#eb483b 60%,#d13226 100%);border-bottom-color:#751710}
 .sheet-guide .modal-top,.sheet-skins .modal-top{background:linear-gradient(180deg,#8b7dff 0%,#634df2 60%,#4e37d6 100%);border-bottom-color:#2b1985}
-.modal-top h2{margin:0;font-family:"Jam Display","PingFang SC","Microsoft YaHei",sans-serif;font-size:23px;color:#ffffff;font-weight:950;letter-spacing:.6px;paint-order:stroke fill;-webkit-text-stroke:4px rgba(18,36,28,.75);text-shadow:0 3px 0 rgba(18,36,28,.55)}
+.modal-top h2{margin:0;font-family:var(--ui-font);font-size:22px;color:#ffffff;font-weight:900;letter-spacing:.6px;paint-order:stroke fill;-webkit-text-stroke:4px rgba(18,36,28,.75);text-shadow:0 3px 0 rgba(18,36,28,.55)}
 
-#dialogBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:14px 16px 8px}
+#dialogBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:14px 16px 10px}
 .dialog-actions{flex:none;display:flex;flex-wrap:wrap;padding:10px 16px 16px;gap:9px;background:#fffaf0;border-top:1.5px solid #ebe6d5}.dialog-actions:empty{display:none}
+.sheet-pause .dialog-actions{flex-direction:column;flex-wrap:nowrap;gap:10px}
+.sheet-pause .dialog-actions .action{flex:none;width:100%}
 .sheet-note,.rule p{color:#506458;font-size:13px;line-height:1.52;margin:0;font-weight:700}.sheet-note{margin-bottom:9px}
 
 /* Glossy 3D Candy Game Action Buttons */
-.action{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:128px;min-height:48px;background:linear-gradient(180deg,#54de82 0%,#26b55b 58%,#1a9949 100%);color:#ffffff;border:2.5px solid #13542a;border-radius:16px;font-size:15px;font-weight:950;padding:8px 13px;box-shadow:0 5px 0 #13542a,inset 0 2.5px 0 rgba(255,255,255,.45);text-shadow:0 1.5px 0 rgba(12,56,28,.55)}
+.action{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:6px;flex:1;min-width:120px;min-height:48px;background:linear-gradient(180deg,#54de82 0%,#26b55b 58%,#1a9949 100%);color:#ffffff;border:2.5px solid #13542a;border-radius:16px;font-size:15px;font-weight:900;padding:8px 13px;box-shadow:0 5px 0 #13542a,inset 0 2.5px 0 rgba(255,255,255,.45);text-shadow:0 1.5px 0 rgba(12,56,28,.55)}
 .action::before{content:"";position:absolute;top:3px;left:10px;right:10px;height:9px;border-radius:8px;background:rgba(255,255,255,.22);pointer-events:none}
 .action:disabled{opacity:.55;cursor:not-allowed}
 .action.secondary{background:linear-gradient(180deg,#ffffff,#e4eee5);color:#233d32;border-color:#24352e;box-shadow:0 5px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.95);text-shadow:none}
@@ -164,9 +151,15 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .action.ad-btn{background:linear-gradient(180deg,#ffc53d 0%,#f27e0f 58%,#d96604 100%);color:#ffffff;border-color:#733302;box-shadow:0 5px 0 #733302,inset 0 2.5px 0 rgba(255,255,255,.48);text-shadow:0 1.5px 0 rgba(100,40,2,.55)}
 .action canvas{width:19px;height:19px;flex:none}
 
+.prop-prompt-card{display:flex;align-items:center;gap:12px;padding:12px;margin-bottom:10px;border-radius:16px;background:#f4f7ec;border:2px solid #cbd6c0}
+.prop-prompt-ic{width:48px;height:48px;border-radius:14px;background:#ffffff;border:2px solid #24352e;display:grid;place-items:center;flex:none}
+.prop-prompt-ic canvas{width:30px;height:30px}
+.prop-prompt-card strong{display:block;font-size:15px;font-weight:900;color:#20382e;margin-bottom:3px}
+.prop-prompt-card p{margin:0;font-size:12.5px;line-height:1.45;color:#526659;font-weight:700}
+
 .toast,.dialog-toast{gap:7px;border-radius:16px;background:#1f382f;color:#fff9de;font-size:12.5px;font-weight:900;padding:9px 14px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.28);border:2.5px solid #ffd04d}
 .toast{position:absolute;top:calc(12px + env(safe-area-inset-top));z-index:30;left:50%;transform:translateX(-50%);white-space:nowrap}
-.dialog-toast{margin:10px 14px 0;justify-content:center}
+.dialog-toast{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:999;margin:0;white-space:nowrap;max-width:calc(100vw - 24px);justify-content:center}
 .toast canvas,.dialog-toast canvas{width:18px;height:18px;flex:none}
 
 .sheet-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;background:#e8efe0;padding:4px;border-radius:15px;border:2px solid #c7d6be}

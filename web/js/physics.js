@@ -144,12 +144,15 @@ window.Jelly = (() => {
       }
     }
     stabilize() {
-      // Prevent soft-body vertex folding, self-inversion, or snagged spikes under heavy squeeze
+      // Prevent soft-body vertex folding or self-inversion under heavy squeeze
+      // WITHOUT damping translational velocity (preserves 100% of slingshot launch speed & direction!)
       const pts = this.p;
       let sx = 0, sy = 0;
       for (let i = 0; i < N; i++) { sx += pts[i].x; sy += pts[i].y; }
       const cx = sx / N, cy = sy / N;
       const ax = this.ax || 1, ay = this.ay || 1, sh = this.shear || 0;
+      // Allow generous stretch (1.55x) so high-power launch deformation never gets clipped
+      const maxScale = this.landed ? 1.36 : 1.58;
       for (let i = 0; i < N; i++) {
         const p = pts[i];
         const tx = p.ox * ax + p.oy * sh;
@@ -159,16 +162,18 @@ window.Jelly = (() => {
         const dx = p.x - cx, dy = p.y - cy;
         const proj = dx * ux + dy * uy;
         const perp = -dx * uy + dy * ux;
-        const minR = tLen * 0.50, maxR = tLen * 1.32, maxPerp = tLen * 0.06;
+        const minR = tLen * 0.48, maxR = tLen * maxScale, maxPerp = tLen * 0.08;
         const cProj = clamp(proj, minR, maxR);
         const cPerp = clamp(perp, -maxPerp, maxPerp);
         if (cProj !== proj || cPerp !== perp) {
+          const ovx = p.x - p.px, ovy = p.y - p.py;
           const nx = cx + ux * cProj - uy * cPerp;
           const ny = cy + uy * cProj + ux * cPerp;
-          p.px = nx - (nx - p.px) * 0.35;
-          p.py = ny - (ny - p.py) * 0.35;
           p.x = nx;
           p.y = ny;
+          // Preserve vertex velocity so clamping shape never kills launch momentum
+          p.px = nx - ovx;
+          p.py = ny - ovy;
         }
       }
     }

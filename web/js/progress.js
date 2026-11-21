@@ -59,6 +59,7 @@
 
   const skinCatalog = {
     cartoon:   { free: true,  coins: 0,   ads: 0 },
+    toy3d:     { free: true,  coins: 0,   ads: 0 },
     metal:     { free: true,  coins: 0,   ads: 0 },
     glass:     { free: false, coins: 180, ads: 1 },
     neon:      { free: false, coins: 220, ads: 1 },
@@ -72,6 +73,7 @@
 
   const stageCatalog = {
     cartoon:   { free: true,  coins: 0,   ads: 0 },
+    toy3d:     { free: true,  coins: 0,   ads: 0 },
     metal:     { free: true,  coins: 0,   ads: 0 },
     glass:     { free: false, coins: 120, ads: 1 },
     neon:      { free: false, coins: 150, ads: 1 },
@@ -104,15 +106,15 @@
       this.modeBest = { endless: oldBest };
       this.stats.record = Math.max(this.stats.record, oldBest);
 
-      const defProps = { hammer: 2, shake: 2, wild: 1, freeze: 1, lift: 1 };
+      const defProps = { hammer: 2, wild: 1, freeze: 1, lift: 2 };
       this.props = {};
       for (const id of Object.keys(defProps)) {
         const v = s.props?.[id];
         this.props[id] = Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : defProps[id];
       }
 
-      this.unlockedSkins = Array.isArray(s.unlockedSkins) ? [...new Set(['cartoon', 'metal', ...s.unlockedSkins])] : ['cartoon', 'metal'];
-      this.unlockedStages = Array.isArray(s.unlockedStages) ? [...new Set(['cartoon', 'metal', ...s.unlockedStages])] : ['cartoon', 'metal'];
+      this.unlockedSkins = Array.isArray(s.unlockedSkins) ? [...new Set(['cartoon', 'toy3d', 'metal', ...s.unlockedSkins])] : ['cartoon', 'toy3d', 'metal'];
+      this.unlockedStages = Array.isArray(s.unlockedStages) ? [...new Set(['cartoon', 'toy3d', 'metal', ...s.unlockedStages])] : ['cartoon', 'toy3d', 'metal'];
       const themes = Jelly.art?.themes || skinCatalog;
       this.skin = (s.skin && themes[s.skin] && this.unlockedSkins.includes(s.skin)) ? s.skin : 'cartoon';
       this.stageMode = (s.stageMode && (s.stageMode === 'auto' || themes[s.stageMode])) ? s.stageMode : 'auto';

@@ -254,16 +254,17 @@
   }
 
   const palettes = {
-    cartoon:   ['#8ed9b5', '#58b88e', '#1c4236', '#ffd85e', '#effff5'],
+    cartoon:   ['#76be9d', '#4ea37d', '#1c4236', '#ffd85e', '#effff5'],
+    toy3d:     ['#3b6a7d', '#244757', '#132730', '#7cf2e2', '#e8fbff'],
     metal:     ['#537485', '#34505e', '#192a33', '#e0f7a0', '#dce9ed'],
-    glass:     ['#3ca9b8', '#227c8c', '#0e3c47', '#d8fbff', '#e5ffff'],
+    glass:     ['#2d8b9c', '#1a6170', '#0c313b', '#d8fbff', '#e5ffff'],
     neon:      ['#28134f', '#4b1f82', '#120829', '#ff54c8', '#7cf7ff'],
-    plush:     ['#e8b3c2', '#cc89a2', '#593647', '#ffe299', '#fff0f2'],
-    pixel:     ['#6d71ab', '#4c5087', '#262945', '#ffd76b', '#e7e5f7'],
-    gummy:     ['#ffcf6b', '#f59f3d', '#6b360a', '#fff3a8', '#fffaf0'],
-    porcelain: ['#b5d1ed', '#7eaad9', '#1b3863', '#ffffff', '#f0f7ff'],
-    sakura:    ['#f7b5cd', '#e387aa', '#632943', '#fff0f5', '#fff8fa'],
-    holo:      ['#b0e2ff', '#9ec0ff', '#233666', '#86f7e8', '#ffffff']
+    plush:     ['#b88394', '#945d70', '#4f2c3a', '#ffe299', '#fff0f2'],
+    pixel:     ['#61659e', '#44487d', '#232640', '#ffd76b', '#e7e5f7'],
+    gummy:     ['#de9e62', '#bf763b', '#5e2f0a', '#fff3a8', '#fffaf0'],
+    porcelain: ['#7696b8', '#4f7196', '#1b3863', '#ffffff', '#f0f7ff'],
+    sakura:    ['#c4819e', '#9c5c7a', '#57243d', '#fff0f5', '#fff8fa'],
+    holo:      ['#4e6499', '#4d4682', '#20264d', '#86f7e8', '#ffffff']
   };
 
   function oval(c, x, y, rx, ry, col) { c.fillStyle = col; c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); c.fill(); }
@@ -420,7 +421,7 @@
 
       bind('#sleeveBox', () => { this.coverHop = 1; actions.pokeMascot?.(); });
 
-      $$('.prop-btn').forEach(btn => { btn.onclick = () => actions.triggerProp(btn.dataset.prop); });
+      $$('.prop-btn[data-prop]').forEach(btn => { btn.onclick = () => actions.triggerProp(btn.dataset.prop); });
 
       this.dialog.addEventListener('cancel', e => { e.preventDefault(); actions.dismiss(); });
       this.dialog.addEventListener('click', e => {
@@ -460,100 +461,38 @@
 
     syncProps(activePropId = null) {
       const p = this.progress;
-      $$('.prop-btn').forEach(btn => {
+      $$('.prop-btn[data-prop]').forEach(btn => {
         const id = btn.dataset.prop;
         const count = p.props[id] || 0;
         const badge = btn.querySelector('.prop-count');
         const label = btn.querySelector('.prop-label');
         if (id === 'freeze' && label) label.textContent = '双倍冻';
         if (badge) {
-          if (count > 0) { badge.textContent = String(count); badge.classList.remove('is-ad'); }
-          else { badge.textContent = '免费'; badge.classList.add('is-ad'); }
+          badge.textContent = String(count);
+          badge.classList.toggle('is-empty', count <= 0);
         }
         btn.classList.toggle('is-active', activePropId === id);
       });
     }
 
-    updateTimer(secondsLeft, frozen = false, timed = true) {
-      const pill = $('#timerPill'), bestPill = $('#bestPill');
-      if (pill) pill.hidden = !timed;
-      if (bestPill) bestPill.hidden = timed;
-      if (!timed || !pill) return;
-      const s = Math.max(0, Math.ceil(secondsLeft));
-      const m = Math.floor(s / 60), rem = s % 60;
-      $('#timerText').textContent = `${m}:${String(rem).padStart(2, '0')}`;
-      pill.classList.toggle('is-frozen', frozen);
-      pill.classList.toggle('is-urgent', !frozen && s <= 10);
-    }
+    updateTimer() {}
 
-    updateGoalBar(mode, levelObj, state, worldRef = null) {
-      const bar = $('#goalBar');
-      if (!bar) return;
-
-      if (mode === 'campaign' && levelObj) {
-        bar.hidden = false;
-        bar.replaceChildren();
-        bar.append(element('b', 'goal-lv' + (levelObj.gimmick === 'boss' ? ' is-boss' : ''), `第${levelObj.id}关·${levelObj.gimmickName}`));
-
-        if (levelObj.bossHp > 0 && worldRef?.boss) {
-          const hp = Math.max(0, Math.ceil(worldRef.boss.hp));
-          const maxHp = worldRef.boss.maxHp;
-          const prog = element('span', 'goal-prog is-boss'), fill = element('i');
-          fill.style.width = Math.round((hp / maxHp) * 100) + '%'; prog.append(fill);
-          bar.append(prog, element('span', 'goal-chip', `HP ${hp}/${maxHp}`));
-        } else {
-          if (levelObj.targetIce > 0) {
-            const iceOk = state.iceBroken >= levelObj.targetIce;
-            const ic = element('span', 'goal-chip' + (iceOk ? ' done' : ''), `破冰 ${Math.min(state.iceBroken, levelObj.targetIce)}/${levelObj.targetIce}`);
-            if (iceOk) ic.append(iconNode('check', 'wearing'));
-            bar.append(ic);
-          }
-          if (levelObj.targetLevel > 0) {
-            const lvOk = state.maxLevel >= levelObj.targetLevel;
-            const wrap = element('span', 'goal-avatar-wrap' + (lvOk ? ' done' : ''));
-            const av = element('canvas', 'goal-avatar');
-            wrap.append(av);
-            if (lvOk) wrap.append(iconNode('check', 'wearing'));
-            bar.append(wrap);
-            portrait(av, levelObj.targetLevel, state.time, { skin: this.progress.skin, still: true });
-          }
-          if (levelObj.targetScore > 0) {
-            const pct = Math.min(100, Math.round(state.score / Math.max(1, levelObj.targetScore) * 100));
-            const prog = element('span', 'goal-prog'), fill = element('i');
-            fill.style.width = pct + '%'; prog.append(fill);
-            bar.append(prog);
-            const scoreOk = state.score >= levelObj.targetScore;
-            const sc = element('span', 'goal-chip' + (scoreOk ? ' done' : ''), `${state.score}/${levelObj.targetScore}`);
-            if (scoreOk) sc.append(iconNode('check', 'wearing'));
-            bar.append(sc);
-          }
-        }
-        bar.querySelectorAll('[data-icon]').forEach(e => icon(e));
-      } else if (mode === 'orders') {
-        bar.hidden = false;
-        bar.replaceChildren();
-        bar.append(element('b', 'goal-lv fever-on', `点歌 ${state.ordersDone}`));
-        for (const lv of (state.orders || [])) {
-          const wrap = element('span', 'goal-avatar-wrap');
-          const av = element('canvas', 'goal-avatar');
-          wrap.append(av, element('span', '', crew[lv]?.name?.slice(0, 2) || ''));
-          bar.append(wrap);
-          portrait(av, lv, state.time, { skin: this.progress.skin, still: true });
-        }
-      } else if (mode === 'press') {
-        bar.hidden = false;
-        const sec = Math.floor(state.elapsed || 0);
-        const m = Math.floor(sec / 60), rem = sec % 60;
-        const freezeTag = state.freezeLeft > 0 ? ` · 压板已冻 ${Math.ceil(state.freezeLeft)}s` : ' · 合成顶回压板！';
-        bar.innerHTML = `<b class="goal-lv">压板挤</b><span class="goal-chip">坚持 ${m}:${String(rem).padStart(2, '0')}${freezeTag}</span>`;
-      } else {
-        bar.hidden = false;
-        const sec = Math.floor(state.elapsed || 0);
-        const m = Math.floor(sec / 60), rem = sec % 60;
-        const tierNames = ['热身阶段', '3分·地板抬升', '6分·冰封危机', '8分·终极狂潮'];
+    updateGoalBar(mode, levelObj, state) {
+      const sec = Math.floor(state.elapsed || 0);
+      const m = Math.floor(sec / 60), rem = sec % 60;
+      const timeEl = $('#hudTime');
+      if (timeEl) timeEl.textContent = `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+      const phaseEl = $('#hudPhase');
+      if (phaseEl) {
+        const tierNames = ['热身节奏', '地板抬升', '冰封危机', '终极狂潮'];
         const tIdx = state.endlessTier || 0;
-        const dbl = state.doubleLeft > 0 ? ` · 冻杆×2分 ${Math.ceil(state.doubleLeft)}s` : '';
-        bar.innerHTML = `<b class="goal-lv ${tIdx >= 2 ? 'is-boss' : 'is-endless'}">${tierNames[tIdx]}</b><span class="goal-chip">${m}:${String(rem).padStart(2, '0')}${dbl}</span>`;
+        if (state.doubleLeft > 0) {
+          phaseEl.textContent = `双倍冻 · ${Math.ceil(state.doubleLeft)}s`;
+          phaseEl.className = 'hud-phase-pill is-double';
+        } else {
+          phaseEl.textContent = tierNames[tIdx] || '热身节奏';
+          phaseEl.className = 'hud-phase-pill' + (tIdx >= 2 ? ' is-boss' : '');
+        }
       }
     }
 
@@ -616,9 +555,10 @@
     }
     queue(slots) { $('#queueText').textContent = slots.map((s, i) => (i + 1) + '号位 ' + (s.wild ? '彩虹万能球' : crew[s.level].name)).join('。'); }
     audio(on) {
-      const b = $('#sound'), text = on ? '关闭声音' : '开启声音';
+      const b = $('#sound'); if (!b) return;
+      const text = on ? '关闭声音' : '开启声音';
       b.setAttribute('aria-label', text); b.setAttribute('aria-pressed', String(on)); b.title = text;
-      const c = b.querySelector('canvas'); c.dataset.icon = on ? 'sound' : 'muted'; icon(c);
+      const c = b.querySelector('canvas'); if (c) { c.dataset.icon = on ? 'sound' : 'muted'; icon(c); }
     }
     announce(text) { $('#announce').textContent = text; }
     cheer(text) { const e = $('#callout'); e.textContent = text; e.classList.remove('show'); void e.offsetWidth; e.classList.add('show'); }
@@ -1016,6 +956,9 @@
         help: '玩法说明',
         guide: '角色图鉴',
         pause: '游戏暂停',
+        prop_ad_prompt: '获取道具',
+        confirm_restart: '重新开始',
+        confirm_home: '返回主页',
         revive_prompt: '快挤满舞台啦！',
         loss: '本局结束',
         win: '终极黑胶达成！'
@@ -1042,40 +985,49 @@
         this.setting('游戏音效', '', o.sound, v => this.actions.setSound(v));
         this.setting('背景音乐', '', o.music, v => this.actions.setMusic(v));
         this.setting('合成震动', o.supported ? '' : '当前设备不支持', o.vibration, v => this.actions.setVibration(v), o.supported);
-        this.button('玩法说明', () => this.actions.panel('help'), 'secondary');
         this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'help') {
         this.rule('gesture', '轻点直落 · 下滑瞄准 · 踩点暴击', '轻点任意果冻下方直接掉落，按住下滑可拉弹弓瞄准方向和力度；在节拍光环变金瞬间松手还能触发 2 倍暴击！');
         this.rule('infinity', '无尽挤压挑战', '顶部横杆会随时间加速下压，合成新果冻可缓慢抬升横杆；坚持到 3 分钟后底部地板会缓慢抬升并出现冰冻果冻，越往后越刺激！');
-        this.rule('spark', '5 大战术道具', '小锤子消除/破冰，晃一晃震裂冰块，彩虹球碰谁升谁，双倍冻可冻住横杆 12 秒并双倍得分，抬杠可强力顶起上下横杆！');
+        this.rule('spark', '4 大战术道具', '小锤子消除或破冰，彩虹球碰谁升谁，双倍冻可冻住横杆 12 秒并双倍得分，抬杠可强力顶起上下横杆！');
         this.button('重看新手小手引导', () => this.actions.replayTutorial(), 'secondary');
         this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'pause') {
         const line = element('div', 'pause-score'), sticker = element('canvas');
         line.append(element('div', 'result-score', String(game.score)), sticker);
-        this.body.append(element('p', 'sheet-note', '无尽模式 · 当前得分'), line);
+        this.body.append(element('p', 'sheet-note', '得分'), line);
         this.modalTiles.push({ canvas: sticker, level: game.slots[game.choice]?.level || 0 });
-        this.setting('角色数字显示', '关闭后只看萌萌的果冻脸', this.progress.showNumbers, v => this.actions.setShowNumbers(v));
-        const more = element('div', 'pause-links');
-        for (const [label, fn] of [
-          ['换装', () => this.actions.panel('skins')],
-          ['玩法', () => this.actions.panel('help')],
-          ['设置', () => this.actions.panel('settings')],
-          ['回主页', () => this.actions.home()]
-        ]) {
-          const b = element('button', 'quiet-btn', label); b.onclick = fn; more.append(b);
-        }
-        this.body.append(more);
-        this.button('重来一局', this.actions.restart, 'secondary');
-        this.button('继续游戏', this.actions.dismiss, 'close-btn');
+        this.button('继续游戏', this.actions.dismiss);
+        this.button('重新开始', () => this.actions.panel('confirm_restart'), 'secondary');
+        this.button('更换装扮', () => this.actions.panel('skins'), 'secondary');
+        this.button('游戏设置', () => this.actions.panel('settings'), 'secondary');
+        this.button('返回主页', () => this.actions.panel('confirm_home'), 'secondary');
+      } else if (page === 'prop_ad_prompt') {
+        const prop = (typeof JellyProps !== 'undefined' && JellyProps.find(x => x.id === game.pendingProp)) || { name: '道具', desc: '使用此道具帮助你化解危机。', icon: 'spark' };
+        const card = element('div', 'prop-prompt-card');
+        const ic = element('span', 'prop-prompt-ic'); ic.append(iconNode(prop.icon || 'spark'));
+        const info = element('div');
+        info.append(element('strong', '', prop.name), element('p', '', prop.desc));
+        card.append(ic, info);
+        this.body.append(card, element('p', 'sheet-note', '背包中暂无该道具，是否观看广告免费获取 1 次？'));
+        this.button('是，看广告获取', () => this.actions.confirmPropAd(), 'ad-btn', 'video');
+        this.button('否', this.actions.dismiss, 'secondary');
+      } else if (page === 'confirm_restart') {
+        this.body.append(element('p', 'sheet-note', '确定要放弃当前进度并重新开始一局吗？'));
+        this.button('是，重新开始', this.actions.restart);
+        this.button('否', this.actions.dismiss, 'secondary');
+      } else if (page === 'confirm_home') {
+        this.body.append(element('p', 'sheet-note', '确定要返回主页吗？当前对局进度会为你保留。'));
+        this.button('是，返回主页', this.actions.home);
+        this.button('否', this.actions.dismiss, 'secondary');
       } else if (page === 'revive_prompt') {
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'squeeze');
         hero.append(
           element('div', 'result-score', String(game.score)),
           element('p', 'sheet-note', '是否使用免费复活？复活将恢复上下横杆并清空顶部果冻继续挑战！')
         );
-        this.button('免费复活（恢复上下横杆）', () => this.actions.adRevive(), 'ad-btn', 'video');
-        this.button('不复活', () => this.actions.declineRevive(), 'secondary');
+        this.button('是，免费复活', () => this.actions.adRevive(), 'ad-btn', 'video');
+        this.button('否，结束本局', () => this.actions.declineRevive(), 'secondary');
       } else if (page === 'loss') {
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'sad');
         const sec = Math.floor(game.elapsed || 0);

@@ -38,11 +38,10 @@ globalThis.JellyModes = {
 
 globalThis.JellyLevels = [];
 
-// 5 Endless Tactical Power-Ups
+// 4 Endless Tactical Power-Ups (shake removed)
 globalThis.JellyProps = [
   { id: 'hammer', name: '小锤子', icon: 'hammer', desc: '点选任意果冻直接消除，或敲碎厚冰块' },
-  { id: 'shake',  name: '晃一晃', icon: 'shake',  desc: '摇晃舞台打乱位置并震裂全场冰块' },
-  { id: 'wild',   name: '彩虹球', icon: 'spark',  desc: '万能球，碰谁就和谁一起升级变大' },
+  { id: 'wild',   name: '彩虹球', icon: 'spark',  desc: '万能进化球，碰谁就和谁一起升级变大' },
   { id: 'freeze', name: '双倍冻', icon: 'snow',   desc: '冻住上下横杆 12 秒，同时开启双倍得分' },
   { id: 'lift',   name: '抬杠',   icon: 'lift',   desc: '强力顶起顶部横杆并压低上升地板' }
 ];

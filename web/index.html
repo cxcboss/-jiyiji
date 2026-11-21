@@ -6,17 +6,17 @@
   <meta name="theme-color" content="#76c9a5">
   <title>节奏挤一挤 · Jelly Jam</title>
   <link rel="icon" href="assets/icon.png">
-  <link rel="preload" href="assets/crew-cartoon.webp?v=22" as="image">
-  <link rel="stylesheet" href="style.css?v=22">
-  <link rel="stylesheet" href="club.css?v=22">
-  <script defer src="js/cast.js?v=22"></script>
-  <script defer src="js/physics.js?v=22"></script>
-  <script defer src="js/ads.js?v=22"></script>
-  <script defer src="js/characters.js?v=22"></script>
-  <script defer src="js/progress.js?v=22"></script>
-  <script defer src="js/sound.js?v=22"></script>
-  <script defer src="js/interface.js?v=22"></script>
-  <script defer src="js/game.js?v=22"></script>
+  <link rel="preload" href="assets/crew-cartoon.webp?v=23" as="image">
+  <link rel="stylesheet" href="style.css?v=23">
+  <link rel="stylesheet" href="club.css?v=23">
+  <script defer src="js/cast.js?v=23"></script>
+  <script defer src="js/physics.js?v=23"></script>
+  <script defer src="js/ads.js?v=23"></script>
+  <script defer src="js/characters.js?v=23"></script>
+  <script defer src="js/progress.js?v=23"></script>
+  <script defer src="js/sound.js?v=23"></script>
+  <script defer src="js/interface.js?v=23"></script>
+  <script defer src="js/game.js?v=23"></script>
 </head>
 <body data-state="home" data-skin="cartoon" data-stage="cartoon">
   <div class="ambient" aria-hidden="true"></div>
@@ -97,22 +97,22 @@
     </section>
 
     <div class="game-view" id="gameView" inert aria-hidden="true">
-      <header class="game-top">
-        <div class="top-left-group">
-          <button id="pause" class="top-btn" aria-label="暂停" title="暂停"><canvas data-icon="pause"></canvas></button>
-          <button id="sound" class="top-btn" aria-pressed="true" aria-label="声音开关" title="声音开关"><canvas data-icon="sound"></canvas></button>
-          <button id="numToggle" class="top-btn top-num" aria-pressed="true" aria-label="开关角色数字" title="开关角色数字"><canvas data-icon="num"></canvas></button>
+      <header class="game-top" aria-label="对局信息栏">
+        <div class="hud-meta-col">
+          <span id="hudPhase" class="hud-phase-pill">热身阶段</span>
+          <span class="hud-time-row"><canvas data-icon="clock"></canvas><b id="hudTime">00:00</b></span>
         </div>
-        <div class="top-center">
+        <div class="hud-score-hero">
+          <span class="hud-score-tag">得分</span>
           <b class="score" data-score>0000</b>
+        </div>
+        <div class="hud-best-col">
+          <span class="hud-best-tag">最高分</span>
           <div id="bestPill" class="best-pill"><canvas data-icon="trophy"></canvas><b data-best>0</b></div>
         </div>
-        <div class="wx-capsule-space" aria-hidden="true"></div>
       </header>
 
       <main class="rig">
-        <div id="goalBar" class="goal-bar"></div>
-
         <section class="arena-column" aria-label="合成舞台">
           <div class="cabinet">
             <div class="field">
@@ -127,21 +127,20 @@
             </div>
           </div>
 
-          <div class="prop-dock" id="propDock" aria-label="局内道具栏">
+          <div class="prop-dock" id="propDock" aria-label="局内道具与暂停栏">
             <button class="prop-btn p-hammer" data-prop="hammer" title="点选果冻消除或破冰">
               <canvas data-icon="hammer"></canvas>
               <span class="prop-label">小锤子</span>
-              <i class="prop-count">2</i>
-            </button>
-            <button class="prop-btn p-shake" data-prop="shake" title="摇晃舞台并震裂冰块">
-              <canvas data-icon="shake"></canvas>
-              <span class="prop-label">晃一晃</span>
               <i class="prop-count">2</i>
             </button>
             <button class="prop-btn p-wild" data-prop="wild" title="彩虹万能球，碰谁升谁">
               <canvas data-icon="spark"></canvas>
               <span class="prop-label">彩虹球</span>
               <i class="prop-count">1</i>
+            </button>
+            <button id="pause" class="prop-btn prop-pause-btn" aria-label="暂停游戏" title="暂停游戏">
+              <canvas data-icon="pause"></canvas>
+              <span class="prop-label">暂停</span>
             </button>
             <button class="prop-btn p-freeze" data-prop="freeze" title="冻住横杆12秒并开启双倍得分">
               <canvas data-icon="snow"></canvas>

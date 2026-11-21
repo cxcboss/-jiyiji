@@ -29,6 +29,25 @@
         [12,-1,14,-1, 16,-1,-1,19, -1,-1,16,-1, 12,-1,-1,-1]
       ]
     },
+    toy3d: {
+      bpm: 112, root: 146.83, leadInst: 'kalimba', chordInst: 'rhodes',
+      chords: [
+        [0, 4, 7, 11],
+        [5, 9, 12, 16],
+        [7, 11, 14, 17],
+        [9, 12, 16, 19]
+      ],
+      bassRoots: [0, 5, 7, 9],
+      kick:  [1,0,0,0, 0,0,1,0, 1,0,0,1, 0,0,0,0],
+      snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+      hat:   [1,0,1,0, 1,0,1,1, 1,0,1,0, 1,0,1,1],
+      melody: [
+        [12,-1,16,-1, -1,19,-1,16, 14,-1,12,-1, 11,-1,-1,-1],
+        [17,-1,16,-1, -1,14,-1,12, 16,-1,14,-1, 12,-1,-1,-1],
+        [19,-1,-1,17, -1,16,-1,14, 16,-1,-1,19, -1,16,-1,-1],
+        [14,-1,16,-1, 12,-1,-1,14, -1,-1,12,-1, -1,-1,-1,-1]
+      ]
+    },
     metal: {
       // Sleek Studio Neo-Soul Beatbox (D minor, 110 BPM) — i -> VII -> VI -> V
       bpm: 110, root: 146.83, leadInst: 'epiano', chordInst: 'rhodes',
@@ -213,6 +232,7 @@
 
   const skinFoley = {
     cartoon:   { hitLo: 150, hitHi: 74,  shimmer: 0.00 },
+    toy3d:     { hitLo: 195, hitHi: 108, shimmer: 0.03 },
     metal:     { hitLo: 260, hitHi: 165, shimmer: 0.05 },
     glass:     { hitLo: 540, hitHi: 420, shimmer: 0.08 },
     neon:      { hitLo: 210, hitHi: 92,  shimmer: 0.04 },

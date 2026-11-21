@@ -31,7 +31,7 @@
     orders: [], ordersDone: 0,
     endlessTier: 0, endlessFrostTimer: 22, pressRetreat: 0, floorRetreat: 0,
     crushQueue: [], crushSwelling: [], crushTimer: 0, crushDoneWait: 0,
-    activeProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
+    activeProp: null, pendingProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
     emergencyUsed: false, emergencyVisible: false,
     newCharTimer: 0, newCharPending: false,
     showTutorial: false,
@@ -272,14 +272,22 @@
         return;
       }
       if ((profile.props[propId] || 0) <= 0) {
-        Jelly.ads.watch('prop_' + propId, () => {
-          profile.addProp(propId, 1);
-          hud.badgesEarned(profile.recordAdWatch());
-          activateProp(propId);
-        });
+        state.pendingProp = propId;
+        openPanel('prop_ad_prompt');
       } else {
         activateProp(propId);
       }
+    },
+    confirmPropAd() {
+      const propId = state.pendingProp;
+      if (!propId) { dismiss(); return; }
+      state.pendingProp = null;
+      Jelly.ads.watch('prop_' + propId, () => {
+        profile.addProp(propId, 1);
+        hud.badgesEarned(profile.recordAdWatch());
+        resume();
+        activateProp(propId);
+      });
     },
     adRevive() {
       Jelly.ads.watch('revive', () => {
@@ -358,12 +366,7 @@
     hud.badgesEarned(badges);
     band.prop(propId);
 
-    if (propId === 'shake') {
-      world.shakeAll();
-      state.shake = reduced ? 0 : 3.0;
-      hud.cheer('晃一晃！');
-      for (let i = 0; i < 10; i++) speck(rand(40, W - 40), rand(220, height - 40), rand(-70, 70), rand(-110, -25), '#e5ff9c', .45, 2.4, 'star');
-    } else if (propId === 'wild') {
+    if (propId === 'wild') {
       const idx = state.choice;
       state.slots[idx].wild = true;
       state.slots[idx].born = state.time;
@@ -442,7 +445,7 @@
   }
 
   function openPanel(page) {
-    if (state.phase === 'end' && !['skins', 'settings', 'checkin', 'wheel', 'badges', 'levels', 'help', 'guide'].includes(page)) return;
+    if (state.phase === 'end' && !['skins', 'settings', 'checkin', 'wheel', 'badges', 'levels', 'help', 'guide', 'prop_ad_prompt', 'confirm_restart', 'confirm_home'].includes(page)) return;
     if (state.phase !== 'modal') { menuOrigin = state.phase; panels.length = 0; cancelDrag(); phase('modal'); }
     if (panels.at(-1) !== page) panels.push(page);
     hud.open(page, state);
@@ -1022,7 +1025,7 @@
         hud.badgesEarned(profile.recordSurvival(state.elapsed));
         const banners = ['', '3分钟 · 地板抬升！', '6分钟 · 冰封危机！', '8分钟 · 终极狂潮！'];
         hud.cheer(banners[nextTier]);
-        hud.floatTip(nextTier === 1 ? '底部地板开始缓慢抬升，同时出现冰冻果冻！' : nextTier === 2 ? '厚冰降临！善用小锤子、晃一晃与抬杠顶住压力' : '终极狂潮！连续合成稳住上下横杆！', 3200);
+        hud.floatTip(nextTier === 1 ? '底部地板开始缓慢抬升，同时出现冰冻果冻！' : nextTier === 2 ? '厚冰降临！善用小锤子、彩虹球与抬杠顶住压力' : '终极狂潮！连续合成稳住上下横杆！', 3200);
         hud.updateGoalBar(state.mode, null, state, world);
       }
       if (state.endlessTier >= 1) {
@@ -1043,14 +1046,14 @@
       }
     }
 
-    // Periodic HUD clock refresh for non-timed modes (press / endless)
+    // Periodic HUD clock refresh
     const hudSec = Math.floor(state.elapsed);
-    if ((state.mode === 'press' || state.mode === 'endless') && hudSec !== state.lastHudSec) {
+    if (hudSec !== state.lastHudSec) {
       state.lastHudSec = hudSec;
       hud.updateGoalBar(state.mode, state.levelObj, state, world);
     }
 
-    const timed = JellyModes[state.mode].timed;
+    const timed = false;
     if (timed && state.shots > 0 && state.freezeLeft <= 0 && !state.finish) {
       state.timeLeft = Math.max(0, state.timeLeft - DT);
       const sec = Math.ceil(state.timeLeft);
@@ -1343,7 +1346,7 @@
   function dock(x, slot, active) {
     bg.save(); bg.translate(x, 13);
     const skin = art.skin;
-    const tintMap = { cartoon: '#59927a', metal: '#526c76', plush: '#af8192', glass: '#74ced6', pixel: '#9b9aca', neon: '#7c3aed', gummy: '#e89838', porcelain: '#5b82b8', sakura: '#d988a5', holo: '#7ea8e8' };
+    const tintMap = { cartoon: '#59927a', toy3d: '#4e8ea3', metal: '#526c76', plush: '#af8192', glass: '#74ced6', pixel: '#9b9aca', neon: '#7c3aed', gummy: '#e89838', porcelain: '#5b82b8', sakura: '#d988a5', holo: '#7ea8e8' };
     bg.fillStyle = tintMap[skin] || '#59927a';
     bg.beginPath(); bg.roundRect(-22, -8, 44, 9, 4.5); bg.fill();
     ellipse(bg, 0, -5, 15, 1.05, slot.wild ? '#ffffff' : active ? '#fff6bd' : crew[slot.level].light);
