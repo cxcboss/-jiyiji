@@ -177,7 +177,6 @@ window.Jelly = (() => {
       const floorRest = clamp(.34 * bounceScale, .20, .72);
       const wallRest = clamp(.56 * bounceScale, .38, .82);
       const floor = height - FLOOR_PAD - (world?.floorRise || 0);
-      const topLimit = Math.max(WALL, pressY);
       const useMorph = world && world.terrainMorph > 0.005;
       const pts = this.p;
       for (let i = 0; i < N; i++) {
@@ -186,9 +185,12 @@ window.Jelly = (() => {
           const v = p.y - p.py; p.y = floor;
           if (v > 0) { p.py = floor + v * floorRest; p.px += (p.x - p.px) * .095; }
           this.landed = true;
-        } else if (p.y < topLimit && (pressY <= WALL || this.landed || this.y > pressY - this.r * 0.4)) {
-          const v = p.y - p.py; p.y = topLimit;
-          if (v < 0) p.py = topLimit + v * .28;
+        } else if (p.y < WALL) {
+          const v = p.y - p.py; p.y = WALL;
+          if (v < 0) p.py = WALL + v * .28;
+        } else if (pressY > WALL && this.landed && p.y < pressY) {
+          const v = p.y - p.py; p.y = pressY;
+          p.py = v < 0 ? pressY + v * .28 : pressY - v;
         }
         const inset = (useMorph && p.y >= WARNING_Y) ? world.wallInset(p.y) : 0;
         const leftB = WALL + inset, rightB = W - WALL - inset;
