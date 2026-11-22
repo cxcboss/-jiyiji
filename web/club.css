@@ -34,35 +34,35 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 
 .home-head,.coin-pill,.home-best-pill,.cover-label,.start-btn,.dock-btn,.dock-icon,.toast,.dialog-toast,.modal-top,.save-btn,.new-char-banner,.band-header{display:flex;align-items:center}
 
-.home-head{position:relative;z-index:3;justify-content:space-between;flex:none;min-height:42px;pointer-events:none}
+.home-head{position:relative;z-index:3;justify-content:space-between;flex:none;height:38px;pointer-events:none}
 .home-head>*{pointer-events:auto}
 
-/* Glossy 3D Gold Coin Pill */
-.coin-pill{position:relative;gap:5px;height:40px;padding:0 6px 0 9px;border-radius:21px;background:linear-gradient(180deg,#fff3b0 0%,#ffd24d 52%,#f2a91d 100%);border:2.5px solid #593506;color:#4a2804;font-size:15px;font-weight:900;box-shadow:0 4px 0 #593506,0 7px 14px rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.78)}
-.coin-pill canvas{width:22px;height:22px}
-.coin-plus{width:25px;height:25px;border-radius:50%;background:linear-gradient(180deg,#5be37f,#20b254);border:2px solid #165e2d;display:grid;place-items:center;margin-left:2px;box-shadow:0 2px 0 #165e2d,inset 0 2px 0 rgba(255,255,255,.55)}
-.coin-plus canvas{width:14px;height:14px}
+/* Glossy 3D Gold Coin Pill (height aligned with WeChat capsule) */
+.coin-pill{position:relative;gap:5px;height:36px;padding:0 5px 0 8px;border-radius:19px;background:linear-gradient(180deg,#fff3b0 0%,#ffd24d 52%,#f2a91d 100%);border:2.5px solid #593506;color:#4a2804;font-size:14.5px;font-weight:900;box-shadow:0 3px 0 #593506,0 6px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.78)}
+.coin-pill canvas{width:20px;height:20px}
+.coin-plus{width:22px;height:22px;border-radius:50%;background:linear-gradient(180deg,#5be37f,#20b254);border:2px solid #165e2d;display:grid;place-items:center;margin-left:2px;box-shadow:0 2px 0 #165e2d,inset 0 2px 0 rgba(255,255,255,.55)}
+.coin-plus canvas{width:13px;height:13px}
 
-/* Floating Left Vertical Game Icon Rail (safely below Notch/Dynamic Island & top coin row) */
-.home-side-rail{position:absolute;top:calc(var(--safe-top) + 60px);left:14px;z-index:3;display:flex;flex-direction:column;gap:12px}
+/* Floating Left Vertical Game Icon Rail (safely below Notch/Dynamic Island & aligned with right rail) */
+.home-side-rail{position:absolute;top:calc(var(--safe-top) + 56px);left:14px;z-index:3;display:flex;flex-direction:column;gap:12px}
 .side-game-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:transparent;padding:0}
-.side-btn-box{position:relative;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;border:2.5px solid #24352e;box-shadow:0 4px 0 #24352e,0 6px 12px rgba(0,0,0,.18),inset 0 3px 0 rgba(255,255,255,.55)}
-.side-btn-box canvas{width:26px;height:26px}
+.side-btn-box{position:relative;width:46px;height:46px;border-radius:15px;display:grid;place-items:center;border:2.5px solid #24352e;box-shadow:0 4px 0 #24352e,0 6px 12px rgba(0,0,0,.18),inset 0 3px 0 rgba(255,255,255,.55)}
+.side-btn-box canvas{width:25px;height:25px}
 .side-game-btn.is-gift .side-btn-box{background:linear-gradient(180deg,#ff9a76,#f25c3b)}
 .side-game-btn.is-wheel .side-btn-box{background:linear-gradient(180deg,#b58cff,#7c4dff)}
 .side-game-btn.is-set .side-btn-box{background:linear-gradient(180deg,#7ed6ff,#369ef5)}
 .side-btn-txt{font-size:11.5px;font-weight:900;color:#ffffff;letter-spacing:.4px;paint-order:stroke fill;-webkit-text-stroke:3px #20322b;text-shadow:0 2px 0 #182822}
 
-/* Floating Right Badges (strictly below WeChat capsule) */
-.home-right-rail{position:absolute;top:calc(var(--safe-top) + 60px);right:14px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.home-best-pill{gap:5px;padding:6px 11px;border-radius:16px;background:linear-gradient(180deg,#fff3b0,#ffd24d);color:#4a2804;font-size:12px;font-weight:900;border:2.5px solid #593506;box-shadow:0 3px 0 #593506,inset 0 2px 0 rgba(255,255,255,.78);pointer-events:none}
+/* Floating Right Badges (strictly below WeChat capsule & aligned with left rail) */
+.home-right-rail{position:absolute;top:calc(var(--safe-top) + 56px);right:14px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.home-best-pill{gap:5px;padding:6px 11px;border-radius:15px;background:linear-gradient(180deg,#fff3b0,#ffd24d);color:#4a2804;font-size:12px;font-weight:900;border:2.5px solid #593506;box-shadow:0 3px 0 #593506,inset 0 2px 0 rgba(255,255,255,.78);pointer-events:none}
 .home-best-pill canvas{width:16px;height:16px}
 .home-best-pill b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:16px;line-height:1}
-.cover-label{gap:5px;padding:7px 11px;border-radius:16px;background:linear-gradient(180deg,#ffffff,#e6f3ea);border:2.5px solid #24352e;color:#1e362c;font-size:12px;font-weight:900;box-shadow:0 3px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
+.cover-label{gap:5px;padding:7px 11px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#e6f3ea);border:2.5px solid #24352e;color:#1e362c;font-size:12px;font-weight:900;box-shadow:0 3px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
 .cover-label canvas{width:16px;height:16px}
 
 /* Sculptural 3D Game Logo (shifted downward below Dynamic Island & capsule band) */
-.hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:24px;pointer-events:none}
+.hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;pointer-events:none}
 .cover-title{margin:0;text-align:center;font-family:var(--ui-font);font-weight:900;line-height:.96;letter-spacing:.02em;font-size:clamp(46px,min(15vw,7.4vh),70px);color:#fff8d6;paint-order:stroke fill;-webkit-text-stroke:7px #21362e;text-shadow:0 6px 0 #172822,0 12px 20px rgba(0,0,0,.24);transform:rotate(-3.2deg)}
 .cover-title span{display:block}
 .cover-title span+span{color:#ffe152;margin-top:2px;font-size:1.05em}
@@ -266,12 +266,12 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .pause-links{display:flex;justify-content:space-around;gap:8px;margin-top:12px}
 .quiet-btn{background:linear-gradient(180deg,#ffffff,#e6efe8);color:#20382e;padding:8px 12px;border-radius:12px;font-size:12px;font-weight:900;border:2px solid #24352e;box-shadow:0 3px 0 #24352e}
 
-@media(orientation:portrait) and (max-width:600px){
-  body{background:var(--tint)}
-  .home{padding:calc(var(--safe-top) + 8px) max(12px,env(safe-area-inset-right)) calc(var(--safe-bottom) + 6px) max(12px,env(safe-area-inset-left))}
-  .home-side-rail{top:calc(var(--safe-top) + 64px);left:max(12px,env(safe-area-inset-left))}
-  .home-right-rail{top:calc(var(--safe-top) + 64px);right:max(12px,env(safe-area-inset-right))}
-  .hero-logo-wrap{padding-top:26px}
+@media(max-width:768px),(pointer:coarse){
+  body{background:var(--chrome)}
+  .home{padding:calc(var(--safe-top) + 4px) max(14px,env(safe-area-inset-right)) calc(var(--safe-bottom) + 6px) max(14px,env(safe-area-inset-left))}
+  .home-side-rail{top:calc(var(--safe-top) + 56px);left:max(14px,env(safe-area-inset-left))}
+  .home-right-rail{top:calc(var(--safe-top) + 56px);right:max(14px,env(safe-area-inset-right))}
+  .hero-logo-wrap{padding-top:28px}
 }
 @media(max-height:680px){
   .start-btn{min-height:54px;font-size:20px}.dock-btn{min-height:58px}.prop-btn{height:52px}.side-btn-box{width:42px;height:42px}

@@ -13,6 +13,11 @@
     band.setTheme(profile.skin, profile.activeStage);
     document.body.dataset.skin = profile.skin;
     document.body.dataset.stage = profile.activeStage;
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      const col = getComputedStyle(document.body).getPropertyValue('--chrome').trim();
+      if (col) metaTheme.setAttribute('content', col);
+    }
   }
   applyVisualTheme();
 

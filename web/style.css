@@ -2,8 +2,8 @@
 :root{color-scheme:dark;--lime:#def986;--shell-h:min(960px,calc(100vh - 20px));--safe-top:12px;--safe-bottom:10px;--capsule-w:96px;font-family:"PingFang SC","Hiragino Sans GB","MiSans","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 @supports(height:100dvh){:root{--shell-h:min(960px,calc(100dvh - 20px))}}
 *,*::before,*::after{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overscroll-behavior:none}
-body{display:grid;place-items:center;overflow:hidden;isolation:isolate;background:#e4ecd9;color:#243b36}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-touch-callout:none}
+body{display:grid;place-items:center;isolation:isolate;background:var(--chrome,#e4ecd9);color:#243b36}
 button{position:relative;display:grid;place-items:center;font:inherit;color:inherit;border:0;padding:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:transform .08s}
 button:focus-visible,canvas[tabindex]:focus-visible{outline:2px solid #518666;outline-offset:1px}
 button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!important}
@@ -13,27 +13,31 @@ button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!importa
 /* WeChat Capsule Safe Spacer (reserves top-right ~100px for native WeChat capsule) */
 .wx-capsule-space{width:var(--capsule-w);height:32px;flex:none;pointer-events:none}
 
-/* Safe-Area 2-Tier Pure-Info In-Game Header:
-   Tier 1: Rhythm + Time + Best aligned left of WeChat capsule (strictly below Notch/Dynamic Island)
-   Tier 2: Centered full-width Hero Current Score cleanly below the WeChat capsule row */
-.game-top{display:flex;flex-direction:column;gap:5px;flex:none;padding:var(--safe-top) 10px 6px;background:var(--chrome);border-bottom:2px solid color-mix(in srgb,var(--trim) 55%,transparent)}
-.hud-top-strip{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:32px}
-.hud-meta-pills{display:flex;align-items:center;gap:5px;flex:1;min-width:0;flex-wrap:nowrap;overflow:hidden}
-.hud-phase-pill{display:inline-flex;align-items:center;padding:4px 9px;border-radius:10px;background:linear-gradient(180deg,#8b68ff,#6637d6);color:#ffffff;font-size:11px;font-weight:900;line-height:1.15;border:1.5px solid rgba(36,20,82,.45);white-space:nowrap;flex:none;box-shadow:0 2px 0 rgba(36,20,82,.25)}
-.hud-phase-pill.is-boss{background:linear-gradient(180deg,#ff6b6b,#d92b2b);border-color:#781414}
-.hud-phase-pill.is-double{background:linear-gradient(180deg,#ffbd38,#e6700c);border-color:#753103}
-.hud-time-row{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:10px;background:color-mix(in srgb,var(--hud-ink) 9%,transparent);color:var(--hud-ink);font-size:12px;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
-.hud-time-row canvas{width:13px;height:13px;flex:none}
-.hud-time-row b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:14.5px;letter-spacing:.3px}
-.best-pill{display:inline-flex;align-items:center;gap:3px;padding:3px 7px;border-radius:10px;background:color-mix(in srgb,var(--hud-ink) 9%,transparent);color:var(--hud-ink);font-size:12px;font-weight:850;white-space:nowrap;min-width:0}
-.best-pill canvas{width:14px;height:14px;flex:none}
-.best-pill b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:14.5px;font-variant-numeric:tabular-nums}
+/* Aligned Safe-Area 2-Tier In-Game HUD:
+   Row 1: Unified [Phase | Time] capsule aligned left of WeChat capsule, strictly below Notch/Dynamic Island
+   Row 2: Dead-center Hero Current Score + Right-aligned Best Score on a crisp 3-col grid */
+.game-top{display:flex;flex-direction:column;gap:6px;flex:none;padding:var(--safe-top) 12px 8px;background:var(--chrome);border-bottom:2px solid color-mix(in srgb,var(--trim) 50%,transparent)}
+.hud-top-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;height:32px}
+.hud-status-bar{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 10px 0 4px;border-radius:15px;background:color-mix(in srgb,var(--hud-ink) 8%,transparent);border:1.5px solid color-mix(in srgb,var(--hud-ink) 14%,transparent);max-width:calc(100% - var(--capsule-w) - 8px)}
+.hud-phase-pill{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:11px;background:linear-gradient(180deg,#8b68ff,#6637d6);color:#ffffff;font-size:11px;font-weight:900;line-height:1;white-space:nowrap;flex:none}
+.hud-phase-pill.is-boss{background:linear-gradient(180deg,#ff6b6b,#d92b2b)}
+.hud-phase-pill.is-double{background:linear-gradient(180deg,#ffbd38,#e6700c)}
+.hud-sep{width:1.5px;height:12px;border-radius:1px;background:color-mix(in srgb,var(--hud-ink) 20%,transparent);flex:none}
+.hud-time-row{display:inline-flex;align-items:center;gap:4px;color:var(--hud-ink);font-size:12px;font-weight:850;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.hud-time-row canvas{width:14px;height:14px;flex:none}
+.hud-time-row b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:15px;line-height:1;letter-spacing:.3px}
 
-.hud-score-bar{display:flex;align-items:center;justify-content:center}
-.hud-score-hero{display:inline-flex;align-items:baseline;justify-content:center;gap:8px;padding:4px 20px 5px;border-radius:15px;background:color-mix(in srgb,var(--accent) 14%,transparent);border:2px solid color-mix(in srgb,var(--accent) 44%,transparent);min-width:154px}
-.hud-score-tag{font-size:11.5px;font-weight:900;letter-spacing:1px;color:var(--hud-sub);line-height:1}
-.score{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-weight:900;font-variant-numeric:tabular-nums;font-size:33px;line-height:.95;color:var(--accent);letter-spacing:.6px;text-shadow:0 2px 0 color-mix(in srgb,var(--hud-ink) 14%,transparent)}
+.hud-score-strip{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px;min-height:42px}
+.hud-score-hero{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 18px 4px;border-radius:14px;background:color-mix(in srgb,var(--accent) 13%,transparent);border:1.5px solid color-mix(in srgb,var(--accent) 38%,transparent);min-width:128px}
+.hud-score-tag{font-size:10px;font-weight:900;letter-spacing:1.4px;color:var(--hud-sub);line-height:1}
+.score{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-weight:900;font-variant-numeric:tabular-nums;font-size:32px;line-height:.96;color:var(--accent);letter-spacing:.6px;text-shadow:0 2px 0 color-mix(in srgb,var(--hud-ink) 12%,transparent)}
 .score.bump{animation:bump .2s ease-out}@keyframes bump{45%{transform:scale(1.09)}}
+
+.hud-best-wrap{display:flex;align-items:center;justify-content:flex-end;min-width:0}
+.best-pill{display:inline-flex;align-items:center;gap:4px;height:28px;padding:0 9px;border-radius:12px;background:color-mix(in srgb,var(--hud-ink) 8%,transparent);border:1.5px solid color-mix(in srgb,var(--hud-ink) 12%,transparent);color:var(--hud-ink);font-size:11px;font-weight:850;white-space:nowrap}
+.best-pill canvas{width:14px;height:14px;flex:none}
+.best-pill span{color:var(--hud-sub);font-weight:800}
+.best-pill b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:15px;line-height:1;font-variant-numeric:tabular-nums}
 
 .rig{display:flex;flex:1;min-height:0;flex-direction:column;padding:6px 8px var(--safe-bottom);gap:6px}
 .arena-column,.cabinet{min-height:0;display:flex;flex-direction:column;flex:1}
@@ -50,11 +54,12 @@ button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!importa
 
 .sr-only{position:fixed;top:0;left:0;margin:0;padding:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-@media(orientation:portrait) and (max-width:600px){
+/* Full-screen edge-to-edge mobile browser & WeChat viewport */
+@media(max-width:768px),(pointer:coarse){
   :root{--safe-top:max(env(safe-area-inset-top,0px),52px);--safe-bottom:max(env(safe-area-inset-bottom,0px),14px);--capsule-w:102px}
   .ambient{display:none}
-  .handheld{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none}
-  .game-top{padding:calc(var(--safe-top) + 4px) max(10px,env(safe-area-inset-right)) 6px max(10px,env(safe-area-inset-left))}
+  .handheld{position:fixed;inset:0;width:100%;height:100%;max-width:none;border:0;border-radius:0;box-shadow:none}
+  .game-top{padding:calc(var(--safe-top) + 4px) max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left))}
   .score{font-size:31px}
   .rig{padding:6px max(8px,env(safe-area-inset-right)) var(--safe-bottom) max(8px,env(safe-area-inset-left))}
 }
