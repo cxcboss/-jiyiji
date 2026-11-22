@@ -457,13 +457,22 @@
   }
 
   function tryEnterFullscreen() {
-    if (!matchMedia('(max-width: 900px), (pointer: coarse)').matches) return;
     if (document.fullscreenElement || document.webkitFullscreenElement) return;
-    const el = document.documentElement;
-    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    const stage = document.querySelector('.handheld') || document.documentElement;
+    const req = stage.requestFullscreen || stage.webkitRequestFullscreen
+      || document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
+    const target = (stage.requestFullscreen || stage.webkitRequestFullscreen) ? stage : document.documentElement;
     if (req) {
-      try { Promise.resolve(req.call(el)).catch(() => {}); } catch {}
+      try {
+        const res = req.call(target, { navigationUI: 'hide' });
+        if (res && typeof res.catch === 'function') {
+          res.catch(() => { try { Promise.resolve(req.call(target)).catch(() => {}); } catch {} });
+        }
+      } catch {
+        try { Promise.resolve(req.call(target)).catch(() => {}); } catch {}
+      }
     }
+    try { screen.orientation?.lock?.('portrait')?.catch?.(() => {}); } catch {}
   }
 
   function start() {

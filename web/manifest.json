@@ -2,7 +2,9 @@
   "name": "节奏挤一挤 · Jelly Jam",
   "short_name": "节奏挤一挤",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
   "orientation": "portrait",
   "background_color": "#8acaa9",
   "theme_color": "#eaf7ec",
@@ -10,7 +12,8 @@
     {
       "src": "assets/icon.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

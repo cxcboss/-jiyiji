@@ -9,6 +9,7 @@ button:focus-visible,canvas[tabindex]:focus-visible{outline:2px solid #518666;ou
 button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!important}
 .ambient{position:fixed;inset:0;z-index:-1;pointer-events:none;background:#e4ecd9}
 .handheld{position:relative;isolation:isolate;display:flex;flex-direction:column;min-height:0;height:var(--shell-h);width:min(calc(var(--shell-h)*.546),calc(100vw - 16px),500px);overflow:hidden;border:2px solid #b8cbb6;border-radius:28px;background:var(--shell);box-shadow:0 16px 48px rgba(32,50,42,.16)}
+.handheld:fullscreen,.handheld:-webkit-full-screen{position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;max-width:none;border:0;border-radius:0;box-shadow:none}
 
 /* WeChat Capsule Safe Spacer (reserves top-right ~102px for native WeChat capsule) */
 .wx-capsule-space{width:var(--capsule-w);height:32px;flex:none;pointer-events:none}
@@ -55,13 +56,13 @@ button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!importa
 
 .sr-only{position:fixed;top:0;left:0;margin:0;padding:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-/* Full-screen edge-to-edge mobile browser & WeChat viewport */
+/* Full-screen edge-to-edge mobile browser & WeChat viewport + Large R-Corner Bottom Safe Area */
 @media(max-width:900px),(pointer:coarse){
-  :root{--safe-top:max(env(safe-area-inset-top,0px),52px);--safe-bottom:max(env(safe-area-inset-bottom,0px),14px);--capsule-w:102px}
+  :root{--safe-top:max(env(safe-area-inset-top,0px),52px);--safe-bottom:max(calc(env(safe-area-inset-bottom,0px) + 12px),30px);--capsule-w:102px}
   html,body{height:100vh;height:100dvh;min-height:-webkit-fill-available}
   .ambient{display:none}
   .handheld{position:fixed;inset:0;width:100vw;width:100%;height:100vh;height:100dvh;max-width:none;border:0;border-radius:0;box-shadow:none}
   .game-top{padding:calc(var(--safe-top) + 4px) max(12px,env(safe-area-inset-right)) 7px max(12px,env(safe-area-inset-left))}
-  .rig{padding:6px max(8px,env(safe-area-inset-right)) var(--safe-bottom) max(8px,env(safe-area-inset-left))}
+  .rig{padding:6px max(10px,env(safe-area-inset-right)) var(--safe-bottom) max(10px,env(safe-area-inset-left))}
 }
 @media(prefers-reduced-motion:reduce){.score.bump{animation:none}}
