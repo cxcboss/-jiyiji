@@ -266,7 +266,7 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .pause-links{display:flex;justify-content:space-around;gap:8px;margin-top:12px}
 .quiet-btn{background:linear-gradient(180deg,#ffffff,#e6efe8);color:#20382e;padding:8px 12px;border-radius:12px;font-size:12px;font-weight:900;border:2px solid #24352e;box-shadow:0 3px 0 #24352e}
 
-@media(max-width:768px),(pointer:coarse){
+@media(max-width:900px),(pointer:coarse){
   body{background:var(--chrome)}
   .home{padding:calc(var(--safe-top) + 4px) max(14px,env(safe-area-inset-right)) calc(var(--safe-bottom) + 6px) max(14px,env(safe-area-inset-left))}
   .home-side-rail{top:calc(var(--safe-top) + 56px);left:max(14px,env(safe-area-inset-left))}

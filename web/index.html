@@ -6,20 +6,21 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#8acaa9">
+  <meta name="theme-color" content="#eaf7ec">
   <title>节奏挤一挤 · Jelly Jam</title>
+  <link rel="manifest" href="manifest.json?v=26">
   <link rel="icon" href="assets/icon.png">
-  <link rel="preload" href="assets/crew-cartoon.webp?v=25" as="image">
-  <link rel="stylesheet" href="style.css?v=25">
-  <link rel="stylesheet" href="club.css?v=25">
-  <script defer src="js/cast.js?v=25"></script>
-  <script defer src="js/physics.js?v=25"></script>
-  <script defer src="js/ads.js?v=25"></script>
-  <script defer src="js/characters.js?v=25"></script>
-  <script defer src="js/progress.js?v=25"></script>
-  <script defer src="js/sound.js?v=25"></script>
-  <script defer src="js/interface.js?v=25"></script>
-  <script defer src="js/game.js?v=25"></script>
+  <link rel="preload" href="assets/crew-cartoon.webp?v=26" as="image">
+  <link rel="stylesheet" href="style.css?v=26">
+  <link rel="stylesheet" href="club.css?v=26">
+  <script defer src="js/cast.js?v=26"></script>
+  <script defer src="js/physics.js?v=26"></script>
+  <script defer src="js/ads.js?v=26"></script>
+  <script defer src="js/characters.js?v=26"></script>
+  <script defer src="js/progress.js?v=26"></script>
+  <script defer src="js/sound.js?v=26"></script>
+  <script defer src="js/interface.js?v=26"></script>
+  <script defer src="js/game.js?v=26"></script>
 </head>
 <body data-state="home" data-skin="cartoon" data-stage="cartoon">
   <div class="ambient" aria-hidden="true"></div>
@@ -109,15 +110,12 @@
           </div>
           <div class="wx-capsule-space" aria-hidden="true"></div>
         </div>
-        <div class="hud-score-strip">
-          <div class="hud-score-spacer" aria-hidden="true"></div>
-          <div class="hud-score-hero">
+        <div class="hud-score-row">
+          <div class="hud-cur-score">
             <span class="hud-score-tag">得分</span>
-            <b class="score" data-score>0000</b>
+            <b class="score" data-score>0</b>
           </div>
-          <div class="hud-best-wrap">
-            <div id="bestPill" class="best-pill" title="历史最高分"><canvas data-icon="trophy"></canvas><span>最高</span><b data-best>0</b></div>
-          </div>
+          <div id="bestPill" class="best-pill" title="最高记录"><canvas data-icon="trophy"></canvas><span>最高</span><b data-best>0</b></div>
         </div>
       </header>
 

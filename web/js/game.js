@@ -456,7 +456,18 @@
     hud.open(page, state);
   }
 
+  function tryEnterFullscreen() {
+    if (!matchMedia('(max-width: 900px), (pointer: coarse)').matches) return;
+    if (document.fullscreenElement || document.webkitFullscreenElement) return;
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (req) {
+      try { Promise.resolve(req.call(el)).catch(() => {}); } catch {}
+    }
+  }
+
   function start() {
+    tryEnterFullscreen();
     if (state.hasRun && state.mode === profile.mode) resume();
     else restart(false);
   }

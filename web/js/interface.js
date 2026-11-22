@@ -549,9 +549,14 @@
     }
 
     score(n, best, bump = false) {
-      this.scoreNodes.forEach(e => e.textContent = String(n).padStart(4, '0'));
+      const txt = String(n);
+      this.scoreNodes.forEach(e => {
+        e.textContent = txt;
+        e.classList.toggle('is-long', txt.length >= 6 && txt.length < 8);
+        e.classList.toggle('is-xlong', txt.length >= 8);
+      });
       this.bestNodes.forEach(e => e.textContent = best);
-      if (bump) { const el = $('.score'); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+      if (bump) { const el = $('.score'); if (el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
     }
     queue(slots) { $('#queueText').textContent = slots.map((s, i) => (i + 1) + '号位 ' + (s.wild ? '彩虹万能球' : crew[s.level].name)).join('。'); }
     audio(on) {
