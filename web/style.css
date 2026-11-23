@@ -18,7 +18,10 @@ button:active{transform:translateY(2px) scale(.97)}[hidden]{display:none!importa
    Row 1 (Left, below Notch/Dynamic Island, clear of right WeChat capsule): Phase + Time
    Row 2 (Left, dynamic anti-squeeze): Prominent Current Score + Best Record */
 .game-top{display:flex;flex-direction:column;align-items:stretch;gap:5px;flex:none;padding:var(--safe-top) 12px 7px;background:var(--chrome);border-bottom:2px solid color-mix(in srgb,var(--trim) 50%,transparent)}
-.hud-top-strip{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px}
+.hud-top-strip{display:flex;align-items:center;gap:6px;min-height:30px}
+.hud-pause{flex:none;width:44px;height:44px;background:transparent;color:var(--hud-ink)}
+.hud-pause canvas{width:32px;height:32px;padding:4px;border-radius:50%;background:color-mix(in srgb,var(--hud-ink) 10%,var(--chrome));border:1px solid var(--trim)}
+.hud-top-strip .wx-capsule-space{margin-left:auto}
 .hud-status-bar{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 10px 0 3px;border-radius:14px;background:color-mix(in srgb,var(--hud-ink) 8%,transparent);border:1.5px solid color-mix(in srgb,var(--hud-ink) 14%,transparent);max-width:calc(100% - var(--capsule-w) - 6px);overflow:hidden}
 .hud-phase-pill{display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:10px;background:linear-gradient(180deg,#8b68ff,#6637d6);color:#ffffff;font-size:11px;font-weight:900;line-height:1;white-space:nowrap;flex:none}
 .hud-phase-pill.is-boss{background:linear-gradient(180deg,#ff6b6b,#d92b2b)}

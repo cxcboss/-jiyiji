@@ -32,10 +32,11 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .sleeve{position:absolute;inset:0;z-index:0;overflow:hidden;cursor:pointer}
 #sleeveArt{position:absolute;inset:0;width:100%;height:100%;display:block}
 
-.home-head,.coin-pill,.home-best-pill,.cover-label,.start-btn,.dock-btn,.dock-icon,.toast,.dialog-toast,.modal-top,.save-btn,.new-char-banner,.band-header{display:flex;align-items:center}
+.home-head,.coin-pill,.home-best-pill,.start-btn,.dock-btn,.dock-icon,.toast,.dialog-toast,.modal-top,.save-btn,.new-char-banner,.band-header{display:flex;align-items:center}
 
-.home-head{position:relative;z-index:3;justify-content:space-between;flex:none;height:38px;pointer-events:none}
-.home-head>*{pointer-events:auto}
+.home-head{position:relative;z-index:3;gap:8px;flex:none;height:38px;pointer-events:none}
+.home-head button{pointer-events:auto}
+.home-head .wx-capsule-space{margin-left:auto}
 
 /* Glossy 3D Gold Coin Pill (height aligned with WeChat capsule) */
 .coin-pill{position:relative;gap:5px;height:36px;padding:0 5px 0 8px;border-radius:19px;background:linear-gradient(180deg,#fff3b0 0%,#ffd24d 52%,#f2a91d 100%);border:2.5px solid #593506;color:#4a2804;font-size:14.5px;font-weight:900;box-shadow:0 3px 0 #593506,0 6px 12px rgba(0,0,0,.16),inset 0 2px 0 rgba(255,255,255,.78)}
@@ -53,13 +54,9 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .side-game-btn.is-set .side-btn-box{background:linear-gradient(180deg,#7ed6ff,#369ef5)}
 .side-btn-txt{font-size:11.5px;font-weight:900;color:#ffffff;letter-spacing:.4px;paint-order:stroke fill;-webkit-text-stroke:3px #20322b;text-shadow:0 2px 0 #182822}
 
-/* Floating Right Badges (strictly below WeChat capsule & aligned with left rail) */
-.home-right-rail{position:absolute;top:calc(var(--safe-top) + 56px);right:14px;z-index:3;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.home-best-pill{gap:5px;padding:6px 11px;border-radius:15px;background:linear-gradient(180deg,#fff3b0,#ffd24d);color:#4a2804;font-size:12px;font-weight:900;border:2.5px solid #593506;box-shadow:0 3px 0 #593506,inset 0 2px 0 rgba(255,255,255,.78);pointer-events:none}
+.home-best-pill{gap:4px;padding:5px 9px;border-radius:14px;background:#fff6ce;color:#513907;font-size:12px;font-weight:850;border:1.5px solid #77613c;white-space:nowrap}
 .home-best-pill canvas{width:16px;height:16px}
 .home-best-pill b{font-family:"Barlow Deck","Arial Black",sans-serif;font-style:italic;font-size:16px;line-height:1}
-.cover-label{gap:5px;padding:7px 11px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#e6f3ea);border:2.5px solid #24352e;color:#1e362c;font-size:12px;font-weight:900;box-shadow:0 3px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
-.cover-label canvas{width:16px;height:16px}
 
 /* Sculptural 3D Game Logo (shifted downward below Dynamic Island & capsule band) */
 .hero-logo-wrap{position:relative;z-index:2;flex:1;display:flex;align-items:flex-start;justify-content:center;padding-top:26px;pointer-events:none}
@@ -79,11 +76,11 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 
 /* Bold Floating Game Dock Badges */
 .home-dock{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-.dock-btn{position:relative;flex-direction:column;justify-content:center;gap:3px;min-height:66px;padding:7px 6px;border-radius:18px;border:2.5px solid #24352e;color:#1f382e;box-shadow:0 4px 0 #24352e,0 6px 12px rgba(0,0,0,.15),inset 0 3px 0 rgba(255,255,255,.65)}
-.dock-skin{background:linear-gradient(180deg,#d8ffea,#99ebc0)}
-.dock-guide{background:linear-gradient(180deg,#efe3ff,#cdb0ff)}
-.dock-medal{background:linear-gradient(180deg,#fff2ba,#ffd666)}
-.dock-icon{justify-content:center;width:32px;height:32px;border-radius:11px;background:rgba(255,255,255,.68);border:2px solid rgba(36,53,46,.22)}.dock-icon canvas{width:23px;height:23px}
+.dock-btn{position:relative;justify-content:center;gap:7px;min-height:48px;padding:4px 6px;border-radius:15px;border:1px solid #526e5b;color:#243d31;box-shadow:0 2px 0 #3c5649}
+.dock-skin{background:linear-gradient(180deg,#effaf1,#ccebd4)}
+.dock-guide{background:linear-gradient(180deg,#f5effb,#e1d8ef)}
+.dock-medal{background:linear-gradient(180deg,#fff8de,#f2e5b9)}
+.dock-icon{justify-content:center}.dock-icon canvas{width:24px;height:24px}
 .dock-btn strong{font-size:13.5px;font-weight:950}
 .red-dot{position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;background:#ff2e4c;border:2.5px solid #ffffff;box-shadow:0 2px 4px rgba(0,0,0,.25)}
 
@@ -115,13 +112,11 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .new-char-banner{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:6;gap:6px;padding:7px 14px;border-radius:18px;background:linear-gradient(180deg,#ffbe3b,#ed7a0c);color:#ffffff;font-size:12px;font-weight:950;white-space:nowrap;border:2.5px solid #6e3204;box-shadow:0 4px 0 #6e3204}
 .new-char-banner canvas{width:16px;height:16px}
 
-.prop-dock{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;flex:none;margin-top:7px;padding:0 10px}
+.prop-dock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:none;margin-top:8px;padding:0 10px}
 .prop-btn{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:52px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#e6f0e8);border:2.5px solid #24352e;color:#1f382e;font-size:11px;font-weight:900;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9)}
-.prop-btn canvas{width:23px;height:23px;flex:none}
-.prop-btn.prop-pause-btn{background:linear-gradient(180deg,#52d989 0%,#28b062 60%,#1d9450 100%);color:#ffffff;border-color:#154f2d;box-shadow:0 4px 0 #154f2d,inset 0 2px 0 rgba(255,255,255,.42)}
-.prop-btn.prop-pause-btn canvas{width:23px;height:23px}
+.prop-btn canvas{width:29px;height:29px;flex:none}
 .prop-btn.is-active{background:linear-gradient(180deg,#fff08a,#ffca28);color:#422603;border-color:#6e4004;box-shadow:0 4px 0 #6e4004;transform:translateY(-2px)}
-.prop-count{position:absolute;top:-7px;right:-4px;min-width:22px;height:21px;padding:0 5px;border-radius:11px;background:linear-gradient(180deg,#3fd67e,#1ca656);color:#ffffff;font-style:normal;font-size:11px;font-weight:900;display:grid;place-items:center;border:2px solid #164f2c;box-shadow:0 2px 0 #164f2c}
+.prop-count{position:absolute;top:2px;right:3px;min-width:22px;height:21px;padding:0 5px;border-radius:11px;background:linear-gradient(180deg,#3fd67e,#1ca656);color:#ffffff;font-style:normal;font-size:11px;font-weight:900;display:grid;place-items:center;border:2px solid #164f2c;box-shadow:0 2px 0 #164f2c}
 .prop-count.is-empty{background:linear-gradient(180deg,#94a3a0,#647471);border-color:#2d3b38;box-shadow:0 2px 0 #2d3b38}
 
 /* ================= TRUE GAME-FRAMED POPUP DIALOGS ================= */
@@ -134,6 +129,9 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .sheet-win .modal-top,.sheet-wheel .modal-top,.sheet-checkin .modal-top,.sheet-prop_ad_prompt .modal-top{background:linear-gradient(180deg,#ffca47 0%,#f59618 60%,#de7809 100%);border-bottom-color:#7d3e03}
 .sheet-loss .modal-top,.sheet-revive_prompt .modal-top,.sheet-confirm_restart .modal-top,.sheet-confirm_home .modal-top{background:linear-gradient(180deg,#ff7e70 0%,#eb483b 60%,#d13226 100%);border-bottom-color:#751710}
 .sheet-guide .modal-top,.sheet-skins .modal-top{background:linear-gradient(180deg,#8b7dff 0%,#634df2 60%,#4e37d6 100%);border-bottom-color:#2b1985}
+.sheet-close{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:44px;height:44px;color:white;background:transparent}
+.sheet-close:active{transform:translateY(-50%) scale(.94)}
+.sheet-close canvas{width:25px;height:25px;background:#fff7de;border-radius:50%;padding:3px;color:#284034}
 .modal-top h2{margin:0;font-family:var(--ui-font);font-size:22px;color:#ffffff;font-weight:900;letter-spacing:.6px;paint-order:stroke fill;-webkit-text-stroke:4px rgba(18,36,28,.75);text-shadow:0 3px 0 rgba(18,36,28,.55)}
 
 #dialogBody{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding:14px 16px 10px}
@@ -147,7 +145,6 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 .action::before{content:"";position:absolute;top:3px;left:10px;right:10px;height:9px;border-radius:8px;background:rgba(255,255,255,.22);pointer-events:none}
 .action:disabled{opacity:.55;cursor:not-allowed}
 .action.secondary{background:linear-gradient(180deg,#ffffff,#e4eee5);color:#233d32;border-color:#24352e;box-shadow:0 5px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.95);text-shadow:none}
-.action.close-btn{flex:1 0 100%;min-height:44px;background:linear-gradient(180deg,#f7f9f5,#dfe8df);color:#2b4036;border-color:#24352e;box-shadow:0 4px 0 #24352e,inset 0 2px 0 rgba(255,255,255,.9);text-shadow:none}
 .action.ad-btn{background:linear-gradient(180deg,#ffc53d 0%,#f27e0f 58%,#d96604 100%);color:#ffffff;border-color:#733302;box-shadow:0 5px 0 #733302,inset 0 2.5px 0 rgba(255,255,255,.48);text-shadow:0 1.5px 0 rgba(100,40,2,.55)}
 .action canvas{width:19px;height:19px;flex:none}
 
@@ -168,6 +165,7 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
 
 .wheel-wrap{position:relative;display:grid;place-items:center;margin:4px auto 10px;width:244px;height:244px}
 .wheel-canvas{width:240px;height:240px;display:block}
+.wheel-result{text-align:center;margin:0 0 9px;font-size:15px;font-weight:850;color:#254637}
 .wheel-pity{text-align:center;font-size:12px;font-weight:900;color:#6e4008;background:#fff1bf;border:2px solid #e6a832;border-radius:13px;padding:7px 10px;margin-top:4px}
 
 .quest-list{display:grid;gap:8px;margin-bottom:10px}
@@ -270,12 +268,10 @@ dialog.sheet::backdrop{background:rgba(12,24,20,.64)}
   body{background:var(--chrome)}
   .home{padding:calc(var(--safe-top) + 4px) max(14px,env(safe-area-inset-right)) calc(var(--safe-bottom) + 8px) max(14px,env(safe-area-inset-left))}
   .home-side-rail{top:calc(var(--safe-top) + 56px);left:max(14px,env(safe-area-inset-left))}
-  .home-right-rail{top:calc(var(--safe-top) + 56px);right:max(14px,env(safe-area-inset-right))}
   .hero-logo-wrap{padding-top:28px}
   .home-footer{padding:0 6px 4px}
-  .dock-btn{min-height:60px}
   .prop-dock{padding:0 12px;gap:6px}
 }
 @media(max-height:680px){
-  .start-btn{min-height:54px;font-size:20px}.dock-btn{min-height:58px}.prop-btn{height:52px}.side-btn-box{width:42px;height:42px}
+  .start-btn{min-height:54px;font-size:20px}.prop-btn{height:52px}.side-btn-box{width:42px;height:42px}
 }

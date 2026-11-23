@@ -12,17 +12,17 @@
   <link rel="manifest" href="manifest.json?v=27">
   <link rel="apple-touch-icon" href="assets/icon.png">
   <link rel="icon" href="assets/icon.png">
-  <link rel="preload" href="assets/crew-cartoon.webp?v=27" as="image">
-  <link rel="stylesheet" href="style.css?v=27">
-  <link rel="stylesheet" href="club.css?v=27">
+  <link rel="preload" href="assets/crew-cartoon.webp?v=13" as="image">
+  <link rel="stylesheet" href="style.css?v=28">
+  <link rel="stylesheet" href="club.css?v=28">
   <script defer src="js/cast.js?v=27"></script>
   <script defer src="js/physics.js?v=27"></script>
   <script defer src="js/ads.js?v=27"></script>
   <script defer src="js/characters.js?v=27"></script>
   <script defer src="js/progress.js?v=27"></script>
   <script defer src="js/sound.js?v=27"></script>
-  <script defer src="js/interface.js?v=27"></script>
-  <script defer src="js/game.js?v=27"></script>
+  <script defer src="js/interface.js?v=28"></script>
+  <script defer src="js/game.js?v=28"></script>
 </head>
 <body data-state="home" data-skin="cartoon" data-stage="cartoon">
   <div class="ambient" aria-hidden="true"></div>
@@ -40,6 +40,11 @@
           <b data-coins>120</b>
           <span class="coin-plus"><canvas data-icon="plus"></canvas></span>
         </button>
+        <div class="home-best-pill" aria-label="无尽最高分">
+          <canvas data-icon="trophy"></canvas>
+          <span>最高</span>
+          <b data-best>0</b>
+        </div>
         <div class="wx-capsule-space" aria-hidden="true"></div>
       </header>
 
@@ -58,18 +63,6 @@
           <span class="side-btn-txt">设置</span>
         </button>
       </nav>
-
-      <!-- Floating Right Badges (positioned cleanly below WeChat capsule) -->
-      <div class="home-right-rail">
-        <div class="home-best-pill" aria-label="无尽最高分">
-          <canvas data-icon="trophy"></canvas>
-          <span>最高</span>
-          <b data-best>0</b>
-        </div>
-        <button class="cover-label" id="coverSkins" aria-label="更换皮肤与舞台">
-          <canvas data-icon="layers"></canvas><span id="coverStage">经典卡通</span>
-        </button>
-      </div>
 
       <!-- Sculptural 3D Game Logo -->
       <div class="hero-logo-wrap" aria-hidden="true">
@@ -105,6 +98,7 @@
     <div class="game-view" id="gameView" inert aria-hidden="true">
       <header class="game-top" aria-label="对局信息栏">
         <div class="hud-top-strip">
+          <button id="pause" class="hud-pause" aria-label="暂停游戏" title="暂停游戏"><canvas data-icon="pause"></canvas></button>
           <div class="hud-status-bar">
             <span id="hudPhase" class="hud-phase-pill">热身节奏</span>
             <i class="hud-sep" aria-hidden="true"></i>
@@ -136,7 +130,7 @@
             </div>
           </div>
 
-          <div class="prop-dock" id="propDock" aria-label="局内道具与暂停栏">
+          <div class="prop-dock" id="propDock" aria-label="局内道具">
             <button class="prop-btn p-hammer" data-prop="hammer" title="点选果冻消除或破冰">
               <canvas data-icon="hammer"></canvas>
               <span class="prop-label">小锤子</span>
@@ -146,10 +140,6 @@
               <canvas data-icon="spark"></canvas>
               <span class="prop-label">彩虹球</span>
               <i class="prop-count">1</i>
-            </button>
-            <button id="pause" class="prop-btn prop-pause-btn" aria-label="暂停游戏" title="暂停游戏">
-              <canvas data-icon="pause"></canvas>
-              <span class="prop-label">暂停</span>
             </button>
             <button class="prop-btn p-freeze" data-prop="freeze" title="冻住横杆12秒并开启双倍得分">
               <canvas data-icon="snow"></canvas>
@@ -173,6 +163,7 @@
     <div id="dialogToast" class="dialog-toast" role="status" hidden><canvas data-icon="medal"></canvas><span></span></div>
     <div class="modal-top">
       <h2 id="dialogTitle"></h2>
+      <button id="dialogClose" class="sheet-close" aria-label="关闭" hidden><canvas data-icon="close"></canvas></button>
     </div>
     <div id="dialogBody"></div>
     <div class="dialog-actions" id="dialogActions"></div>

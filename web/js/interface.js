@@ -361,13 +361,26 @@
       c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, rad, a0, a1); c.closePath(); c.fill();
       c.strokeStyle = '#ffffff'; c.lineWidth = 2.5; c.stroke();
 
+    }
+    c.restore();
+    c.save();
+    c.translate(cx, cy);
+    for (const [i, prize] of prizes.entries()) {
+      const direction = angle + i * step;
+      const x = Math.sin(direction) * rad * .65;
+      const y = -Math.cos(direction) * rad * .65;
       c.save();
-      c.rotate(i * step);
-      c.fillStyle = '#24352e';
-      c.font = '900 12px "PingFang SC","Microsoft YaHei",sans-serif';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(prizes[i].label, 0, -rad * .64);
+      c.translate(x - 14, y - 18);
+      c.scale(28 / 24, 28 / 24);
+      drawCustomIcon(c, prize.icon, '#24352e');
       c.restore();
+      c.fillStyle = '#24352e';
+      c.font = '850 12px "PingFang SC","Microsoft YaHei",sans-serif';
+      c.textAlign = 'center';
+      let caption = '限定';
+      if (prize.type === 'coins') caption = String(prize.amount);
+      if (prize.type === 'prop') caption = '×' + prize.amount;
+      c.fillText(caption, x, y + 23);
     }
     c.strokeStyle = '#ff9f2e'; c.lineWidth = 6;
     c.beginPath(); c.arc(0, 0, rad, 0, Math.PI * 2); c.stroke();
@@ -390,7 +403,7 @@
       this.lastPaint = -1;
       this.coverHop = 0;
       this.wheelAngle = 0;
-      this.wheelSpinning = false;
+      this.wheelFrame = null;
       this.wheelCanvas = null;
       this.dialog = $('#dialog');
       this.body = $('#dialogBody');
@@ -407,7 +420,7 @@
       bind('#pause', () => actions.panel('pause'));
       bind('#homeGuide', () => actions.panel('guide'));
       bind('#homeSettings', () => actions.panel('settings'));
-      bind('#coverSkins', e => { e.stopPropagation(); actions.panel('skins'); });
+      bind('#dialogClose', actions.dismiss);
       bind('#homeSkins', () => actions.panel('skins'));
       bind('#homeCheckin', () => actions.panel('checkin'));
       bind('#homeWheel', () => actions.panel('wheel'));
@@ -445,18 +458,13 @@
 
     syncHome(hasRun) {
       const p = this.progress;
-      const skinTheme = art.themes[p.skin] || art.themes.cartoon;
-      const stageTheme = art.themes[p.activeStage] || skinTheme;
-
-      const setTxt = (sel, txt) => { const el = $(sel); if (el) el.textContent = txt; };
-      setTxt('#coverStage', p.stageMode === 'auto' ? skinTheme.name : `${skinTheme.name}·${stageTheme.stage}`);
       this.coinNodes.forEach(n => n.textContent = p.coins);
       this.bestNodes.forEach(n => n.textContent = p.modeBest.endless || p.stats.record);
 
       const checkinDot = $('#checkinDot'); if (checkinDot) checkinDot.hidden = !p.hasClaimableDaily();
       const wheelDot = $('#wheelDot'); if (wheelDot) wheelDot.hidden = !p.canFreeWheel();
       const badgeDot = $('#badgeDot'); if (badgeDot) badgeDot.hidden = p.unclaimedBadges().length === 0;
-      setTxt('#startLabel', hasRun ? '继续游戏' : '开始游戏');
+      $('#startLabel').textContent = hasRun ? '继续游戏' : '开始游戏';
     }
 
     syncProps(activePropId = null) {
@@ -534,7 +542,7 @@
       this.lastPaint = t;
       if (!$('#home').hidden && !this.dialog.open) cover($('#sleeveArt'), this.progress.skin, this.progress.activeStage, t, this.coverHop);
       if (this.page === 'skins' && this.previewCanvas) preview(this.previewCanvas, this.previewSkin, this.previewStage, t);
-      if (this.page === 'wheel' && this.wheelCanvas && !this.wheelSpinning) drawWheel(this.wheelCanvas, this.wheelAngle);
+      if (this.page === 'wheel' && this.wheelCanvas && this.wheelFrame === null) drawWheel(this.wheelCanvas, this.wheelAngle);
       for (const tile of this.modalTiles) {
         if (tile.small) {
           const b = fit(tile.canvas);
@@ -600,9 +608,15 @@
       return b;
     }
 
+    clearWheel() {
+      if (this.wheelFrame !== null) cancelAnimationFrame(this.wheelFrame);
+      this.wheelFrame = null;
+      this.wheelCanvas = null;
+    }
+
     animateWheelTo(targetIdx, onDone) {
-      if (!this.wheelCanvas || this.wheelSpinning) return;
-      this.wheelSpinning = true;
+      if (!this.wheelCanvas || this.wheelFrame !== null) return;
+      this.body.querySelector('.wheel-result')?.remove();
       const prizes = Jelly.club.wheelPrizes;
       const step = (Math.PI * 2) / prizes.length;
       const startAngle = this.wheelAngle;
@@ -618,35 +632,40 @@
         const ease = 1 - Math.pow(1 - k, 3);
         this.wheelAngle = startAngle + totalSpin * ease;
         if (this.wheelCanvas) drawWheel(this.wheelCanvas, this.wheelAngle);
-        if (k < 1) requestAnimationFrame(stepAnim);
-        else { this.wheelSpinning = false; onDone?.(); }
+        if (k < 1) this.wheelFrame = requestAnimationFrame(stepAnim);
+        else { this.wheelFrame = null; onDone?.(); }
       };
-      requestAnimationFrame(stepAnim);
+      this.wheelFrame = requestAnimationFrame(stepAnim);
     }
 
-    wheelModal() {
+    wheelModal(result) {
       const p = this.progress;
       const canFree = p.canFreeWheel();
       const adLeft = p.wheelAdLeft();
       const toPity = Math.max(1, 5 - (p.wheel.pity || 0));
 
       const wrap = element('div', 'wheel-wrap');
+      wrap.setAttribute('role', 'img');
+      wrap.setAttribute('aria-label', '转盘奖品：' + Jelly.club.wheelPrizes.map(prize => prize.label).join('、'));
       this.wheelCanvas = element('canvas', 'wheel-canvas');
       wrap.append(this.wheelCanvas);
       this.body.append(wrap);
+      if (result) {
+        const label = element('p', 'wheel-result', `抽中 ${result.text}`);
+        label.setAttribute('role', 'status');
+        this.body.append(label);
+      }
       this.body.append(element('div', 'wheel-pity', `再抽 ${toPity} 次必中限定皮肤或 300 音符币大奖！`));
-
-      setTimeout(() => { if (this.wheelCanvas) drawWheel(this.wheelCanvas, this.wheelAngle); }, 10);
 
       if (canFree) {
         const b = this.button('今日免费抽 1 次', () => {
-          if (this.wheelSpinning) return;
+          if (this.wheelFrame !== null) return;
           b.disabled = true;
           this.actions.spinWheel(false);
         }, '', 'wheel');
       } else if (adLeft > 0) {
         const b = this.button(`免费再抽 1 次（剩 ${adLeft} 次）`, () => {
-          if (this.wheelSpinning) return;
+          if (this.wheelFrame !== null) return;
           b.disabled = true;
           this.actions.spinWheel(true);
         }, 'ad-btn', 'video');
@@ -772,7 +791,7 @@
           stageBox.dataset.stage = this.previewStage;
           title.textContent = `${d.name} · ${art.themes[this.previewStage].stage}`;
           if (p.isSkinUnlocked(key)) {
-            this.button(key === p.skin ? '已穿戴' : `穿戴「${d.name}」`, () => this.actions.wear(key));
+            if (key !== p.skin) this.button(`穿戴「${d.name}」`, () => this.actions.wear(key));
           } else {
             const cat = Jelly.club.skinCatalog[key];
             this.button('免费立刻解锁', () => this.actions.adUnlockSkin(key), 'ad-btn', 'video');
@@ -784,7 +803,7 @@
           title.textContent = `舞台 · ${d.stage}`;
           if (p.isStageUnlocked(key)) {
             const isCurrent = p.stageMode === key || (p.stageMode === 'auto' && p.skin === key);
-            this.button(isCurrent ? '当前舞台' : `使用「${d.stage}」`, () => this.actions.wearStage(key));
+            if (!isCurrent) this.button(`使用「${d.stage}」`, () => this.actions.wearStage(key));
             if (p.stageMode !== 'auto') this.button('跟随皮肤', () => this.actions.wearStage('auto'), 'secondary');
           } else {
             const cat = Jelly.club.stageCatalog[key];
@@ -792,7 +811,6 @@
             this.button(`${cat.coins} 币解锁`, () => this.actions.buyStage(key), 'secondary', 'coin');
           }
         }
-        this.button('关闭', this.actions.dismiss, 'close-btn');
         this.buttons.querySelectorAll('[data-icon]').forEach(e => icon(e));
         this.paint(performance.now() / 1000, true);
       };
@@ -820,7 +838,10 @@
           const tag = element('span', 'lock-tag'); tag.append(iconNode('lock'), element('span', '', '免费')); chip.append(tag);
         }
         const line = element('span', 'swatch-name', this.wardrobeTab === 'skin' ? d.name : d.stage);
-        if (wearing) line.append(iconNode('check', 'wearing'));
+        if (wearing) {
+          line.append(iconNode('check', 'wearing'));
+          b.setAttribute('aria-label', line.textContent + '，当前使用');
+        }
         b.append(chip, line); b.onclick = () => pick(key, true); grid.append(b); art.imageFor(key);
         this.modalTiles.push(
           this.wardrobeTab === 'skin'
@@ -889,11 +910,7 @@
     guideModal() {
       const p = this.progress;
       const head = element('div', 'band-header');
-      const txt = element('div');
-      txt.append(
-        element('strong', '', `角色声音图鉴（已收集 ${p.discovered.length} / ${crew.length}）`),
-        element('small', '', '合出新角色自动点亮，点击已解锁角色即可试听它的专属乐器声！')
-      );
+      const txt = element('strong', '', `已收集 ${p.discovered.length} / ${crew.length}`);
       const concertBtn = element('button', 'band-play-btn');
       concertBtn.append(iconNode('music'), element('span', '', '全员合奏'));
       concertBtn.onclick = () => this.actions.playBandConcert(p.discovered);
@@ -903,12 +920,13 @@
       const list = element('div', 'atlas-all');
       crew.forEach((d, i) => {
         const unlocked = p.discovered.includes(i);
-        const item = element('div', 'atlas-item ' + (unlocked ? 'is-discovered' : 'is-locked'));
+        const item = element(unlocked ? 'button' : 'div', 'atlas-item ' + (unlocked ? 'is-discovered' : 'is-locked'));
         const pic = element('canvas');
         item.style.setProperty('--tone', d.color);
         item.append(pic, element('strong', '', unlocked ? d.name : '未解锁'), element('b', '', String(d.value)));
         const tile = { canvas: pic, level: i, mode: 'idle' };
         if (unlocked) {
+          item.setAttribute('aria-label', '试听' + d.name);
           item.onclick = () => {
             tile.mode = 'glee';
             this.actions.playBandNote(i);
@@ -943,13 +961,13 @@
       return hero;
     }
 
-    open(page, game) {
+    open(page, game, wheelResult) {
       this.page = page;
       this.body.replaceChildren();
       this.buttons.replaceChildren();
       this.modalTiles = [];
       this.previewCanvas = null;
-      this.wheelCanvas = null;
+      this.clearWheel();
       this.dialog.className = 'sheet sheet-' + page;
 
       const titles = {
@@ -968,35 +986,30 @@
         loss: '本局结束',
         win: '终极黑胶达成！'
       };
+      $('#dialogClose').hidden = !['skins', 'checkin', 'wheel', 'badges', 'guide', 'settings', 'help'].includes(page);
       $('#dialogTitle').textContent = titles[page] || '提示';
 
       if (page === 'skins') {
         this.wardrobe();
       } else if (page === 'checkin') {
         this.checkinModal();
-        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'wheel') {
-        this.wheelModal();
-        this.button('关闭', this.actions.dismiss, 'close-btn');
+        this.wheelModal(wheelResult);
       } else if (page === 'badges') {
         this.badgesModal();
-        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'guide') {
         this.guideModal();
-        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'settings') {
         const o = this.actions.options();
         this.setting('角色数字显示', '在每个果冻右下角显示合成数字', o.showNumbers, v => this.actions.setShowNumbers(v));
         this.setting('游戏音效', '', o.sound, v => this.actions.setSound(v));
         this.setting('背景音乐', '', o.music, v => this.actions.setMusic(v));
         this.setting('合成震动', o.supported ? '' : '当前设备不支持', o.vibration, v => this.actions.setVibration(v), o.supported);
-        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'help') {
         this.rule('gesture', '轻点直落 · 下滑瞄准 · 踩点暴击', '轻点任意果冻下方直接掉落，按住下滑可拉弹弓瞄准方向和力度；在节拍光环变金瞬间松手还能触发 2 倍暴击！');
         this.rule('infinity', '无尽挤压挑战', '顶部横杆会随时间加速下压，合成新果冻可缓慢抬升横杆；坚持到 3 分钟后底部地板会缓慢抬升并出现冰冻果冻，越往后越刺激！');
         this.rule('spark', '4 大战术道具', '小锤子消除或破冰，彩虹球碰谁升谁，双倍冻可冻住横杆 12 秒并双倍得分，抬杠可强力顶起上下横杆！');
         this.button('重看新手小手引导', () => this.actions.replayTutorial(), 'secondary');
-        this.button('关闭', this.actions.dismiss, 'close-btn');
       } else if (page === 'pause') {
         const line = element('div', 'pause-score'), sticker = element('canvas');
         line.append(element('div', 'result-score', String(game.score)), sticker);
@@ -1059,7 +1072,8 @@
     close() {
       if (this.dialog.open) this.dialog.close();
       const dt = $('#dialogToast'); if (dt) dt.hidden = true;
-      this.modalTiles = []; this.page = null; this.previewCanvas = null; this.wheelCanvas = null;
+      this.modalTiles = []; this.page = null; this.previewCanvas = null;
+      this.clearWheel();
     }
   }
 

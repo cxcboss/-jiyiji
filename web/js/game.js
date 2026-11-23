@@ -47,9 +47,11 @@
   let menuOrigin = 'home';
   const panels = [];
 
-  Jelly.ads.onReward(({ message }) => {
-    band.reward();
-    hud.toast(message, 'video');
+  Jelly.ads.onReward(({ placementId, message }) => {
+    if (placementId !== 'wheel_spin') {
+      band.reward();
+      hud.toast(message, 'video');
+    }
     hud.syncHome(state.hasRun);
     hud.syncProps(state.activeProp, state.mode);
   });
@@ -89,9 +91,8 @@
         hud.animateWheelTo(res.idx, () => {
           band.reward();
           hud.badgesEarned(res.earned);
-          hud.toast(`恭喜抽中：${res.text}！`, res.prize.icon || 'wheel');
           hud.syncHome(state.hasRun);
-          hud.open('wheel', state);
+          hud.open('wheel', state, res);
         });
       };
       if (isAd) Jelly.ads.watch('wheel_spin', exec);
@@ -390,6 +391,7 @@
         state.doubleLeft = 12;
         hud.cheer('双倍得分！');
       }
+      hud.updateGoalBar(state.mode, state.levelObj, state);
     } else if (propId === 'lift') {
       if (world.pressY <= WARNING_Y + 4 && world.floorRise <= 2) {
         profile.addProp('lift', 1); // refund if bar is already at top
