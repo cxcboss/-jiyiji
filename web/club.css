@@ -71,6 +71,15 @@ body,[data-skin=cartoon]{--shell:#c8e8cf;--chrome:#eaf7ec;--hud-ink:#1f3d33;--hu
 .start-btn{position:relative;overflow:hidden;justify-content:flex-start;gap:14px;color:#ffffff;background:linear-gradient(180deg,#5be37f 0%,#28c25d 52%,#1aa34a 100%);border:3px solid #124a25;border-radius:22px;padding:0 18px;min-height:62px;box-shadow:0 6px 0 #124a25,0 10px 22px rgba(12,60,30,.32),inset 0 3px 0 rgba(255,255,255,.55);font:900 22px/1 var(--ui-font);letter-spacing:1.2px;paint-order:stroke fill;-webkit-text-stroke:2.5px #124a25;text-shadow:0 3px 0 #124a25}
 .start-btn::before{content:"";position:absolute;top:4px;left:16px;right:16px;height:12px;border-radius:10px;background:rgba(255,255,255,.26);pointer-events:none}
 .start-btn:hover{filter:brightness(1.05)}
+.start-live{min-height:44px;border:2px solid #24352e;border-radius:16px;background:#fffaf0;color:#20382e;font:850 15px/1 var(--ui-font);box-shadow:0 3px 0 #24352e}
+.live-status{min-width:0;color:var(--hud-ink);font-size:clamp(12px,3.4vw,14px);font-weight:850;line-height:1.3;overflow-wrap:anywhere}
+[data-mode=live] .hud-status-bar,[data-mode=live] #bestPill{display:none}
+@media(orientation:landscape){
+  .game-view[data-mode=live]{width:min(100%,calc(100dvh * .72),500px);left:50%;transform:translateX(-50%)}
+  [data-mode=live] .hud-top-strip .wx-capsule-space{display:none}
+  [data-mode=live] .game-top{padding-top:max(env(safe-area-inset-top),10px)}
+  [data-mode=live] .rig{padding-bottom:max(env(safe-area-inset-bottom),10px)}
+}
 .start-play{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#fff7a8,#ffd03b);border:2.5px solid #124a25;box-shadow:0 2px 0 rgba(0,0,0,.22)}.start-play canvas{width:19px;height:19px}
 .start-meter{margin-left:auto;display:flex;gap:3.5px;align-items:center}.start-meter i{width:4.5px;height:10px;background:#e4ffe8;border-radius:4px;box-shadow:0 1px 0 #124a25}.start-meter i:nth-child(2){height:18px}.start-meter i:nth-child(3){height:25px}.start-meter i:nth-child(4){height:14px}
 

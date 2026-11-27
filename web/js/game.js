@@ -25,7 +25,7 @@
   const homes = [68, 200, 332], rackY = 52;
   const BEAT_PERIOD = 60 / 112; // 112 BPM global beat ring pulse
 
-  const state = {
+  let state = {
     phase: 'home', mode: profile.mode, levelObj: null,
     score: 0, best: profile.modeBest[profile.mode] || profile.stats.record,
     hasRun: false, slots: [], choice: 1, shots: 0, time: 0, elapsed: 0, lastFireTime: -10, bag: [], drag: null,
@@ -39,11 +39,12 @@
     activeProp: null, pendingProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
     emergencyUsed: false, emergencyVisible: false,
     newCharTimer: 0, newCharPending: false,
-    showTutorial: false,
+    showTutorial: false, autoPlay: false, autoAt: 0, autoRescueAt: 0, autoPropAt: 0, autoSlot: -1,
     fx: [], rings: [], labels: [], bridges: [], shake: 0, encore: false, finish: null
   };
 
-  const world = new World(onPhysics);
+  let world = new World(onPhysics);
+  const savedRuns = new Map();
   let menuOrigin = 'home';
   const panels = [];
 
@@ -52,7 +53,7 @@
       band.reward();
       hud.toast(message, 'video');
     }
-    hud.syncHome(state.hasRun);
+    syncHome();
     hud.syncProps(state.activeProp, state.mode);
   });
 
@@ -69,6 +70,8 @@
     restart: () => restart(false),
     home: goHome,
     start,
+    startLive: () => enterMode('live'),
+    setAutoPlay,
     setShowNumbers,
     toggleNumbers() {
       const next = !profile.showNumbers;
@@ -91,7 +94,7 @@
         hud.animateWheelTo(res.idx, () => {
           band.reward();
           hud.badgesEarned(res.earned);
-          hud.syncHome(state.hasRun);
+          syncHome();
           hud.open('wheel', state, res);
         });
       };
@@ -103,7 +106,7 @@
       if (rewardText) {
         band.reward();
         hud.toast(`任务完成！获得 ${rewardText}`, 'gift');
-        hud.syncHome(state.hasRun);
+        syncHome();
         hud.open('checkin', state);
       }
     },
@@ -112,7 +115,7 @@
         const summary = profile.claimDailyChest(isDouble);
         if (!summary) return;
         if (!isDouble) { band.reward(); hud.toast(`开启今日大宝箱：${summary}！`, 'chest'); }
-        hud.syncHome(state.hasRun);
+        syncHome();
         hud.open('checkin', state);
       };
       if (isDouble) {
@@ -168,7 +171,7 @@
       profile.setMode(mode);
       state.mode = mode;
       state.best = profile.modeBest[mode] || profile.stats.record;
-      hud.syncHome(state.hasRun);
+      syncHome();
     },
     playLevel(levelId) {
       profile.setMode('campaign');
@@ -179,14 +182,14 @@
     wear(skin) {
       if (!profile.wear(skin)) return;
       applyVisualTheme();
-      hud.syncHome(state.hasRun);
+      syncHome();
       if (state.slots.length) render(state.time, 1);
       dismiss();
     },
     wearStage(stageId) {
       if (!profile.setStage(stageId)) return;
       applyVisualTheme();
-      hud.syncHome(state.hasRun);
+      syncHome();
       if (state.slots.length) render(state.time, 1);
       dismiss();
     },
@@ -240,7 +243,7 @@
         if (!res) return;
         hud.badgesEarned(res.earned);
         if (!isDouble) { band.reward(); hud.toast(`签到成功：${res.summary}`, 'gift'); }
-        hud.syncHome(state.hasRun);
+        syncHome();
         hud.open('checkin', state);
       };
       if (isDouble) {
@@ -251,7 +254,7 @@
     },
     simulateNextDay() {
       profile.simulateNextDay();
-      hud.syncHome(state.hasRun);
+      syncHome();
       hud.open('checkin', state);
     },
     claimBadge(id) {
@@ -259,7 +262,7 @@
       if (reward > 0) {
         band.reward();
         hud.toast(`已领取 +${reward} 音符币！`, 'coin');
-        hud.syncHome(state.hasRun);
+        syncHome();
         hud.open('badges', state);
       }
     },
@@ -271,13 +274,14 @@
     },
     triggerProp(propId) {
       if (state.phase !== 'playing') return;
+      if (state.drag?.auto) cancelDrag();
       if (propId === 'hammer' && state.activeProp === 'hammer') {
         state.activeProp = null;
         hud.syncProps(null, state.mode);
         hud.floatTip('');
         return;
       }
-      if ((profile.props[propId] || 0) <= 0) {
+      if (state.mode !== 'live' && (profile.props[propId] || 0) <= 0) {
         state.pendingProp = propId;
         openPanel('prop_ad_prompt');
       } else {
@@ -359,15 +363,21 @@
     return base;
   }
 
+  function spendProp(propId) {
+    return state.mode === 'live' ? [] : profile.useProp(propId);
+  }
+
   function activateProp(propId) {
+    const live = state.mode === 'live';
     if (propId === 'hammer') {
       if (!world.bodies.length && !(world.boss && world.boss.hp > 0)) { hud.toast('场上还没有目标哦', 'hammer'); return; }
       state.activeProp = 'hammer';
       hud.syncProps('hammer', state.mode);
-      hud.floatTip('点任意果冻消除/破冰，或直接敲击音箱Boss！');
+      hud.floatTip(live ? '点一下要移走的果冻' : '点任意果冻消除/破冰，或直接敲击音箱Boss！');
       return;
     }
-    const badges = profile.useProp(propId);
+    if (live && propId === 'wild' && state.slots[state.choice].wild) return;
+    const badges = spendProp(propId);
     if (!badges) return;
     hud.badgesEarned(badges);
     band.prop(propId);
@@ -384,7 +394,7 @@
         state.freezeLeft = 12;
         state.doubleLeft = 12;
         hud.cheer('冻住横杆 + 双倍分！');
-      } else if (JellyModes[state.mode].timed || state.mode === 'press') {
+      } else if (JellyModes[state.mode]?.timed || state.mode === 'press') {
         state.freezeLeft = 15;
         hud.cheer(state.mode === 'press' ? '压板冻住啦！' : '时间冻住啦！');
       } else {
@@ -392,6 +402,15 @@
         hud.cheer('双倍得分！');
       }
       hud.updateGoalBar(state.mode, state.levelObj, state);
+    } else if (propId === 'sweep' && live) {
+      const removed = world.clearTop(4);
+      if (!removed.length) { hud.toast('场上只剩两个或更少的果冻', 'disc'); return; }
+      for (const b of removed) {
+        state.rings.push({ x: b.x, y: b.y, t: 0, d: .45, r: b.r + 18, color: crew[b.level].light, flat: .9 });
+      }
+      state.over = 0;
+      hud.danger(false);
+      hud.cheer('清场鼓！');
     } else if (propId === 'lift') {
       if (world.pressY <= WARNING_Y + 4 && world.floorRise <= 2) {
         profile.addProp('lift', 1); // refund if bar is already at top
@@ -412,7 +431,7 @@
 
   function restart(withWildStart = false) {
     cancelDrag(); hud.close(); panels.length = 0; state.hasRun = true; hud.home(false, true);
-    const mode = 'endless';
+    const mode = state.mode === 'live' ? 'live' : 'endless';
 
     Object.assign(state, {
       mode, levelObj: null,
@@ -422,10 +441,11 @@
       iceBroken: 0, orders: [], ordersDone: 0,
       endlessTier: 0, endlessFrostTimer: 22, pressRetreat: 0, floorRetreat: 0,
       crushQueue: [], crushSwelling: [], crushTimer: 0, crushDoneWait: 0,
-      activeProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
+      activeProp: null, pendingProp: null, revived: false, extended: false, doubledCoins: false, earnedCoins: 0, clearStars: 0,
       emergencyUsed: false, emergencyVisible: false,
       newCharTimer: 0, newCharPending: false,
-      showTutorial: !profile.tutorialDone,
+      showTutorial: mode !== 'live' && !profile.tutorialDone,
+      autoAt: rand(.52, 1.22), autoRescueAt: 0, autoPropAt: rand(7, 14), autoSlot: -1,
       shake: 0, encore: false, finish: null
     });
 
@@ -438,7 +458,9 @@
     applyVisualTheme();
     hud.resetFx();
 
-    world.seed('standard', { pressSpeed: 2.8, pressPush: 24 });
+    hud.setMode(mode);
+    refreshSize();
+    world.seed('standard', mode === 'live' ? null : { pressSpeed: 2.8, pressPush: 24 });
 
     hud.score(0, state.best);
     hud.queue(state.slots);
@@ -477,22 +499,67 @@
     try { screen.orientation?.lock?.('portrait')?.catch?.(() => {}); } catch {}
   }
 
+  function hasRun(mode) {
+    return state.mode === mode ? state.hasRun : !!savedRuns.get(mode);
+  }
+
+  function syncHome() {
+    hud.syncHome(hasRun('endless'), hasRun('live'));
+  }
+
+  function enterMode(mode) {
+    if (state.mode !== mode) {
+      cancelDrag();
+      if (state.hasRun) savedRuns.set(state.mode, { state, world, keyAngle, keyMarker });
+      const saved = savedRuns.get(mode);
+      savedRuns.delete(mode);
+      if (saved) {
+        ({ state, world, keyAngle, keyMarker } = saved);
+        world.resize(height);
+      } else {
+        state = { ...state, mode, hasRun: false, autoPlay: false };
+        world = new World(onPhysics);
+        world.resize(height);
+      }
+    }
+    if (state.hasRun) resume();
+    else restart(false);
+  }
+
   function start() {
     tryEnterFullscreen();
-    if (state.hasRun && state.mode === profile.mode) resume();
-    else restart(false);
+    enterMode('endless');
+  }
+
+  function setAutoPlay(on) {
+    if (hud.page !== 'pause') return;
+    if (on && state.mode !== 'live') enterMode('live');
+    state.autoPlay = on;
+    state.activeProp = null;
+    state.autoAt = state.time + rand(.45, 1.12);
+    hud.floatTip('');
+    hud.syncProps(null, state.mode);
+    if (on && state.phase === 'modal') resume();
   }
 
   function goHome() {
     if (hud.page === 'milestone') state.encore = true;
     cancelDrag(); hud.close(); panels.length = 0; state.activeProp = null;
-    phase('home'); hud.home(true, state.hasRun);
-    document.getElementById('start').focus({ preventScroll: true });
+    phase('home'); hud.home(true, hasRun('endless'), hasRun('live'));
+    document.getElementById(state.mode === 'live' ? 'startLive' : 'start').focus({ preventScroll: true });
   }
 
   function resume() {
     hud.close(); panels.length = 0; hud.home(false, true); phase('playing');
+    hud.setMode(state.mode);
+    hud.resetFx();
+    hud.queue(state.slots);
+    hud.score(state.score, state.mode === 'live' ? profile.modeBest.endless || profile.stats.record : state.best);
+    hud.updateGoalBar(state.mode, state.levelObj, state, world);
     hud.syncProps(state.activeProp, state.mode);
+    hud.showEmergencySave(state.emergencyVisible);
+    hud.showNewCharBanner(state.newCharPending);
+    if (state.activeProp === 'hammer') hud.floatTip(state.mode === 'live' ? '点一下要移走的果冻' : '点任意果冻消除/破冰，或直接敲击音箱Boss！');
     band.unlock(); canvas.focus({ preventScroll: true });
   }
 
@@ -579,6 +646,13 @@
     if (state.phase !== 'playing') return;
     band.setFever(false); world.magnet = false;
     if (page !== 'milestone') state.hasRun = false;
+    if (state.mode === 'live') {
+      cancelDrag();
+      phase('end');
+      band.fail();
+      hud.open('loss', state);
+      return;
+    }
 
     profile.recordModeScore('endless', state.score);
     hud.badgesEarned(profile.recordSurvival(state.elapsed));
@@ -692,11 +766,13 @@
     return Math.min(ph, 1 - ph) < 0.16;
   }
 
+  const launchSpeed = (drop, power) => drop ? 54 : 168 + 640 * power;
+
   function fire() {
     const d = state.drag; if (!d) return;
     if (!d.valid || !canFireSlot(d.slot)) { cancelDrag(); return; }
     const slot = state.slots[d.slot], view = slotPose(d.slot, state.time);
-    const dx = Math.sin(d.angle), dy = Math.cos(d.angle), speed = d.drop ? 54 : 168 + 640 * d.power;
+    const dx = Math.sin(d.angle), dy = Math.cos(d.angle), speed = launchSpeed(d.drop, d.power);
     const level = slot.level, isWild = !!slot.wild;
     const beatHit = state.shots > 0 && isOnBeat(state.time);
     const b = world.add(level, view.x, view.y, dx * speed, dy * speed, { dx, dy, scale: d.drop ? 1.015 : 1.08 + .32 * d.power }, isWild);
@@ -715,18 +791,33 @@
       state.labels.push({ x: clamp(view.x, 42, W - 42), y: view.y + 18, text: '节拍!', t: 0, d: .55, color: '#ffe852' });
     }
     for (let i = 0; i < (beatHit ? 7 : 4); i++) speck(slot.x + rand(-8, 8), 26, rand(-52, 52), rand(20, 80), beatHit ? '#ffe852' : isWild ? '#ffe98a' : crew[level].light, .28, beatHit ? 1.8 : 1.15, beatHit ? 'star' : 'dot');
-    hud.badgesEarned(profile.shot(d.slot, profile.skin));
+    if (state.mode !== 'live') hud.badgesEarned(profile.shot(d.slot, profile.skin));
     cancelDrag();
   }
 
+  function hammerBody(target) {
+    hud.badgesEarned(spendProp('hammer'));
+    band.prop('hammer');
+    if (target.frozen > 0) world.crackIce(target, 2);
+    else world.removeBody(target);
+    state.rings.push({ x: target.x, y: target.y, t: 0, d: .40, r: target.r + 16, color: '#ffe28a', flat: .92 });
+    for (let i = 0; i < 9; i++) speck(target.x, target.y, rand(-95, 95), rand(-95, 50), crew[target.level].light, .38, 2.2, 'star');
+    state.shake = reduced ? 0 : 2.2;
+    state.activeProp = null;
+    hud.syncProps(null, state.mode);
+    hud.floatTip('');
+  }
+
   canvas.addEventListener('pointerdown', e => {
-    if (e.button !== 0 || !e.isPrimary || state.drag || state.phase !== 'playing') return;
+    if (e.button !== 0 || !e.isPrimary || state.phase !== 'playing') return;
+    if (state.drag?.auto) cancelDrag();
+    if (state.drag) return;
     const p = point(e);
     if (state.activeProp === 'hammer') {
       // Allow Hammer to directly whack Boss or smash/thaw any jelly!
       if (world.boss && world.boss.hp > 0 && Math.hypot(p.x - world.boss.x, p.y - world.boss.y) <= world.boss.r * 1.18) {
         e.preventDefault();
-        hud.badgesEarned(profile.useProp('hammer'));
+        hud.badgesEarned(spendProp('hammer'));
         band.prop('hammer');
         world.damageBoss(35, world.boss.x, world.boss.y);
         state.shake = reduced ? 0 : 3.2;
@@ -738,19 +829,7 @@
       const target = world.bodyAt(p);
       if (target) {
         e.preventDefault();
-        hud.badgesEarned(profile.useProp('hammer'));
-        band.prop('hammer');
-        if (target.frozen > 0) {
-          world.crackIce(target, 2);
-        } else {
-          world.removeBody(target);
-        }
-        state.rings.push({ x: target.x, y: target.y, t: 0, d: .40, r: target.r + 16, color: '#ffe28a', flat: .92 });
-        for (let i = 0; i < 9; i++) speck(target.x, target.y, rand(-95, 95), rand(-95, 50), crew[target.level].light, .38, 2.2, 'star');
-        state.shake = reduced ? 0 : 2.2;
-        state.activeProp = null;
-        hud.syncProps(null, state.mode);
-        hud.floatTip('');
+        hammerBody(target);
       }
       return;
     }
@@ -804,10 +883,13 @@
   canvas.addEventListener('blur', () => { if (state.drag?.key) cancelDrag(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && state.phase === 'playing') { e.preventDefault(); openPanel('pause'); } });
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && state.phase === 'playing' && (state.shots || state.drag)) openPanel('pause');
+    if (document.hidden && state.phase === 'playing' && (state.shots || state.drag)) {
+      if (state.mode === 'live' && state.autoPlay) cancelDrag();
+      else openPanel('pause');
+    }
     band.active(!document.hidden && state.phase === 'playing'); last = 0; accumulator = 0;
   });
-  window.addEventListener('blur', cancelDrag);
+  window.addEventListener('blur', () => { if (!state.drag?.auto) cancelDrag(); });
 
   function speck(x, y, vx, vy, color, d, size, kind = 'dot') {
     if (state.fx.length < 64) state.fx.push({ x, y, vx, vy, color, d, t: 0, size, kind, rot: rand(-.7, .7) });
@@ -870,7 +952,7 @@
         }
       }
 
-      hud.score(state.score, state.best, true);
+      hud.score(state.score, state.mode === 'live' ? profile.modeBest.endless || profile.stats.record : state.best, true);
       hud.announce(d.name + '合成，得分' + state.score);
       if (e.wild) hud.cheer('彩虹进化！');
       else if (e.beatBoost) hud.cheer('节拍暴击 ×2！');
@@ -879,14 +961,15 @@
       band.merge(level, state.combo);
       if (profile.haptics) pulses.pulse(level, state.combo);
 
-      const mergeRes = profile.merge(level, state.combo, state.score);
-      hud.badgesEarned(mergeRes.earned);
-
-      if (mergeRes.isNewDiscovery) {
-        profile.addCoins(50);
-        state.newCharPending = true;
-        state.newCharTimer = 6.5;
-        hud.showNewCharBanner(d.name);
+      if (state.mode !== 'live') {
+        const mergeRes = profile.merge(level, state.combo, state.score);
+        hud.badgesEarned(mergeRes.earned);
+        if (mergeRes.isNewDiscovery) {
+          profile.addCoins(50);
+          state.newCharPending = d.name;
+          state.newCharTimer = 6.5;
+          hud.showNewCharBanner(d.name);
+        }
       }
 
       state.bridges.push({ x1: e.a.x, y1: e.a.y, x2: e.b.x, y2: e.b.y, body: b, r: e.a.r, color: crew[Math.min(crew.length - 1, e.a.level)].color, t: 0, d: .22 });
@@ -901,7 +984,7 @@
       hud.updateGoalBar(state.mode, state.levelObj, state, world);
 
       if (state.mode === 'campaign') checkCampaignWin();
-      else if (level === crew.length - 1) state.finish = 'win';
+      else if (state.mode !== 'live' && level === crew.length - 1) state.finish = 'win';
       else if (state.mode === 'endless' && level === 10 && !state.encore) {
         state.encore = true;
         hud.cheer('合出 1024！');
@@ -961,6 +1044,82 @@
     pick.setFrozen(layers);
     state.rings.push({ x: pick.x, y: pick.y, t: 0, d: .45, r: pick.r + 18, color: '#7dd3fc', flat: .95 });
     for (let i = 0; i < 6; i++) speck(pick.x, pick.y, rand(-60, 60), rand(-60, 20), '#bae6fd', .38, 2.0, 'star');
+  }
+
+  function rescueLivePile(urgent = false) {
+    const threatened = world.bodies.filter(b => b.landed && b.top < WARNING_Y + (urgent ? 4 : 30));
+    if (!threatened.length) return false;
+    cancelDrag();
+    if (threatened.length > 1 && world.bodies.length >= 6 && (urgent || Math.random() < .72)) {
+      activateProp('sweep');
+    } else {
+      const highest = threatened.reduce((a, b) => a.top < b.top ? a : b);
+      hammerBody(highest);
+      hud.cheer('小锤子！');
+    }
+    state.over = 0;
+    state.autoRescueAt = state.time + rand(3.1, 6.3);
+    state.autoAt = state.time + rand(.57, 1.40);
+    return true;
+  }
+
+  function releaseAutoShot(drag) {
+    const slot = drag.slot;
+    fire();
+    state.autoSlot = slot;
+    state.autoAt = state.time + Jelly.livePlayer.nextDelay();
+  }
+
+  function tickAutoPlay() {
+    const drag = state.drag;
+    if (state.activeProp || (drag && !drag.auto)) return;
+    if (state.over > .40 && state.time >= state.autoRescueAt && rescueLivePile()) return;
+
+    if (drag) {
+      const elapsed = state.time - drag.started;
+      const points = drag.path;
+      const next = points.findIndex(p => p.at > elapsed);
+      if (next < 0) {
+        const end = points.at(-1);
+        Object.assign(drag, { angle: end.angle, power: end.power, valid: true });
+        releaseAutoShot(drag);
+      } else {
+        const from = points[next - 1], to = points[next];
+        const t = (elapsed - from.at) / (to.at - from.at);
+        const eased = t * t * (3 - 2 * t);
+        drag.angle = from.angle + (to.angle - from.angle) * eased;
+        drag.power = from.power + (to.power - from.power) * eased;
+        drag.valid = drag.power > .018;
+      }
+      return;
+    }
+    if (state.time < state.autoAt) return;
+    if (world.bodies.some(b => !b.landed && b.age < .55) && Math.random() < .79) {
+      state.autoAt = state.time + rand(.14, .52);
+      return;
+    }
+    const available = [0, 1, 2].filter(canFireSlot);
+    if (!available.length) { state.autoAt = state.time + rand(.18, .42); return; }
+    const shot = Jelly.livePlayer.chooseShot(world, state.slots, rackY, available, launchSpeed, state.autoSlot);
+    state.choice = shot.slot;
+    if (state.time >= state.autoPropAt) {
+      if (!shot.matches && !state.slots.some(s => s.wild) && world.bodies.length >= 4) {
+        activateProp('wild');
+        state.autoAt = state.time + rand(.40, .90);
+        state.autoPropAt = state.time + rand(9, 23);
+        return;
+      }
+      if (shot.matches && Math.random() < .42) activateProp('freeze');
+      state.autoPropAt = state.time + rand(6.5, 20);
+    }
+    keyMarker = false;
+    if (shot.drop) {
+      state.drag = { ...shot, valid: true, auto: true };
+      releaseAutoShot(state.drag);
+    } else {
+      const path = Jelly.livePlayer.aimPath(shot);
+      state.drag = { slot: shot.slot, angle: 0, power: 0, valid: false, auto: true, started: state.time, path };
+    }
   }
 
   function tick() {
@@ -1074,7 +1233,7 @@
     }
 
     // Periodic HUD clock refresh
-    const hudSec = Math.floor(state.elapsed);
+    const hudSec = state.mode === 'live' ? state.lastHudSec : Math.floor(state.elapsed);
     if (hudSec !== state.lastHudSec) {
       state.lastHudSec = hudSec;
       hud.updateGoalBar(state.mode, state.levelObj, state, world);
@@ -1106,16 +1265,21 @@
     state.over = over ? state.over + DT : 0;
     hud.danger(state.over > .20);
 
-    const shouldShowSave = !state.emergencyUsed && state.over > 0.55;
+    const shouldShowSave = state.mode !== 'live' && !state.emergencyUsed && state.over > 0.55;
     if (shouldShowSave !== state.emergencyVisible) {
       state.emergencyVisible = shouldShowSave;
       hud.showEmergencySave(shouldShowSave);
     }
 
+    if (state.mode === 'live' && state.autoPlay) tickAutoPlay();
+
     const failLimit = state.mode === 'endless' ? 1.65 : 2.05;
     if (state.finish) { const result = state.finish; state.finish = null; end(result); }
     else if (state.over > failLimit) {
-      if (state.mode === 'endless' && !state.revived) {
+      if (state.mode === 'live') {
+        if (state.autoPlay) rescueLivePile(true);
+        else end('loss');
+      } else if (state.mode === 'endless' && !state.revived) {
         cancelDrag();
         state.activeProp = null;
         hud.danger(false);

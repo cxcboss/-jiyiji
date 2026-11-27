@@ -411,6 +411,10 @@
       this.scoreNodes = $$('[data-score]');
       this.bestNodes = $$('[data-best]');
       this.coinNodes = $$('[data-coins]');
+      this.propButtons = $$('.prop-btn[data-prop]').map(button => ({
+        button, id: button.dataset.prop, title: button.title, canvas: button.querySelector('canvas'),
+        label: button.querySelector('.prop-label'), badge: button.querySelector('.prop-count')
+      }));
       this.toastTimer = 0;
       this.tipTimer = 0;
       this.wardrobeTab = 'skin';
@@ -431,6 +435,7 @@
       bind('#sound', actions.sound);
       bind('#numToggle', actions.toggleNumbers);
       bind('#start', actions.start);
+      bind('#startLive', actions.startLive);
 
       bind('#sleeveBox', () => { this.coverHop = 1; actions.pokeMascot?.(); });
 
@@ -456,7 +461,7 @@
       if (c) { c.dataset.icon = on ? 'num' : 'num_off'; icon(c); }
     }
 
-    syncHome(hasRun) {
+    syncHome(hasRun, hasLiveRun = false) {
       const p = this.progress;
       this.coinNodes.forEach(n => n.textContent = p.coins);
       this.bestNodes.forEach(n => n.textContent = p.modeBest.endless || p.stats.record);
@@ -465,27 +470,39 @@
       const wheelDot = $('#wheelDot'); if (wheelDot) wheelDot.hidden = !p.canFreeWheel();
       const badgeDot = $('#badgeDot'); if (badgeDot) badgeDot.hidden = p.unclaimedBadges().length === 0;
       $('#startLabel').textContent = hasRun ? '继续游戏' : '开始游戏';
+      $('#startLiveLabel').textContent = hasLiveRun ? '继续直播关卡' : '直播关卡';
     }
 
-    syncProps(activePropId = null) {
-      const p = this.progress;
-      $$('.prop-btn[data-prop]').forEach(btn => {
-        const id = btn.dataset.prop;
-        const count = p.props[id] || 0;
-        const badge = btn.querySelector('.prop-count');
-        const label = btn.querySelector('.prop-label');
-        if (id === 'freeze' && label) label.textContent = '双倍冻';
-        if (badge) {
-          badge.textContent = String(count);
-          badge.classList.toggle('is-empty', count <= 0);
+    setMode(mode) {
+      $('#gameView').dataset.mode = mode;
+      $('#liveStatus').hidden = mode !== 'live';
+    }
+
+    syncProps(activePropId = null, mode = 'endless') {
+      const live = mode === 'live';
+      for (const { button, id, title, canvas, label, badge } of this.propButtons) {
+        const sweep = live && id === 'lift';
+        button.dataset.prop = sweep ? 'sweep' : id;
+        if (id === 'lift' || id === 'freeze') {
+          const labelText = id === 'lift' ? (live ? '清场鼓' : '抬杠') : (live ? '双倍分' : '双倍冻');
+          label.textContent = labelText;
+          const iconName = id === 'lift' ? (live ? 'disc' : 'lift') : (live ? 'merge' : 'snow');
+          if (canvas.dataset.icon !== iconName) { canvas.dataset.icon = iconName; icon(canvas); }
+          button.title = !live ? title : sweep ? '移走最高的 4 个果冻，至少留下 2 个' : '合成得分翻倍';
         }
-        btn.classList.toggle('is-active', activePropId === id);
-      });
+        const count = this.progress.props[id] || 0;
+        badge.textContent = live ? '∞' : String(count);
+        badge.classList.toggle('is-empty', !live && count <= 0);
+        button.classList.toggle('is-active', activePropId === id);
+        const name = label.textContent;
+        button.setAttribute('aria-label', live ? `${name}，免费使用` : `${name}，剩余 ${count} 个`);
+      }
     }
 
     updateTimer() {}
 
     updateGoalBar(mode, levelObj, state) {
+      if (mode === 'live') return;
       const sec = Math.floor(state.elapsed || 0);
       const m = Math.floor(sec / 60), rem = sec % 60;
       const timeEl = $('#hudTime');
@@ -526,12 +543,12 @@
       b.querySelectorAll('[data-icon]').forEach(e => icon(e));
     }
 
-    home(show, hasRun) {
+    home(show, hasRun, hasLiveRun = false) {
       $('#home').hidden = !show;
       $('#gameView').inert = show;
       $('#gameView').setAttribute('aria-hidden', String(show));
       $('#gameView').classList.toggle('behind', show);
-      if (show) { this.syncHome(hasRun); this.paint(0, true); this.refresh(); }
+      if (show) { this.syncHome(hasRun, hasLiveRun); this.paint(0, true); this.refresh(); }
     }
 
     refresh() { $$('[data-icon]').forEach(e => icon(e)); this.paint(0, true); }
@@ -978,12 +995,12 @@
         settings: '游戏设置',
         help: '玩法说明',
         guide: '角色图鉴',
-        pause: '游戏暂停',
+        pause: game.mode === 'live' ? '直播关卡暂停' : '游戏暂停',
         prop_ad_prompt: '获取道具',
         confirm_restart: '重新开始',
         confirm_home: '返回主页',
         revive_prompt: '快挤满舞台啦！',
-        loss: '本局结束',
+        loss: game.mode === 'live' ? '堆叠越线' : '本局结束',
         win: '终极黑胶达成！'
       };
       $('#dialogClose').hidden = !['skins', 'checkin', 'wheel', 'badges', 'guide', 'settings', 'help'].includes(page);
@@ -1015,6 +1032,7 @@
         line.append(element('div', 'result-score', String(game.score)), sticker);
         this.body.append(element('p', 'sheet-note', '得分'), line);
         this.modalTiles.push({ canvas: sticker, level: game.slots[game.choice]?.level || 0 });
+        this.setting('自动玩', game.mode === 'live' ? '' : '开启后进入直播关卡', game.autoPlay, this.actions.setAutoPlay);
         this.button('继续游戏', this.actions.dismiss);
         this.button('重新开始', () => this.actions.panel('confirm_restart'), 'secondary');
         this.button('更换装扮', () => this.actions.panel('skins'), 'secondary');
@@ -1050,10 +1068,8 @@
         const hero = this.addResultHero(Math.max(0, game.maxLevel || 0), 'sad');
         const sec = Math.floor(game.elapsed || 0);
         const timeStr = `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
-        hero.append(
-          element('div', 'result-score', String(game.score)),
-          element('p', 'sheet-note', `坚持 ${timeStr} · 最高 ${game.best} · 获得 +${game.earnedCoins || 0} 币`)
-        );
+        hero.append(element('div', 'result-score', String(game.score)));
+        if (game.mode !== 'live') hero.append(element('p', 'sheet-note', `坚持 ${timeStr} · 最高 ${game.best} · 获得 +${game.earnedCoins || 0} 币`));
         if (!game.doubledCoins && game.earnedCoins > 0) this.button(`双倍领币 (+${game.earnedCoins})`, () => this.actions.adDoubleCoins(), 'ad-btn', 'video');
         this.button('再来一局', this.actions.restart);
         this.button('回主页', this.actions.home, 'secondary');

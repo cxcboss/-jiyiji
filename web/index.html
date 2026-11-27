@@ -14,15 +14,16 @@
   <link rel="icon" href="assets/icon.png">
   <link rel="preload" href="assets/crew-cartoon.webp?v=13" as="image">
   <link rel="stylesheet" href="style.css?v=28">
-  <link rel="stylesheet" href="club.css?v=28">
+  <link rel="stylesheet" href="club.css?v=29">
   <script defer src="js/cast.js?v=27"></script>
   <script defer src="js/physics.js?v=27"></script>
   <script defer src="js/ads.js?v=27"></script>
   <script defer src="js/characters.js?v=27"></script>
   <script defer src="js/progress.js?v=27"></script>
   <script defer src="js/sound.js?v=27"></script>
-  <script defer src="js/interface.js?v=28"></script>
-  <script defer src="js/game.js?v=28"></script>
+  <script defer src="js/interface.js?v=29"></script>
+  <script defer src="js/live-player.js?v=29"></script>
+  <script defer src="js/game.js?v=29"></script>
 </head>
 <body data-state="home" data-skin="cartoon" data-stage="cartoon">
   <div class="ambient" aria-hidden="true"></div>
@@ -77,6 +78,8 @@
           <span class="start-meter" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         </button>
 
+        <button id="startLive" class="start-live" type="button"><span id="startLiveLabel">直播关卡</span></button>
+
         <div class="home-dock">
           <button id="homeSkins" class="dock-btn dock-skin">
             <span class="dock-icon"><canvas data-icon="layers"></canvas></span>
@@ -99,6 +102,7 @@
       <header class="game-top" aria-label="对局信息栏">
         <div class="hud-top-strip">
           <button id="pause" class="hud-pause" aria-label="暂停游戏" title="暂停游戏"><canvas data-icon="pause"></canvas></button>
+          <span id="liveStatus" class="live-status" hidden>点击下方小卡片可以玩主播同款游戏</span>
           <div class="hud-status-bar">
             <span id="hudPhase" class="hud-phase-pill">热身节奏</span>
             <i class="hud-sep" aria-hidden="true"></i>
